@@ -131,6 +131,9 @@ namespace stats
         {"CON", 1.2f}, ///?
     };
 
+    ///1 con = con_to_hp hp
+    float con_to_hp = 0.1f;
+
     ///needs to be kept brief, monsters must have consistently defined stats
     std::vector<std::string> monsternames =
     {
@@ -140,7 +143,7 @@ namespace stats
         "SLIME"
     };
 
-    std::vector<std::string> item_class =
+    std::vector<std::string> weapon_class =
     {
         "SWORD",
         "BOW",
@@ -150,83 +153,33 @@ namespace stats
         "LUTE" ///smack that bitch p
     };
 
-    std::map<std::string, std::string> weapon_class_to_primary_stat =
+    std::vector<std::string> item_class =
     {
-        {"SWORD", "STR"},
-        {"BOW", "DEX"},
-        {"WIZARD STAFF", "INT"},
-        {"MACE", "STR"},
-        {"KNUCKLE DUSTERS", "WIS"},
-        {"LUTE", "CHA"},
+        "POTION",
+        "AMULET",
+        "RING",
+        "HAT",
+        "GLOVES",
+        "CHESTPLATE",
+        "LEGGINGS"
     };
 
-    float damage_to_hp_conversion = 0.1f;
+    std::map<int, std::string> weapon_class_to_primary_stat =
+    {
+        {0, "STR"},
+        {1, "DEX"},
+        {2, "INT"},
+        {3, "STR"},
+        {4, "WIS"},
+        {5, "CHA"},
+    };
+
+    float damage_to_hp_conversion = 0.3f;
 }
 
-struct item
+struct stattable
 {
-    std::vector<base_stat> stat_boosts;
-
-    ///times base_stat
-    float attack_boost_hp_flat = 0.f;
-
-    ///(character stat + stat_boost)/10 * attack_boost_hp_flat
-    std::string primary_stat;
-    std::string item_class;
-};
-
-struct combat_entity
-{
-    float hp = 1.f;
-    float hp_max = 1.f;
-    int team = 0;
-
-    virtual void init();
-
-    virtual float calculate_damage();
-
-    ///me->calculate_damage() / them->calculate_def_damage_divisor
-    virtual float calculate_def_damage_divisor();
-
-    virtual void attack(combat_entity* entity)
-    {
-        float my_damage = calculate_damage();
-
-        float their_def = entity->calculate_def_damage_divisor();
-
-        float dam = my_damage / their_def;
-
-        dam *= stats::damage_to_hp_conversion;
-
-        entity->modify_hp(-dam);
-    }
-
-    virtual ~combat_entity()
-    {
-
-    }
-
-    void modify_hp(float hp_change)
-    {
-        hp += hp_change;
-    }
-
-    void set_team(int _team)
-    {
-        team = _team;
-    }
-};
-
-struct character : combat_entity
-{
-    int cur_level = 1;
-
     std::vector<base_stat> stats;
-
-    std::string name;
-    std::string classname;
-    std::string primary_stat;
-    std::string race;
 
     int stat_id(const std::string& key)
     {
@@ -271,12 +224,207 @@ struct character : combat_entity
         return -1.f;
     }
 
-    void init()
+    std::string stat_display()
+    {
+        std::string ret;
+
+        for(auto& i : stats)
+        {
+            if(i.val > 0)
+            {
+                ret = ret + "+" + std::to_string((int)i.val) + " " + i.key + " ";
+            }
+        }
+
+        return ret;
+    }
+
+    float get_total()
+    {
+        float v = 0.f;
+
+        for(auto& i : stats)
+        {
+            v += i.val;
+        }
+
+        return v;
+    }
+
+    void init_stats(float to_what)
     {
         for(int i=0; i<(int)stats::stat_names.size(); i++)
         {
-            stats.push_back({stats::stat_names[i], 10.f});
+            stats.push_back({stats::stat_names[i], to_what});
         }
+    }
+};
+
+struct item : stattable
+{
+    ///times base_stat
+    float attack_boost_hp_flat = 0.f;
+
+    ///(character stat + stat_boost)/10 * attack_boost_hp_flat
+    std::string primary_stat;
+    std::string item_class;
+    std::string description;
+    int weapon_class = -1;
+
+    void set_attack_boost(float hp)
+    {
+        attack_boost_hp_flat = hp;
+    }
+
+    item()
+    {
+        init_stats(0.f);
+    }
+
+    void init_weapon_class(int id, float extra_hp_damage)
+    {
+        weapon_class = id;
+
+        primary_stat = stats::weapon_class_to_primary_stat[weapon_class];
+        item_class = stats::weapon_class[weapon_class];
+
+        set_attack_boost(extra_hp_damage);
+    }
+
+    void init_stat_boosts(const std::vector<base_stat>& extra_stats)
+    {
+        for(auto& s : extra_stats)
+        {
+            modify_stat_val(s.key, s.val);
+        }
+    }
+
+    void init_item(int id)
+    {
+        if(id >= stats::item_class.size())
+        {
+            printf("what in init_item %i\n", id);
+            return;
+        }
+
+        item_class = stats::item_class[id];
+    }
+
+    void set_description(const std::string& desc)
+    {
+        description = desc;
+    }
+
+    std::string display()
+    {
+        std::string ret;
+
+        std::string stat_string = stat_display();
+
+        ret = item_class;
+
+        if(stat_string.size() > 0)
+            ret = ret + " of " + stat_display() + "\n";// + description;
+
+        std::string first_letter = stat_string.size() > 0 ? "D" : " d";
+
+        if(weapon_class != -1)
+        {
+            ret = ret + first_letter + "ealing an extra " + std::to_string(attack_boost_hp_flat) + " hp of damage\n";
+        }
+
+        ret = ret + description;
+
+        return ret;
+    }
+
+    void random_magical(int extra_stats)
+    {
+        std::vector<int> ids;
+
+        for(int i=0; i<extra_stats; i++)
+        {
+            ids.push_back(randf<1, int>(0, stats.size()));
+        }
+
+        for(auto& i : ids)
+        {
+            stats[i].val += 1;
+        }
+    }
+};
+
+struct item_manager
+{
+    std::vector<item*> items;
+
+    item* make_new()
+    {
+
+    }
+};
+
+struct combat_entity
+{
+    float hp = 1.f;
+    float hp_max = 1.f;
+    int team = 0;
+
+    //virtual void init();
+
+    virtual float calculate_damage();
+
+    ///me->calculate_damage() / them->calculate_def_damage_divisor
+    virtual float calculate_def_damage_divisor();
+
+    virtual void attack(combat_entity* entity)
+    {
+        float my_damage = calculate_damage();
+
+        float their_def = entity->calculate_def_damage_divisor();
+
+        float dam = my_damage / their_def;
+
+        dam *= stats::damage_to_hp_conversion;
+
+        entity->modify_hp(-dam);
+    }
+
+    virtual ~combat_entity()
+    {
+
+    }
+
+    void modify_hp(float hp_change)
+    {
+        hp += hp_change;
+    }
+
+    void set_team(int _team)
+    {
+        team = _team;
+    }
+};
+
+struct character : combat_entity, stattable
+{
+    int cur_level = 1;
+
+    std::string name;
+    std::string classname;
+    std::string primary_stat;
+    std::string race;
+
+    character()
+    {
+        init_stats(10.f);
+    }
+
+    void recalculate_hp()
+    {
+        ///old /hp_max = stats::primary_stat_to_hp_mult[primary_stat];
+
+        hp_max = stats::con_to_hp * get_stat_val("CON") * stats::primary_stat_to_hp_mult[primary_stat];
     }
 
     ///perhaps rand_stats_with_primary, for monsters?
@@ -303,7 +451,7 @@ struct character : combat_entity
 
         primary_stat = stats::class_to_damage_stat[classname];
 
-        hp_max = stats::primary_stat_to_hp_mult[primary_stat];
+        recalculate_hp();
         hp = hp_max;
     }
 
@@ -317,7 +465,7 @@ struct character : combat_entity
 
         rebalance(primary_stat, rebal_stat);
 
-        hp_max = stats::primary_stat_to_hp_mult[primary_stat];
+        recalculate_hp();
         hp = hp_max;
     }
 
@@ -392,6 +540,8 @@ struct character : combat_entity
     void level(int level_stat)
     {
         stats[level_stat].val += 1.f;
+
+        recalculate_hp();
     }
 
     void auto_level()
@@ -407,6 +557,13 @@ struct character : combat_entity
     {
         return hp <= 0.f;
     }
+
+    float get_difficulty()
+    {
+        //std::cout << "psfval " + std::to_string(get_stat_val(primary_stat));
+
+        return get_total() * 0.1f + get_stat_val(primary_stat) + get_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat];
+    }
 };
 
 struct entity_manager
@@ -419,7 +576,7 @@ struct entity_manager
     {
         character* c = new character;
 
-        c->init();
+        //c->init();
         c->set_team(team);
 
         //c->rand_stats();
@@ -457,6 +614,7 @@ struct entity_manager
         if(fight_over())
         {
             printf("Fight over\n");
+            return;
         }
 
         std::map<int, std::vector<character*>> team_to_chars;
@@ -530,6 +688,8 @@ int main()
 
     monster_char->rand_manual_classname("BOAR", "STR", 2);
 
+    monster_char->auto_level();
+
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
@@ -548,6 +708,14 @@ int main()
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
 
+    item nitem;
+
+    nitem.init_weapon_class(0, 0.02f);
+    nitem.random_magical(2);
+
+    std::cout << nitem.display() << std::endl;
+
+    std::cout << std::to_string(monster_char->get_difficulty()) + "xp" << std::endl;
 
     /*std::cout << monster_char->display() << std::endl;
 
