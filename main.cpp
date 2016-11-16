@@ -158,11 +158,11 @@ namespace stats
     ///sadly these need to be vaguely sensible
     std::vector<std::string> classnames =
     {
-        "FIGHTER", ///fine
-        "PRIEST", ///fine
-        "WIZARD",
-        "BARD",
-        "RANGER", ///fineish
+        "FIGHTER", ///fine. High damage direct
+        "PRIEST", ///fine. Heal teammates
+        "WIZARD", ///fine. AOE damage
+        "BARD", ///Done. Blocks damage to teammates at very low chance
+        "RANGER", ///fineish. High dodge, hard to hit
         //"STAFF" ///better at being general staff?
     };
 
@@ -259,8 +259,9 @@ namespace stats
     float damage_to_hp_conversion = 0.2f;
 
     ///maximum dodge stat = 40% dodge
-    float dodge_stat_to_percent_dodge = 0.02;
-    float defence_stat_to_percent_block = 0.06;
+    float dodge_stat_to_percent_dodge = 0.02f;
+    float defence_stat_to_percent_block = 0.06f;
+    float cha_intercept_to_percent_block = 0.01f;
 
     float damage_taken_through_block = 0.3f;
 
@@ -730,6 +731,14 @@ struct character : combat_entity, stattable
         return get_item_modified_stat_val("DEF") * stats::defence_stat_to_percent_block;
     }
 
+    float get_intercept_chance()
+    {
+        if(primary_stat != "CHA")
+            return 0.f;
+
+        return get_item_modified_stat_val("CHA") * stats::cha_intercept_to_percent_block;
+    }
+
     float get_item_modified_stat_val(const std::string& key)
     {
         float val = get_stat_val(key);
@@ -872,6 +881,8 @@ struct character : combat_entity, stattable
 
         str = str + "Dodge chance: " + to_string_prec(get_dodge_chance() * 100, 4) + "%\n";
         str = str + "Defence chance: " + to_string_prec(get_block_chance() * 100, 4) + "%\n";
+        str = str + "Intervene chance: " + to_string_prec(get_intercept_chance() * 100, 4) + "%\n";
+
         str = str + "Heal per tick: " + to_string_prec(get_teammate_heal(), 3) + "\n";
 
         str = str + "Total: " + to_string_prec(total, 3) + "\n";
@@ -1000,8 +1011,24 @@ struct entity_manager
         return true;
     }
 
-    std::string get_battle_message(int res, character* c1, character* c2, float real_damage)
+    struct attack_result
     {
+        int res;
+        character* c1;
+        character* c2;
+        float real_damage;
+
+        std::vector<character*> savers_of_c2;
+        float reduction = 1.f;
+    };
+
+    std::string get_battle_message(attack_result r)
+    {
+        character* c1 = r.c1;
+        character* c2 = r.c2;
+        int res = r.res;
+        float real_damage = r.real_damage;
+
         std::string ret;
 
         if(res == 2 || res == 3)
@@ -1037,6 +1064,23 @@ struct entity_manager
             {
                 ret = ret + ", killing them";
             }
+        }
+
+        ret = ret + ". ";
+
+        if(r.reduction < 1)
+        {
+            for(int i=0; i<r.savers_of_c2.size(); i++)
+            {
+                ret = ret + r.savers_of_c2[i]->name;
+
+                if(i < r.savers_of_c2.size()-1)
+                    ret = ret + " and ";
+                else
+                    ret = ret + " ";
+            }
+
+            ret = ret + "intervened to reduce the damage against " + c2->name + " to " + to_string_prec(r.reduction * 100) + "%\n";
         }
 
         return ret;
@@ -1102,7 +1146,45 @@ struct entity_manager
         return res;
     }
 
-    void attack_single_random(character* c, std::vector<std::tuple<int, character*, character*, float>>& this_tick_results)
+
+    std::tuple<float, std::vector<character*>> check_intercept_against(character* c)
+    {
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        int cteam = half_turn_counter % 2;
+        int oteam = 1 - cteam;
+
+        std::vector<character*> valid_saver_teammates;
+
+        for(int kk=0; kk < team_to_chars[oteam].size(); kk++)
+        {
+            if(!team_to_chars[oteam][kk]->is_dead())
+                valid_saver_teammates.push_back(team_to_chars[oteam][kk]);
+        }
+
+        std::vector<character*> saving_teammates;
+
+        float reduction_mult = 1.f;
+
+        for(int i=0; i<valid_saver_teammates.size(); i++)
+        {
+            if(randf_s(0.f, 1.f) < valid_saver_teammates[i]->get_intercept_chance())
+            {
+                reduction_mult *= stats::damage_taken_through_block;
+
+                saving_teammates.push_back(valid_saver_teammates[i]);
+            }
+        }
+
+        return std::tie(reduction_mult, saving_teammates);
+    }
+
+    void attack_single_random(character* c, std::vector<attack_result>& this_tick_results)
     {
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -1128,14 +1210,29 @@ struct entity_manager
 
         character* enemy = valid_enemies[rand_num];
 
+
+        float reduction_mult;
+        std::vector<character*> chars;
+
+        std::tie(reduction_mult, chars) = check_intercept_against(enemy);
+
         float out_dam = 0.f;
 
-        int res = c->attack(enemy, c->calculate_damage(), out_dam);
+        int res = c->attack(enemy, c->calculate_damage() * reduction_mult, out_dam);
 
-        this_tick_results.push_back(std::tie(res, c, enemy, out_dam));
+        attack_result result;
+
+        result.res = res;
+        result.c1 = c;
+        result.c2 = enemy;
+        result.reduction = reduction_mult;
+        result.savers_of_c2 = chars;
+        result.real_damage = out_dam;
+
+        this_tick_results.push_back(result);
     }
 
-    void attack_all(character* c, std::vector<std::tuple<int, character*, character*, float>>& this_tick_results)
+    void attack_all(character* c, std::vector<attack_result>& this_tick_results)
     {
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -1151,11 +1248,25 @@ struct entity_manager
         {
             character* enemy = team_to_chars[other_team][i];
 
+            float reduction_mult;
+            std::vector<character*> chars;
+
+            std::tie(reduction_mult, chars) = check_intercept_against(enemy);
+
             float out_dam = 0.f;
 
-            int res = c->attack(enemy, c->calculate_group_damage(), out_dam);
+            int res = c->attack(enemy, c->calculate_group_damage() * reduction_mult, out_dam);
 
-            this_tick_results.push_back(std::tie(res, c, enemy, out_dam));
+            attack_result result;
+
+            result.res = res;
+            result.c1 = c;
+            result.c2 = enemy;
+            result.reduction = reduction_mult;
+            result.savers_of_c2 = chars;
+            result.real_damage = out_dam;
+
+            this_tick_results.push_back(result);
         }
     }
 
@@ -1167,7 +1278,7 @@ struct entity_manager
             return;
         }
 
-        std::vector<std::tuple<int, character*, character*, float>> this_tick_results;
+        std::vector<attack_result> this_tick_results;
 
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -1201,14 +1312,7 @@ struct entity_manager
 
         for(auto& i : this_tick_results)
         {
-            int res;
-            character* initiator;
-            character* target;
-            float real_damage;
-
-            std::tie(res, initiator, target, real_damage) = i;
-
-            std::cout << get_battle_message(res, initiator, target, real_damage) << std::endl;
+            std::cout << get_battle_message(i) << std::endl;
         }
 
         std::string str = process_heals(cteam);
