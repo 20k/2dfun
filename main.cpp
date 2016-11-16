@@ -653,7 +653,7 @@ struct combat_entity
     virtual float calculate_def_damage_divisor(){return 0.f;};
 
     ///0 -> miss, 1 -> hit, 2 -> dodge, 3 -> block
-    virtual int attack(combat_entity* entity)
+    virtual int attack(combat_entity* entity, float my_damage, float& out_damage)
     {
         float dodge_chance = get_dodge_chance();
 
@@ -661,8 +661,6 @@ struct combat_entity
         {
             return 2;
         }
-
-        float my_damage = calculate_damage();
 
         float their_def = entity->calculate_def_damage_divisor();
 
@@ -680,6 +678,8 @@ struct combat_entity
 
             ret = 3;
         }
+
+        out_damage = dam;
 
         entity->modify_hp(-dam);
 
@@ -1000,7 +1000,7 @@ struct entity_manager
         return true;
     }
 
-    std::string get_battle_message(int res, character* c1, character* c2)
+    std::string get_battle_message(int res, character* c1, character* c2, float real_damage)
     {
         std::string ret;
 
@@ -1009,11 +1009,16 @@ struct entity_manager
             ret = c2->name + " ";
 
             if(res == 2)
-                ret = ret + "dodged ";
+                ret = ret + "dodges ";
             else
-                ret = ret + "blocked ";
+                ret = ret + "blocks ";
 
             ret = ret + c1->name + "'s attack!";
+
+            if(res == 3)
+            {
+                ret = ret + " " + to_string_prec(real_damage, 3) + " damage made it through " + c2->name + "'s guard";
+            }
         }
         else if(res == 1)
         {
@@ -1025,6 +1030,8 @@ struct entity_manager
             {
                 ret = c1->name + " strikes " + c2->name + " with their " + c1->invent.get_weapon_name();
             }
+
+            ret = ret + " dealing " + to_string_prec(real_damage, 3) + " damage";
 
             if(c2->is_dead())
             {
@@ -1095,7 +1102,7 @@ struct entity_manager
         return res;
     }
 
-    void attack_single_random(character* c, std::vector<std::tuple<int, character*, character*>>& this_tick_results)
+    void attack_single_random(character* c, std::vector<std::tuple<int, character*, character*, float>>& this_tick_results)
     {
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -1108,25 +1115,6 @@ struct entity_manager
         int other_team = 1 - cteam;
 
         int other_team_num = team_to_chars[other_team].size();
-
-        int random_enemy = -1;
-        character* enemy = nullptr;
-        bool any = false;
-
-        /*for(int kk=0; kk < other_team_num; kk++)
-        {
-            random_enemy = randf<1, int>(0, other_team_num);
-            enemy = team_to_chars[other_team][random_enemy];
-
-            if(!enemy->is_dead())
-            {
-                any = true;
-                break;
-            }
-        }
-
-        if(!any)
-            return;*/
 
         std::vector<character*> valid_enemies;
 
@@ -1138,11 +1126,37 @@ struct entity_manager
 
         int rand_num = randf<1, int>(0, valid_enemies.size());
 
-        enemy = valid_enemies[rand_num];
+        character* enemy = valid_enemies[rand_num];
 
-        int res = c->attack(enemy);
+        float out_dam = 0.f;
 
-        this_tick_results.push_back(std::tie(res, c, enemy));
+        int res = c->attack(enemy, c->calculate_damage(), out_dam);
+
+        this_tick_results.push_back(std::tie(res, c, enemy, out_dam));
+    }
+
+    void attack_all(character* c, std::vector<std::tuple<int, character*, character*, float>>& this_tick_results)
+    {
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        int cteam = half_turn_counter % 2;
+        int other_team = 1 - cteam;
+
+        for(int i=0; i<team_to_chars[other_team].size(); i++)
+        {
+            character* enemy = team_to_chars[other_team][i];
+
+            float out_dam = 0.f;
+
+            int res = c->attack(enemy, c->calculate_group_damage(), out_dam);
+
+            this_tick_results.push_back(std::tie(res, c, enemy, out_dam));
+        }
     }
 
     void resolve_half_turn()
@@ -1153,7 +1167,7 @@ struct entity_manager
             return;
         }
 
-        std::vector<std::tuple<int, character*, character*>> this_tick_results;
+        std::vector<std::tuple<int, character*, character*, float>> this_tick_results;
 
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -1165,8 +1179,6 @@ struct entity_manager
         int cteam = half_turn_counter % 2;
         int other_team = 1 - cteam;
 
-        int other_team_num = team_to_chars[other_team].size();
-
         for(int i=0; i<team_to_chars[cteam].size(); i++)
         {
             character* ccharacter = team_to_chars[cteam][i];
@@ -1174,30 +1186,12 @@ struct entity_manager
             if(ccharacter->is_dead())
                 continue;
 
-            /*int random_enemy = -1;
-            character* enemy = nullptr;
-            bool any = false;
+            ///should i do the intelligent thing here and do the best attack?
+            if(ccharacter->calculate_group_damage() == 0)
+                attack_single_random(ccharacter, this_tick_results);
 
-            for(int kk=0; kk < other_team_num; kk++)
-            {
-                random_enemy = randf<1, int>(0, other_team_num);
-                enemy = team_to_chars[other_team][random_enemy];
-
-                if(!enemy->is_dead())
-                {
-                    any = true;
-                    break;
-                }
-            }
-
-            if(!any)
-                continue;
-
-            int res = ccharacter->attack(enemy);
-
-            this_tick_results.push_back(std::tie(res, ccharacter, enemy));*/
-
-            attack_single_random(ccharacter, this_tick_results);
+            if(ccharacter->calculate_group_damage() > 0)
+                attack_all(ccharacter, this_tick_results);
         }
 
         for(auto& i : chars)
@@ -1210,10 +1204,11 @@ struct entity_manager
             int res;
             character* initiator;
             character* target;
+            float real_damage;
 
-            std::tie(res, initiator, target) = i;
+            std::tie(res, initiator, target, real_damage) = i;
 
-            std::cout << get_battle_message(res, initiator, target) << std::endl;
+            std::cout << get_battle_message(res, initiator, target, real_damage) << std::endl;
         }
 
         std::string str = process_heals(cteam);
