@@ -153,7 +153,9 @@ namespace stats
         "WUV-U-YEW-SLUT",
         "ECKS",
         "WHY",
-        "JARED"
+        "JARED",
+        "BRIAN",
+        "EARLICK",
     };
 
     ///sadly these need to be vaguely sensible
@@ -434,6 +436,8 @@ struct stattable
 
 struct item : stattable
 {
+    int id = -1;
+
     ///times base_stat
     float attack_boost_hp_flat = 0.f;
 
@@ -449,9 +453,10 @@ struct item : stattable
         attack_boost_hp_flat = hp;
     }
 
-    item()
+    item(int _id)
     {
         init_stats(0.f);
+        id = _id;
     }
 
     void init_weapon_class(int id, float extra_hp_damage)
@@ -567,9 +572,11 @@ struct item_manager
 {
     std::vector<item*> items;
 
+    int gid = 0;
+
     item* make_new()
     {
-        return new item;
+        return new item(gid++);
     }
 };
 
@@ -819,6 +826,8 @@ struct character : combat_entity, stattable
 
         recalculate_hp();
         hp = hp_max;
+
+        check_forced_classrace();
     }
 
     void rand_manual_classname(const std::string& crace, const std::string& custom_classname, const std::string& pprimary_stat, int rebal_stat = 0)
@@ -834,6 +843,14 @@ struct character : combat_entity, stattable
 
         recalculate_hp();
         hp = hp_max;
+
+        check_forced_classrace();
+    }
+
+    void check_forced_classrace()
+    {
+        if(classname == "DOG")
+            race = "DOG";
     }
 
     void rebalance(const std::string& stat_into, int num)
@@ -913,7 +930,7 @@ struct character : combat_entity, stattable
         if(!is_dead())
             str = str + "HP: " + to_string_prec(hp, 3) + "/" + to_string_prec(hp_max, 3) + "\n";
         else
-            str = str + "KO\n";
+            str = str + "KO (HP max: " + to_string_prec(hp_max, 3) + ")\n";
 
         if(invent.num() != 0)
         {
@@ -1349,6 +1366,48 @@ struct entity_manager
     }
 };
 
+namespace economics
+{
+    /**"
+         Common",
+        "Good Quality",
+        "Uncommon",
+        "Rare",
+        "Ultra rare",
+        "Holy crap!"*/
+    ///see rarity
+    std::vector<int> approx_economic_value
+    {
+        100,
+        200,
+        700,
+        2000,
+        10000,
+        100000
+    };
+
+    ///value for damage scaling
+    float damage_max_value = 10000.f;
+}
+
+struct economic_item
+{
+    float value = 0.f;
+
+    void load_from_item(item* i)
+    {
+        int rarity = i->rarity;
+
+        rarity = std::min(rarity, (int)economics::approx_economic_value.size()-1);
+
+        int nominal_value = economics::approx_economic_value[rarity];
+
+        int value_added_damage = i->attack_boost_hp_flat * economics::damage_max_value;
+
+        value = nominal_value + value_added_damage;
+    }
+};
+
 int main()
 {
     for(int i=0; i<12; i++)
@@ -1366,7 +1425,7 @@ int main()
 
     character* base_char = entity_manage.make_new(0);
 
-    base_char->rand_stats();
+    base_char->rand_manual_classname("DOG", "DOG", "DEX");
 
     base_char->add_to_invent(nitem);
 
