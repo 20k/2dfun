@@ -259,6 +259,12 @@ namespace stats
 
     ///maximum dodge stat = 40% dodge
     float dodge_stat_to_percent_dodge = 0.02;
+    float defence_stat_to_percent_block = 0.06;
+
+    float damage_taken_through_block = 0.3f;
+
+    ///4% per dex
+    float dex_to_dodge_chance = 0.04f;
 }
 
 struct stattable
@@ -390,6 +396,13 @@ struct stattable
     {
         stats = stats::default_stats(to_what);
     }
+
+    float distance_from(const std::string& key, float val)
+    {
+        float fv = get_stat_val(key);
+
+        return fv - val;
+    }
 };
 
 struct item : stattable
@@ -469,6 +482,9 @@ struct item : stattable
         }
 
         ret = ret + description;
+
+        if(ret.back() != '\n')
+            ret.push_back('\n');
 
         return ret;
     }
@@ -551,6 +567,7 @@ struct inventory
         return st;
     }
 
+    ///must be 0 or 1
     int get_weapon_num()
     {
         int n = 0;
@@ -588,23 +605,60 @@ struct inventory
 
         return bonus;
     }
+
+    ///only 1!
+    item* get_weapon()
+    {
+        for(item* i : equipped)
+        {
+            if(i->weapon_class != -1)
+                return i;
+        }
+
+        return nullptr;
+    }
+
+    std::string get_weapon_name()
+    {
+        item* i = get_weapon();
+
+        if(i == nullptr)
+        {
+            return "FISTS";
+        }
+
+        return i->item_class;
+    }
 };
 
 struct combat_entity
 {
+    std::string name;
+
     float hp = 1.f;
     float hp_max = 1.f;
     int team = 0;
 
     //virtual void init();
 
-    virtual float calculate_damage();
+    virtual float get_dodge_chance(){return 0.f;};
+    virtual float get_block_chance(){return 0.f;};
+
+    virtual float calculate_damage(){return 0.f;};
 
     ///me->calculate_damage() / them->calculate_def_damage_divisor
-    virtual float calculate_def_damage_divisor();
+    virtual float calculate_def_damage_divisor(){return 0.f;};
 
-    virtual void attack(combat_entity* entity)
+    ///0 -> miss, 1 -> hit, 2 -> dodge, 3 -> block
+    virtual int attack(combat_entity* entity)
     {
+        float dodge_chance = get_dodge_chance();
+
+        if(randf_s(0.f, 1.f) < dodge_chance)
+        {
+            return 2;
+        }
+
         float my_damage = calculate_damage();
 
         float their_def = entity->calculate_def_damage_divisor();
@@ -613,7 +667,20 @@ struct combat_entity
 
         dam *= stats::damage_to_hp_conversion;
 
+        float block_chance = get_block_chance();
+
+        int ret = 1;
+
+        if(randf_s(0.f, 1.f) < block_chance)
+        {
+            dam *= stats::damage_taken_through_block;
+
+            ret = 3;
+        }
+
         entity->modify_hp(-dam);
+
+        return ret;
     }
 
     virtual ~combat_entity()
@@ -638,7 +705,6 @@ struct character : combat_entity, stattable
 
     int cur_level = 1;
 
-    std::string name;
     std::string classname;
     std::string primary_stat;
     std::string race;
@@ -648,9 +714,14 @@ struct character : combat_entity, stattable
         init_stats(10.f);
     }
 
-    float get_dodge_chance()
+    float get_dodge_chance() override
     {
-        return get_item_modified_stat_val("DGE") * stats::dodge_stat_to_percent_dodge;
+        return get_item_modified_stat_val("DGE") * stats::dodge_stat_to_percent_dodge  + (get_item_modified_stat_val("DEX") - 10.f) * stats::dex_to_dodge_chance;
+    }
+
+    float get_block_chance() override
+    {
+        return get_item_modified_stat_val("DEF") * stats::defence_stat_to_percent_block;
     }
 
     float get_item_modified_stat_val(const std::string& key)
@@ -698,7 +769,7 @@ struct character : combat_entity, stattable
             //printf("stat %i %s\n", val, st.key.c_str());
         }
 
-        set_stat_val("DEF", 10.f);
+        set_stat_val("DEF", 1.f);
         set_stat_val("DGE", 1.f);
 
         race = stats::races[randf<1, int>(0, stats::races.size())];
@@ -793,6 +864,7 @@ struct character : combat_entity, stattable
         }
 
         str = str + "Dodge chance: " + to_string_prec(get_dodge_chance() * 100, 4) + "%\n";
+        str = str + "Defence chance: " + to_string_prec(get_block_chance() * 100, 4) + "%\n";
 
         str = str + "Total: " + to_string_prec(total, 3) + "\n";
 
@@ -809,7 +881,7 @@ struct character : combat_entity, stattable
 
             for(auto& i : invent.equipped)
             {
-                str = str + i->display() + "\n";
+                str = str + i->display();
             }
         }
 
@@ -899,6 +971,43 @@ struct entity_manager
         return true;
     }
 
+    std::string get_battle_message(int res, character* c1, character* c2)
+    {
+        std::string ret;
+
+        if(res == 2 || res == 3)
+        {
+            ret = c2->name + " ";
+
+            if(res == 2)
+                ret = "dodged ";
+            else
+                ret = "blocked ";
+
+            ret = ret + c1->name + "'s attack!";
+        }
+        else if(res == 1)
+        {
+            //ret = c1->name + " strikes " + c2->name + " with their " + c1->invent.get_weapon_name();
+
+            if(c1->invent.get_weapon_name() == "FISTS")
+            {
+                ret = c1->name + " smacks " + c2->name;
+            }
+            else
+            {
+                ret = c1->name + " strikes " + c2->name + " with their " + c1->invent.get_weapon_name();
+            }
+
+            if(c2->is_dead())
+            {
+                ret = ret + ", killing them";
+            }
+        }
+
+        return ret;
+    }
+
     void resolve_half_turn()
     {
         if(fight_over())
@@ -906,6 +1015,8 @@ struct entity_manager
             printf("Fight over\n");
             return;
         }
+
+        std::vector<std::tuple<int, character*, character*>> this_tick_results;
 
         std::map<int, std::vector<character*>> team_to_chars;
 
@@ -945,12 +1056,25 @@ struct entity_manager
             if(!any)
                 continue;
 
-            ccharacter->attack(enemy);
+            int res = ccharacter->attack(enemy);
+
+            this_tick_results.push_back(std::tie(res, ccharacter, enemy));
         }
 
         for(auto& i : chars)
         {
             std::cout << i->display() << std::endl;
+        }
+
+        for(auto& i : this_tick_results)
+        {
+            int res;
+            character* initiator;
+            character* target;
+
+            std::tie(res, initiator, target) = i;
+
+            std::cout << get_battle_message(res, initiator, target) << std::endl;
         }
 
         half_turn_counter++;
