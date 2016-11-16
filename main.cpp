@@ -30,6 +30,54 @@ namespace stats
         "CHA"
     };
 
+    int primary_stat_end = stat_names.size();
+
+    std::vector<std::string> secondary_stats =
+    {
+        "DEF",
+        "DGE", ///not a %, a stat
+    };
+
+    std::vector<int> can_be_a_magical_property =
+    {
+        1, ///str
+        1, ///con
+        1, ///dex
+        1, ///int
+        1, ///wis
+        1, ///cha
+        1, ///def
+        1  ///dodge stat
+    };
+
+    std::vector<base_stat> default_stats(float to_what)
+    {
+        std::vector<base_stat> ret;
+
+        for(auto& i : stat_names)
+        {
+            ret.push_back({i, to_what});
+        }
+
+        for(auto& i : secondary_stats)
+            ret.push_back({i, 0.f});
+
+        return ret;
+    }
+
+    /*
+    std::vector<base_stat> default_secondary_stats(float to_what = 0.f)
+    {
+        std::vector<base_stat> ret;
+
+        for(auto& i : secondary_stats)
+        {
+            ret.push_back({i, 0.f});
+        }
+
+        return ret;
+    }*/
+
     int num = stat_names.size();
 
     std::vector<std::string> races =
@@ -52,7 +100,8 @@ namespace stats
         "BEARINGTON",
         "LEPER",
         "LEPERD",
-        "QUARTERLING"
+        "QUARTERLING",
+        "100% PEAR"
     };
 
     std::vector<std::string> names =
@@ -164,6 +213,7 @@ namespace stats
     ///rand^weapon_find_power
     float weapon_find_power = 3.f;
 
+    ///name potions after alcoholic drinks
     std::vector<std::string> item_class =
     {
         "POTION",
@@ -201,6 +251,32 @@ namespace stats
 struct stattable
 {
     std::vector<base_stat> stats;
+
+    bool is_primary(const std::string& key)
+    {
+        for(auto& i : stats::stat_names)
+        {
+            if(i == key)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool is_secondary(const std::string& key)
+    {
+        for(auto& i : stats::secondary_stats)
+        {
+            if(i == key)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     void add(const std::vector<base_stat>& st)
     {
@@ -288,10 +364,7 @@ struct stattable
 
     void init_stats(float to_what)
     {
-        for(int i=0; i<(int)stats::stat_names.size(); i++)
-        {
-            stats.push_back({stats::stat_names[i], to_what});
-        }
+        stats = stats::default_stats(to_what);
     }
 };
 
@@ -580,6 +653,9 @@ struct character : combat_entity, stattable
     {
         for(auto& st : stats)
         {
+            if(is_secondary(st.key))
+                continue;
+
             vec4i rand_dicerolls = randf<4, int>(1, 7);
 
             vec4i sorted = rand_dicerolls.sorted();
@@ -592,6 +668,9 @@ struct character : combat_entity, stattable
 
             //printf("stat %i %s\n", val, st.key.c_str());
         }
+
+        modify_stat_val("DEF", 10.f);
+        modify_stat_val("DGE", 10.f);
 
         race = stats::races[randf<1, int>(0, stats::races.size())];
         classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext?
