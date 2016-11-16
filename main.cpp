@@ -109,6 +109,8 @@ namespace stats
         {"RANGER", "DEX"},
     };
 
+    ///with the way health and damage go atm, fighter is objective the best class
+    ///we can remedy this by allowing the other classes to do other things
     std::map<std::string, float> damage_stat_to_damage_mult =
     {
         {"STR", 1.f},
@@ -117,6 +119,16 @@ namespace stats
         {"CHA", 0.7f},
         {"DEX", 0.8f},
         {"CON", 0.6f}, ///?
+    };
+
+    std::map<std::string, float> primary_stat_to_hp_mult =
+    {
+        {"STR", 1.f},
+        {"WIS", 0.7f},
+        {"INT", 0.6f},
+        {"CHA", 0.8f},
+        {"DEX", 0.9f},
+        {"CON", 1.2f}, ///?
     };
 
     ///needs to be kept brief, monsters must have consistently defined stats
@@ -134,6 +146,8 @@ namespace stats
 struct combat_entity
 {
     float hp = 1.f;
+    float hp_max = 1.f;
+    int team = 0;
 
     virtual void init();
 
@@ -163,6 +177,11 @@ struct combat_entity
     void damage(float direct_hp_damage)
     {
         hp -= direct_hp_damage;
+    }
+
+    void set_team(int _team)
+    {
+        team = _team;
     }
 };
 
@@ -251,6 +270,9 @@ struct character : combat_entity
         name = stats::names[randf<1, int>(0, stats::names.size())];
 
         primary_stat = stats::class_to_damage_stat[classname];
+
+        hp_max = stats::primary_stat_to_hp_mult[primary_stat];
+        hp = hp_max;
     }
 
     void rand_manual_classname(const std::string& custom_classname, const std::string& pprimary_stat, int rebal_stat = 0)
@@ -262,6 +284,9 @@ struct character : combat_entity
         primary_stat = pprimary_stat;
 
         rebalance(primary_stat, rebal_stat);
+
+        hp_max = stats::primary_stat_to_hp_mult[primary_stat];
+        hp = hp_max;
     }
 
     void rebalance(const std::string& stat_into, int num)
@@ -310,6 +335,9 @@ struct character : combat_entity
 
         float total = 0.f;
 
+        str = str + "Name: " + name + "\n";
+        str = str + "Class: " + classname + "\n";
+
         for(auto& i : stats)
         {
             str = str + i.key + " " + std::to_string(i.val) + "\n";
@@ -318,6 +346,8 @@ struct character : combat_entity
         }
 
         str = str + "Total: " + std::to_string(total) + "\n";
+
+        str = str + "HP: " + std::to_string(hp) + "/" + std::to_string(hp_max) + "\n";
 
         return str;
     }
@@ -339,22 +369,55 @@ struct character : combat_entity
 
 struct entity_manager
 {
-    std::vector<combat_entity*> chars;
+    std::vector<character*> chars;
 
-    character* make_new()
+    int half_turn_counter = 0;
+
+    character* make_new(int team)
     {
         character* c = new character;
 
         c->init();
+        c->set_team(team);
 
         //c->rand_stats();
+
+        chars.push_back(c);
 
         return c;
     }
 
     void resolve_half_turn()
     {
+        std::map<int, std::vector<character*>> team_to_chars;
 
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        int cteam = half_turn_counter % 2;
+        int other_team = 1 - cteam;
+
+        int other_team_num = team_to_chars[other_team].size();
+
+        for(int i=0; i<team_to_chars[cteam].size(); i++)
+        {
+            character* ccharacter = team_to_chars[cteam][i];
+
+            int random_enemy = randf<1, int>(0, other_team_num);
+
+            character* enemy = team_to_chars[other_team][random_enemy];
+
+            ccharacter->attack(enemy);
+        }
+
+        for(auto& i : chars)
+        {
+            std::cout << i->display() << std::endl;
+        }
+
+        half_turn_counter++;
     }
 };
 
@@ -362,13 +425,16 @@ int main()
 {
     entity_manager entity_manage;
 
-    character* base_char = entity_manage.make_new();
+    character* base_char = entity_manage.make_new(0);
 
     base_char->rand_stats();
 
-    character* monster_char = entity_manage.make_new();
+    character* monster_char = entity_manage.make_new(1);
 
-    monster_char->rand_manual_classname("Boar", "STR", 2);
+    monster_char->rand_manual_classname("BOAR", "STR", 2);
+
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
 
 
     /*std::cout << monster_char->display() << std::endl;
