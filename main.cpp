@@ -12,8 +12,14 @@ struct base_stat
     float val = 10.f;
 };
 
+/*std::vector<base_stat> combine(const std::vector<base_stat>& b1, const std::vector<base_stat>& b2)
+{
+
+}*/
+
 namespace stats
 {
+    ///add defence?
     std::vector<std::string> stat_names =
     {
         "STR",
@@ -86,7 +92,7 @@ namespace stats
         "WUV-U-YEW-SLUT",
         "ECKS",
         "WHY",
-        "BREAD"
+        "JARED"
     };
 
     ///sadly these need to be vaguely sensible
@@ -153,6 +159,11 @@ namespace stats
         "LUTE" ///smack that bitch p
     };
 
+    float weapon_damage_max = 0.2f;
+
+    ///rand^weapon_find_power
+    float weapon_find_power = 3.f;
+
     std::vector<std::string> item_class =
     {
         "POTION",
@@ -174,12 +185,36 @@ namespace stats
         {5, "CHA"},
     };
 
+    std::vector<std::string> item_rarity =
+    {
+        "Common",
+        "Good Quality",
+        "Uncommon",
+        "Rare",
+        "Ultra rare",
+        "Holy crap!"
+    };
+
     float damage_to_hp_conversion = 0.3f;
 }
 
 struct stattable
 {
     std::vector<base_stat> stats;
+
+    void add(const std::vector<base_stat>& st)
+    {
+        for(int i=0; i<st.size(); i++)
+        {
+            for(int j=0; j<stats.size(); j++)
+            {
+                if(st[i].key == stats[j].key)
+                {
+                    stats[j].val += st[i].val;
+                }
+            }
+        }
+    }
 
     int stat_id(const std::string& key)
     {
@@ -270,6 +305,7 @@ struct item : stattable
     std::string item_class;
     std::string description;
     int weapon_class = -1;
+    int rarity = 0;
 
     void set_attack_boost(float hp)
     {
@@ -321,7 +357,9 @@ struct item : stattable
 
         std::string stat_string = stat_display();
 
-        ret = item_class;
+        int capped_rarity = std::min(rarity, (int)stats::item_rarity.size()-1);
+
+        ret = stats::item_rarity[capped_rarity] + " " + item_class;
 
         if(stat_string.size() > 0)
             ret = ret + " of " + stat_display() + "\n";// + description;
@@ -351,6 +389,37 @@ struct item : stattable
         {
             stats[i].val += 1;
         }
+
+        rarity += extra_stats;
+    }
+
+    void random_stat_appropriate_weapon(const std::string& stat)
+    {
+        int id = stat_id(stat);
+
+        std::vector<int> appropriate_weapons;
+
+        for(auto& i : stats::weapon_class_to_primary_stat)
+        {
+            if(i.second == stat)
+            {
+                appropriate_weapons.push_back(id);
+            }
+        }
+
+        if(appropriate_weapons.size() == 0)
+        {
+            std::cout << "no weapons for stat " << stat << std::endl;
+            return;
+        }
+
+        int random_weapon_num = randf<1, int>(0, appropriate_weapons.size());
+
+        int random_weapon = appropriate_weapons[random_weapon_num];
+
+        float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
+
+        init_weapon_class(random_weapon, damage);
     }
 };
 
@@ -360,7 +429,52 @@ struct item_manager
 
     item* make_new()
     {
+        return new item;
+    }
+};
 
+struct inventory
+{
+    ///equipped is anything you take with you on a quest, cant use loot during?
+    ///Ok. Loot probably generated completely separately, not a carried or inventory at all
+    std::vector<item*> equipped;
+
+    ///only taking one weapon is going to have to be ui enforced? We cant ditch them here...
+    ///I guess we'll need to enforce armour, and ring constraints etc as well
+    stattable get_buffs()
+    {
+        stattable st;
+        st.init_stats(0.f);
+
+        for(item* i : equipped)
+        {
+            st.add(i->stats);
+        }
+
+        return st;
+    }
+
+    int get_weapon_num()
+    {
+        int n = 0;
+
+        for(item* i : equipped)
+        {
+            if(i->weapon_class != -1)
+                n++;
+        }
+
+        return n;
+    }
+
+    void add_item(item* i)
+    {
+        equipped.push_back(i);
+    }
+
+    int num()
+    {
+        return equipped.size();
     }
 };
 
@@ -408,6 +522,8 @@ struct combat_entity
 
 struct character : combat_entity, stattable
 {
+    inventory invent;
+
     int cur_level = 1;
 
     std::string name;
@@ -420,11 +536,28 @@ struct character : combat_entity, stattable
         init_stats(10.f);
     }
 
+    float get_item_modified_stat_val(const std::string& key)
+    {
+        float val = get_stat_val(key);
+
+        stattable buffs = invent.get_buffs();
+
+        float v2 = buffs.get_stat_val(key);
+
+        return val + v2;
+    }
+
     void recalculate_hp()
     {
         ///old /hp_max = stats::primary_stat_to_hp_mult[primary_stat];
 
-        hp_max = stats::con_to_hp * get_stat_val("CON") * stats::primary_stat_to_hp_mult[primary_stat];
+        float new_hp_max = stats::con_to_hp * get_item_modified_stat_val("CON") * stats::primary_stat_to_hp_mult[primary_stat];
+
+        float hp_diff = new_hp_max - hp_max;
+
+        hp += hp_diff;
+
+        hp_max = new_hp_max;
     }
 
     ///perhaps rand_stats_with_primary, for monsters?
@@ -460,6 +593,7 @@ struct character : combat_entity, stattable
         rand_stats();
 
         classname = custom_classname;
+        race = custom_classname;
 
         primary_stat = pprimary_stat;
 
@@ -493,7 +627,7 @@ struct character : combat_entity, stattable
 
         float stats_damage_mult = stats::damage_stat_to_damage_mult[key];
 
-        return 1.f * (get_stat_val(key) / 10.f) * stats_damage_mult;
+        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult;
     }
 
     float calculate_def_damage_divisor() override
@@ -502,7 +636,7 @@ struct character : combat_entity, stattable
 
         float stats_damage_mult = stats::damage_stat_to_damage_mult[key];
 
-        float con_mult = get_stat_val("CON") / 10.f;
+        float con_mult = get_item_modified_stat_val("CON") / 10.f;
 
         float def_stat = stats_damage_mult * con_mult;
 
@@ -516,11 +650,21 @@ struct character : combat_entity, stattable
         float total = 0.f;
 
         str = str + "Name: " + name + "\n";
-        str = str + "Class: " + classname + "\n";
+        str = str + "Race: " + race + "\n";
+
+        if(race != classname)
+            str = str + "Class: " + classname + "\n";
+
+        stattable st = invent.get_buffs();
 
         for(auto& i : stats)
         {
-            str = str + i.key + " " + std::to_string(i.val) + "\n";
+            str = str + i.key + " " + std::to_string(i.val);// + "\n";
+
+            if(st.get_stat_val(i.key) != 0)
+                str = str + " (+" + std::to_string(st.get_stat_val(i.key)) + ")";
+
+            str = str + "\n";
 
             total += i.val;
         }
@@ -534,6 +678,16 @@ struct character : combat_entity, stattable
             str = str + "DEAD RUH ROH\n";
         }
 
+        if(invent.num() != 0)
+        {
+            str = str + "Carrying:\n";
+
+            for(auto& i : invent.equipped)
+            {
+                str = str + i->display() + "\n";
+            }
+        }
+
         return str;
     }
 
@@ -542,6 +696,8 @@ struct character : combat_entity, stattable
         stats[level_stat].val += 1.f;
 
         recalculate_hp();
+
+        cur_level++;
     }
 
     void auto_level()
@@ -562,7 +718,19 @@ struct character : combat_entity, stattable
     {
         //std::cout << "psfval " + std::to_string(get_stat_val(primary_stat));
 
-        return get_total() * 0.1f + get_stat_val(primary_stat) + get_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat];
+        return get_total() * 0.1f + get_item_modified_stat_val(primary_stat) + get_item_modified_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat] + cur_level * 3;
+    }
+
+    inventory& get_invent()
+    {
+        return invent;
+    }
+
+    void add_to_invent(item* i)
+    {
+        invent.add_item(i);
+
+        recalculate_hp();
     }
 };
 
@@ -576,10 +744,7 @@ struct entity_manager
     {
         character* c = new character;
 
-        //c->init();
         c->set_team(team);
-
-        //c->rand_stats();
 
         chars.push_back(c);
 
@@ -674,11 +839,21 @@ struct entity_manager
 
 int main()
 {
+    item_manager item_manage;
+
+    item* nitem = item_manage.make_new();
+
+    //nitem.init_weapon_class(0, 0.02f);
+    nitem->random_stat_appropriate_weapon("CHA");
+    nitem->random_magical(2);
+
     entity_manager entity_manage;
 
     character* base_char = entity_manage.make_new(0);
 
     base_char->rand_stats();
+
+    base_char->add_to_invent(nitem);
 
     character* base_char2 = entity_manage.make_new(0);
 
@@ -708,12 +883,7 @@ int main()
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
 
-    item nitem;
-
-    nitem.init_weapon_class(0, 0.02f);
-    nitem.random_magical(2);
-
-    std::cout << nitem.display() << std::endl;
+    std::cout << nitem->display() << std::endl;
 
     std::cout << std::to_string(monster_char->get_difficulty()) + "xp" << std::endl;
 
