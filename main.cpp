@@ -60,7 +60,7 @@ namespace stats
         }
 
         for(auto& i : secondary_stats)
-            ret.push_back({i, 0.f});
+            ret.push_back({i, to_what});
 
         return ret;
     }
@@ -246,6 +246,9 @@ namespace stats
     };
 
     float damage_to_hp_conversion = 0.3f;
+
+    ///maximum dodge stat = 40% dodge
+    float dodge_stat_to_percent_dodge = 0.02;
 }
 
 struct stattable
@@ -333,6 +336,17 @@ struct stattable
         }
 
         return -1.f;
+    }
+
+    void set_stat_val(const std::string& key, float value)
+    {
+        for(auto& i : stats)
+        {
+            if(i.key == key)
+            {
+                i.val = value;
+            }
+        }
     }
 
     std::string stat_display()
@@ -624,6 +638,11 @@ struct character : combat_entity, stattable
         init_stats(10.f);
     }
 
+    float get_dodge_chance()
+    {
+        return get_item_modified_stat_val("DGE") * stats::dodge_stat_to_percent_dodge;
+    }
+
     float get_item_modified_stat_val(const std::string& key)
     {
         float val = get_stat_val(key);
@@ -669,8 +688,8 @@ struct character : combat_entity, stattable
             //printf("stat %i %s\n", val, st.key.c_str());
         }
 
-        modify_stat_val("DEF", 10.f);
-        modify_stat_val("DGE", 10.f);
+        set_stat_val("DEF", 10.f);
+        set_stat_val("DGE", 1.f);
 
         race = stats::races[randf<1, int>(0, stats::races.size())];
         classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext?
@@ -762,6 +781,8 @@ struct character : combat_entity, stattable
 
             total += i.val;
         }
+
+        str = str + "Dodge chance: " + std::to_string(get_dodge_chance() * 100) + "%\n";
 
         str = str + "Total: " + std::to_string(total) + "\n";
 
