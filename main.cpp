@@ -720,7 +720,7 @@ struct character : combat_entity, stattable
     {
         for(int i=0; i<num; i++)
         {
-            int rstat = randf<1, int>(0, stats.size());
+            int rstat = randf<1, int>(0, stats::primary_stat_end);
 
             if(stats[rstat].key == stat_into)
             {
