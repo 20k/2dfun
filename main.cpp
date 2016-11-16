@@ -476,6 +476,21 @@ struct inventory
     {
         return equipped.size();
     }
+
+    float get_damage_bonus()
+    {
+        float bonus = 0.f;
+
+        for(auto& i : equipped)
+        {
+            if(i->attack_boost_hp_flat != 0)
+            {
+                bonus += i->attack_boost_hp_flat;
+            }
+        }
+
+        return bonus;
+    }
 };
 
 struct combat_entity
@@ -627,7 +642,7 @@ struct character : combat_entity, stattable
 
         float stats_damage_mult = stats::damage_stat_to_damage_mult[key];
 
-        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult;
+        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + invent.get_damage_bonus();
     }
 
     float calculate_def_damage_divisor() override
