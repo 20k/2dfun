@@ -46,6 +46,7 @@ namespace stats
     {
         "DEF",
         "DGE", ///not a %, a stat
+        "HEAL",
     };
 
     std::vector<int> can_be_a_magical_property =
@@ -255,7 +256,7 @@ namespace stats
         "Holy crap!"
     };
 
-    float damage_to_hp_conversion = 0.3f;
+    float damage_to_hp_conversion = 0.5f;
 
     ///maximum dodge stat = 40% dodge
     float dodge_stat_to_percent_dodge = 0.02;
@@ -265,6 +266,8 @@ namespace stats
 
     ///4% per dex
     float dex_to_dodge_chance = 0.04f;
+
+    float hpdamage_to_healing_conversion = 0.015f;
 }
 
 struct stattable
@@ -771,6 +774,7 @@ struct character : combat_entity, stattable
 
         set_stat_val("DEF", 1.f);
         set_stat_val("DGE", 1.f);
+        set_stat_val("HEAL", 0.f); ///heal extra. Maybe should be derived stat?
 
         race = stats::races[randf<1, int>(0, stats::races.size())];
         classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext?
@@ -865,6 +869,7 @@ struct character : combat_entity, stattable
 
         str = str + "Dodge chance: " + to_string_prec(get_dodge_chance() * 100, 4) + "%\n";
         str = str + "Defence chance: " + to_string_prec(get_block_chance() * 100, 4) + "%\n";
+        str = str + "Heal per tick: " + to_string_prec(get_teammate_heal(), 3) + "\n";
 
         str = str + "Total: " + to_string_prec(total, 3) + "\n";
 
@@ -928,6 +933,18 @@ struct character : combat_entity, stattable
         invent.add_item(i);
 
         recalculate_hp();
+    }
+
+    float get_teammate_heal()
+    {
+        float cur = 0.f;
+
+        if(primary_stat == "WIS")
+            cur = get_item_modified_stat_val("WIS") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+
+        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+
+        return cur;
     }
 };
 
@@ -1008,6 +1025,63 @@ struct entity_manager
         return ret;
     }
 
+    std::string process_heals(int pteam)
+    {
+        std::string res;
+
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        for(auto& team : team_to_chars)
+        {
+            if(team.first != pteam)
+                continue;
+
+            int team_size = team.second.size();
+
+            float heals = 0.f;
+
+            for(auto& ch : team.second)
+            {
+                heals += ch->get_teammate_heal();
+
+                if(heals > 0)
+                    res = res + ch->name + " ";
+            }
+
+            heals /= team_size;
+
+            if(heals == 0)
+                return res;
+
+            res = res + "heals ";
+
+            for(int i=0; i<team.second.size(); i++)
+            {
+                auto ch = team.second[i];
+
+                ch->modify_hp(heals);
+
+                res = res + ch->name;
+
+                if(i != team.second.size() - 1)
+                {
+                    res = res + " and ";
+                }
+            }
+
+            res = res + " for " + to_string_prec(heals, 3) + " each";
+
+            res = res + "\n";
+        }
+
+        return res;
+    }
+
     void resolve_half_turn()
     {
         if(fight_over())
@@ -1076,6 +1150,10 @@ struct entity_manager
 
             std::cout << get_battle_message(res, initiator, target) << std::endl;
         }
+
+        std::string str = process_heals(cteam);
+
+        std::cout << str;
 
         half_turn_counter++;
     }
