@@ -158,11 +158,11 @@ namespace stats
     ///sadly these need to be vaguely sensible
     std::vector<std::string> classnames =
     {
-        "FIGHTER",
-        "PRIEST",
+        "FIGHTER", ///fine
+        "PRIEST", ///fine
         "WIZARD",
         "BARD",
-        "RANGER",
+        "RANGER", ///fineish
         //"STAFF" ///better at being general staff?
     };
 
@@ -181,7 +181,7 @@ namespace stats
     {
         {"STR", 1.f},
         {"WIS", 0.8f},
-        {"INT", 0.9f},
+        {"INT", 0.5f},
         {"CHA", 0.7f},
         {"DEX", 0.8f},
         {"CON", 0.6f}, ///?
@@ -256,7 +256,7 @@ namespace stats
         "Holy crap!"
     };
 
-    float damage_to_hp_conversion = 0.5f;
+    float damage_to_hp_conversion = 0.2f;
 
     ///maximum dodge stat = 40% dodge
     float dodge_stat_to_percent_dodge = 0.02;
@@ -694,6 +694,9 @@ struct combat_entity
     void modify_hp(float hp_change)
     {
         hp += hp_change;
+
+        if(hp > hp_max)
+            hp = hp_max;
     }
 
     void set_team(int _team)
@@ -946,6 +949,15 @@ struct character : combat_entity, stattable
 
         return cur;
     }
+
+    ///starts to shine vs 2+ enemies
+    float calculate_group_damage()
+    {
+        if(primary_stat != "INT")
+            return 0.f;
+
+        return (get_item_modified_stat_val(primary_stat) / 10.f) * stats::damage_stat_to_damage_mult[primary_stat] + invent.get_damage_bonus() * 0.4f;
+    }
 };
 
 struct entity_manager
@@ -1005,8 +1017,6 @@ struct entity_manager
         }
         else if(res == 1)
         {
-            //ret = c1->name + " strikes " + c2->name + " with their " + c1->invent.get_weapon_name();
-
             if(c1->invent.get_weapon_name() == "FISTS")
             {
                 ret = c1->name + " smacks " + c2->name;
@@ -1047,6 +1057,9 @@ struct entity_manager
 
             for(auto& ch : team.second)
             {
+                if(ch->is_dead())
+                    continue;
+
                 heals += ch->get_teammate_heal();
 
                 if(heals > 0)
@@ -1082,6 +1095,56 @@ struct entity_manager
         return res;
     }
 
+    void attack_single_random(character* c, std::vector<std::tuple<int, character*, character*>>& this_tick_results)
+    {
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        int cteam = half_turn_counter % 2;
+        int other_team = 1 - cteam;
+
+        int other_team_num = team_to_chars[other_team].size();
+
+        int random_enemy = -1;
+        character* enemy = nullptr;
+        bool any = false;
+
+        /*for(int kk=0; kk < other_team_num; kk++)
+        {
+            random_enemy = randf<1, int>(0, other_team_num);
+            enemy = team_to_chars[other_team][random_enemy];
+
+            if(!enemy->is_dead())
+            {
+                any = true;
+                break;
+            }
+        }
+
+        if(!any)
+            return;*/
+
+        std::vector<character*> valid_enemies;
+
+        for(int kk=0; kk < other_team_num; kk++)
+        {
+            if(!team_to_chars[other_team][kk]->is_dead())
+                valid_enemies.push_back(team_to_chars[other_team][kk]);
+        }
+
+        int rand_num = randf<1, int>(0, valid_enemies.size());
+
+        enemy = valid_enemies[rand_num];
+
+        int res = c->attack(enemy);
+
+        this_tick_results.push_back(std::tie(res, c, enemy));
+    }
+
     void resolve_half_turn()
     {
         if(fight_over())
@@ -1111,7 +1174,7 @@ struct entity_manager
             if(ccharacter->is_dead())
                 continue;
 
-            int random_enemy = -1;
+            /*int random_enemy = -1;
             character* enemy = nullptr;
             bool any = false;
 
@@ -1132,7 +1195,9 @@ struct entity_manager
 
             int res = ccharacter->attack(enemy);
 
-            this_tick_results.push_back(std::tie(res, ccharacter, enemy));
+            this_tick_results.push_back(std::tie(res, ccharacter, enemy));*/
+
+            attack_single_random(ccharacter, this_tick_results);
         }
 
         for(auto& i : chars)
@@ -1166,6 +1231,9 @@ struct entity_manager
 
 int main()
 {
+    for(int i=0; i<12; i++)
+        rand();
+
     item_manager item_manage;
 
     item* nitem = item_manage.make_new();
