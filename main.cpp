@@ -166,7 +166,7 @@ struct combat_entity
 
         dam *= stats::damage_to_hp_conversion;
 
-        entity->damage(dam);
+        entity->modify_hp(-dam);
     }
 
     virtual ~combat_entity()
@@ -174,9 +174,9 @@ struct combat_entity
 
     }
 
-    void damage(float direct_hp_damage)
+    void modify_hp(float hp_change)
     {
-        hp -= direct_hp_damage;
+        hp += hp_change;
     }
 
     void set_team(int _team)
@@ -365,6 +365,11 @@ struct character : combat_entity
 
         level(stat_id(st));
     }
+
+    bool is_dead()
+    {
+        return hp <= 0.f;
+    }
 };
 
 struct entity_manager
@@ -433,6 +438,8 @@ int main()
 
     monster_char->rand_manual_classname("BOAR", "STR", 2);
 
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
 
