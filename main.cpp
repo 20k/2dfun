@@ -27,6 +27,7 @@ std::string to_string_prec(const T& a_value, const int n = 6)
     return out.str();
 }
 
+///tomorrow is loot and economy, cha and luck. Luck invisible?
 namespace stats
 {
     ///add defence?
@@ -163,6 +164,7 @@ namespace stats
         "WIZARD", ///fine. AOE damage
         "BARD", ///Done. Blocks damage to teammates at very low chance
         "RANGER", ///fineish. High dodge, hard to hit
+        "DOG", ///Basically a crap ranger
         //"STAFF" ///better at being general staff?
     };
 
@@ -173,6 +175,7 @@ namespace stats
         {"WIZARD", "INT"},
         {"BARD", "CHA"},
         {"RANGER", "DEX"},
+        {"DOG", "DEX"},
     };
 
     ///with the way health and damage go atm, fighter is objective the best class
@@ -195,6 +198,26 @@ namespace stats
         {"CHA", 0.8f},
         {"DEX", 0.9f},
         {"CON", 1.2f}, ///?
+    };
+
+    std::map<std::string, float> class_damage_mult =
+    {
+        {"FIGHTER", 1.f},
+        {"PRIEST", 1.f},
+        {"WIZARD", 1.f},
+        {"BARD", 1.f},
+        {"RANGER", 1.f},
+        {"DOG", 0.4f},
+    };
+
+    std::map<std::string, float> class_hp_mult =
+    {
+        {"FIGHTER", 1.f},
+        {"PRIEST", 1.f},
+        {"WIZARD", 1.f},
+        {"BARD", 1.f},
+        {"RANGER", 1.f},
+        {"DOG", 0.4f},
     };
 
     ///1 con = con_to_hp hp
@@ -754,7 +777,7 @@ struct character : combat_entity, stattable
     {
         ///old /hp_max = stats::primary_stat_to_hp_mult[primary_stat];
 
-        float new_hp_max = stats::con_to_hp * get_item_modified_stat_val("CON") * stats::primary_stat_to_hp_mult[primary_stat];
+        float new_hp_max = stats::con_to_hp * get_item_modified_stat_val("CON") * stats::primary_stat_to_hp_mult[primary_stat] * stats::class_hp_mult[classname];
 
         float hp_diff = new_hp_max - hp_max;
 
@@ -789,7 +812,7 @@ struct character : combat_entity, stattable
         set_stat_val("HEAL", 0.f); ///heal extra. Maybe should be derived stat?
 
         race = stats::races[randf<1, int>(0, stats::races.size())];
-        classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext?
+        classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext? Nope. We need real classes
         name = stats::names[randf<1, int>(0, stats::names.size())];
 
         primary_stat = stats::class_to_damage_stat[classname];
@@ -798,12 +821,12 @@ struct character : combat_entity, stattable
         hp = hp_max;
     }
 
-    void rand_manual_classname(const std::string& custom_classname, const std::string& pprimary_stat, int rebal_stat = 0)
+    void rand_manual_classname(const std::string& crace, const std::string& custom_classname, const std::string& pprimary_stat, int rebal_stat = 0)
     {
         rand_stats();
 
+        race = crace;
         classname = custom_classname;
-        race = custom_classname;
 
         primary_stat = pprimary_stat;
 
@@ -835,7 +858,7 @@ struct character : combat_entity, stattable
     {
         std::string key = primary_stat;
 
-        float stats_damage_mult = stats::damage_stat_to_damage_mult[key];
+        float stats_damage_mult = stats::damage_stat_to_damage_mult[key] * stats::class_damage_mult[classname];
 
         return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + invent.get_damage_bonus();
     }
@@ -844,7 +867,7 @@ struct character : combat_entity, stattable
     {
         std::string key = primary_stat;
 
-        float stats_damage_mult = stats::damage_stat_to_damage_mult[key];
+        float stats_damage_mult = stats::damage_stat_to_damage_mult[key] * stats::class_damage_mult[classname];
 
         float con_mult = get_item_modified_stat_val("CON") / 10.f;
 
@@ -887,12 +910,10 @@ struct character : combat_entity, stattable
 
         str = str + "Total: " + to_string_prec(total, 3) + "\n";
 
-        str = str + "HP: " + to_string_prec(hp, 3) + "/" + to_string_prec(hp_max, 3) + "\n";
-
-        if(is_dead())
-        {
-            str = str + "DEAD RUH ROH\n";
-        }
+        if(!is_dead())
+            str = str + "HP: " + to_string_prec(hp, 3) + "/" + to_string_prec(hp_max, 3) + "\n";
+        else
+            str = str + "KO\n";
 
         if(invent.num() != 0)
         {
@@ -934,7 +955,7 @@ struct character : combat_entity, stattable
     {
         //std::cout << "psfval " + std::to_string(get_stat_val(primary_stat));
 
-        return get_total() * 0.1f + get_item_modified_stat_val(primary_stat) + get_item_modified_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat] + cur_level * 3;
+        return get_total() * 0.1f + get_item_modified_stat_val(primary_stat) + get_item_modified_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat] * stats::class_hp_mult[classname] + cur_level * 3;
     }
 
     inventory& get_invent()
@@ -967,7 +988,7 @@ struct character : combat_entity, stattable
         if(primary_stat != "INT")
             return 0.f;
 
-        return (get_item_modified_stat_val(primary_stat) / 10.f) * stats::damage_stat_to_damage_mult[primary_stat] + invent.get_damage_bonus() * 0.4f;
+        return (get_item_modified_stat_val(primary_stat) / 10.f) * stats::damage_stat_to_damage_mult[primary_stat] * stats::class_damage_mult[classname] + invent.get_damage_bonus() * 0.4f;
     }
 };
 
@@ -1305,7 +1326,7 @@ struct entity_manager
                 attack_all(ccharacter, this_tick_results);
         }
 
-        for(auto& i : chars)
+        for(character* i : chars)
         {
             std::cout << i->display() << std::endl;
         }
@@ -1353,9 +1374,13 @@ int main()
 
     base_char2->rand_stats();
 
+    character* base_char3 = entity_manage.make_new(0);
+
+    base_char3->rand_stats();
+
     character* monster_char = entity_manage.make_new(1);
 
-    monster_char->rand_manual_classname("BOAR", "STR", 2);
+    monster_char->rand_manual_classname("BOAR", "FIGHTER", "STR", 2);
 
     monster_char->auto_level();
 
