@@ -168,12 +168,29 @@ struct combat_entity
 
 struct character : combat_entity
 {
+    int cur_level = 1;
+
     std::vector<base_stat> stats;
 
     std::string name;
     std::string classname;
     std::string primary_stat;
     std::string race;
+
+    int stat_id(const std::string& key)
+    {
+        for(int i=0; i<stats.size(); i++)
+        {
+            if(stats[i].key == key)
+            {
+                return i;
+            }
+        }
+
+        printf("Error in stat_id no key %s\n", key.c_str());
+
+        return -1;
+    }
 
     float get_stat_val(const std::string& key)
     {
@@ -304,6 +321,20 @@ struct character : combat_entity
 
         return str;
     }
+
+    void level(int level_stat)
+    {
+        stats[level_stat].val += 1.f;
+    }
+
+    void auto_level()
+    {
+        std::string st;
+
+        st = (randf_s(0.f, 1.f) < 0.5f) ? "CON" : primary_stat;
+
+        level(stat_id(st));
+    }
 };
 
 struct entity_manager
@@ -339,7 +370,24 @@ int main()
 
     monster_char->rand_manual_classname("Boar", "STR", 2);
 
+
+    /*std::cout << monster_char->display() << std::endl;
+
+    monster_char->auto_level();
+
     std::cout << monster_char->display() << std::endl;
+
+    monster_char->auto_level();
+
+    std::cout << monster_char->display() << std::endl;
+
+    monster_char->auto_level();
+
+    std::cout << monster_char->display() << std::endl;
+
+    monster_char->auto_level();
+
+    std::cout << monster_char->display() << std::endl;*/
 
     return 0;
 }
