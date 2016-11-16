@@ -140,8 +140,40 @@ namespace stats
         "SLIME"
     };
 
+    std::vector<std::string> item_class =
+    {
+        "SWORD",
+        "BOW",
+        "WIZARD STAFF",
+        "MACE",
+        "KNUCKLE DUSTERS",
+        "LUTE" ///smack that bitch p
+    };
+
+    std::map<std::string, std::string> weapon_class_to_primary_stat =
+    {
+        {"SWORD", "STR"},
+        {"BOW", "DEX"},
+        {"WIZARD STAFF", "INT"},
+        {"MACE", "STR"},
+        {"KNUCKLE DUSTERS", "WIS"},
+        {"LUTE", "CHA"},
+    };
+
     float damage_to_hp_conversion = 0.1f;
 }
+
+struct item
+{
+    std::vector<base_stat> stat_boosts;
+
+    ///times base_stat
+    float attack_boost_hp_flat = 0.f;
+
+    ///(character stat + stat_boost)/10 * attack_boost_hp_flat
+    std::string primary_stat;
+    std::string item_class;
+};
 
 struct combat_entity
 {
@@ -349,6 +381,11 @@ struct character : combat_entity
 
         str = str + "HP: " + std::to_string(hp) + "/" + std::to_string(hp_max) + "\n";
 
+        if(is_dead())
+        {
+            str = str + "DEAD RUH ROH\n";
+        }
+
         return str;
     }
 
@@ -392,8 +429,36 @@ struct entity_manager
         return c;
     }
 
+    std::vector<character*> get_team(int team)
+    {
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        return team_to_chars[team];
+    }
+
+    bool all_dead(const std::vector<character*>& team_list)
+    {
+        for(auto& i : team_list)
+        {
+            if(!i->is_dead())
+                return false;
+        }
+
+        return true;
+    }
+
     void resolve_half_turn()
     {
+        if(fight_over())
+        {
+            printf("Fight over\n");
+        }
+
         std::map<int, std::vector<character*>> team_to_chars;
 
         for(auto& i : chars)
@@ -410,9 +475,27 @@ struct entity_manager
         {
             character* ccharacter = team_to_chars[cteam][i];
 
-            int random_enemy = randf<1, int>(0, other_team_num);
+            if(ccharacter->is_dead())
+                continue;
 
-            character* enemy = team_to_chars[other_team][random_enemy];
+            int random_enemy = -1;
+            character* enemy = nullptr;
+            bool any = false;
+
+            for(int kk=0; kk < other_team_num; kk++)
+            {
+                random_enemy = randf<1, int>(0, other_team_num);
+                enemy = team_to_chars[other_team][random_enemy];
+
+                if(!enemy->is_dead())
+                {
+                    any = true;
+                    break;
+                }
+            }
+
+            if(!any)
+                continue;
 
             ccharacter->attack(enemy);
         }
@@ -424,6 +507,11 @@ struct entity_manager
 
         half_turn_counter++;
     }
+
+    bool fight_over()
+    {
+        return all_dead(get_team(0)) || all_dead(get_team(1));
+    }
 };
 
 int main()
@@ -434,10 +522,27 @@ int main()
 
     base_char->rand_stats();
 
+    character* base_char2 = entity_manage.make_new(0);
+
+    base_char2->rand_stats();
+
     character* monster_char = entity_manage.make_new(1);
 
     monster_char->rand_manual_classname("BOAR", "STR", 2);
 
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
