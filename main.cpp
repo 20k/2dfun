@@ -5,6 +5,8 @@
 #include <map>
 #include <net/shared.hpp>
 #include <vec/vec.hpp>
+#include <sstream>
+#include <iomanip>
 
 struct base_stat
 {
@@ -16,6 +18,14 @@ struct base_stat
 {
 
 }*/
+
+template <typename T>
+std::string to_string_prec(const T& a_value, const int n = 6)
+{
+    std::ostringstream out;
+    out << std::setprecision(n) << a_value;
+    return out.str();
+}
 
 namespace stats
 {
@@ -357,7 +367,7 @@ struct stattable
         {
             if(i.val > 0)
             {
-                ret = ret + "+" + std::to_string((int)i.val) + " " + i.key + " ";
+                ret = ret + "+" + to_string_prec((int)i.val, 3) + " " + i.key + " ";
             }
         }
 
@@ -455,7 +465,7 @@ struct item : stattable
 
         if(weapon_class != -1)
         {
-            ret = ret + first_letter + "ealing an extra " + std::to_string(attack_boost_hp_flat) + " hp of damage\n";
+            ret = ret + first_letter + "ealing an extra " + to_string_prec(attack_boost_hp_flat, 3) + " hp of damage\n";
         }
 
         ret = ret + description;
@@ -772,21 +782,21 @@ struct character : combat_entity, stattable
 
         for(auto& i : stats)
         {
-            str = str + i.key + " " + std::to_string(i.val);// + "\n";
+            str = str + i.key + " " + to_string_prec(i.val, 3);// + "\n";
 
             if(st.get_stat_val(i.key) != 0)
-                str = str + " (+" + std::to_string(st.get_stat_val(i.key)) + ")";
+                str = str + " (+" + to_string_prec(st.get_stat_val(i.key), 3) + ")";
 
             str = str + "\n";
 
             total += i.val;
         }
 
-        str = str + "Dodge chance: " + std::to_string(get_dodge_chance() * 100) + "%\n";
+        str = str + "Dodge chance: " + to_string_prec(get_dodge_chance() * 100, 4) + "%\n";
 
-        str = str + "Total: " + std::to_string(total) + "\n";
+        str = str + "Total: " + to_string_prec(total, 3) + "\n";
 
-        str = str + "HP: " + std::to_string(hp) + "/" + std::to_string(hp_max) + "\n";
+        str = str + "HP: " + to_string_prec(hp, 3) + "/" + to_string_prec(hp_max, 3) + "\n";
 
         if(is_dead())
         {
@@ -1000,7 +1010,7 @@ int main()
 
     std::cout << nitem->display() << std::endl;
 
-    std::cout << std::to_string(monster_char->get_difficulty()) + "xp" << std::endl;
+    std::cout << to_string_prec(monster_char->get_difficulty(), 3) + "xp" << std::endl;
 
     /*std::cout << monster_char->display() << std::endl;
 
