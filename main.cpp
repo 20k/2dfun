@@ -980,9 +980,9 @@ struct entity_manager
             ret = c2->name + " ";
 
             if(res == 2)
-                ret = "dodged ";
+                ret = ret + "dodged ";
             else
-                ret = "blocked ";
+                ret = ret + "blocked ";
 
             ret = ret + c1->name + "'s attack!";
         }
