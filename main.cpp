@@ -281,6 +281,26 @@ namespace stats
         "Holy crap!"
     };
 
+    ///basically wear level - maintenance
+    std::vector<std::string> weapon_wear =
+    {
+        "PRISTINE",
+        "GOOD",
+        "USED",
+        "WORN",
+        "BATTERED",
+        "RUSTED"
+    };
+
+    std::vector<std::string> weapon_notoriety
+    {
+        "GOOD",
+        "JUST A PINCH",
+        "BAD",
+        "A PINCH MORE",
+        "UGLY",
+    };
+
     float damage_to_hp_conversion = 0.2f;
 
     ///maximum dodge stat = 40% dodge
@@ -438,6 +458,11 @@ struct item : stattable
 {
     int id = -1;
 
+    int accumulated_wear = 0;
+    int maintenance = 0;
+    int notoriety = 0;
+    int kills = 0;
+
     ///times base_stat
     float attack_boost_hp_flat = 0.f;
 
@@ -513,6 +538,9 @@ struct item : stattable
             ret = ret + first_letter + "ealing an extra " + to_string_prec(attack_boost_hp_flat, 3) + " hp of damage\n";
         }
 
+        ret = ret + "Condition: " + stats::weapon_wear[get_wear()] + "\n";
+        ret = ret + "Notoriety: " + stats::weapon_notoriety[get_notoriety()] + "\n";
+
         ret = ret + description;
 
         if(ret.back() != '\n')
@@ -565,6 +593,48 @@ struct item : stattable
         float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
 
         init_weapon_class(random_weapon, damage);
+    }
+
+    void inc_accumulated_wear()
+    {
+        accumulated_wear++;
+    }
+
+    void inc_notoriety()
+    {
+        notoriety++;
+    }
+
+    void inc_maintenance()
+    {
+        maintenance++;
+    }
+
+    int get_wear()
+    {
+        //return std::max(0, outings - maintenance);
+
+        return clamp(accumulated_wear - maintenance, 0, stats::weapon_wear.size());
+    }
+
+    int get_notoriety()
+    {
+        return clamp(notoriety, 0, stats::weapon_notoriety.size());
+    }
+
+    void register_kill()
+    {
+        kills++;
+
+        if(get_wear() == 0)
+        {
+            inc_accumulated_wear();
+        }
+    }
+
+    int get_kills()
+    {
+        return kills;
     }
 };
 
@@ -663,6 +733,16 @@ struct inventory
 
         return i->item_class;
     }
+
+    void register_kill()
+    {
+        item* ptr = get_weapon();
+
+        if(ptr != nullptr)
+        {
+            ptr->register_kill();
+        }
+    }
 };
 
 struct combat_entity
@@ -674,6 +754,8 @@ struct combat_entity
     int team = 0;
 
     //virtual void init();
+
+    virtual void register_kill(){};
 
     virtual float get_dodge_chance(){return 0.f;};
     virtual float get_block_chance(){return 0.f;};
@@ -714,6 +796,11 @@ struct combat_entity
 
         entity->modify_hp(-dam);
 
+        if(entity->is_dead())
+        {
+            register_kill();
+        }
+
         return ret;
     }
 
@@ -734,6 +821,8 @@ struct combat_entity
     {
         team = _team;
     }
+
+    virtual bool is_dead(){};
 };
 
 struct character : combat_entity, stattable
@@ -749,6 +838,11 @@ struct character : combat_entity, stattable
     character()
     {
         init_stats(10.f);
+    }
+
+    void register_kill() override
+    {
+        invent.register_kill();
     }
 
     float get_dodge_chance() override
@@ -963,7 +1057,7 @@ struct character : combat_entity, stattable
         level(stat_id(st));
     }
 
-    bool is_dead()
+    bool is_dead() override
     {
         return hp <= 0.f;
     }
@@ -1083,6 +1177,11 @@ struct entity_manager
             if(res == 3)
             {
                 ret = ret + " " + to_string_prec(real_damage, 3) + " damage made it through " + c2->name + "'s guard";
+
+                if(c2->is_dead())
+                {
+                    ret = ret + ", killing them";
+                }
             }
         }
         else if(res == 1)
@@ -1104,10 +1203,10 @@ struct entity_manager
             }
         }
 
-        ret = ret + ". ";
-
         if(r.reduction < 1)
         {
+            ret = ret + ". ";
+
             for(int i=0; i<r.savers_of_c2.size(); i++)
             {
                 ret = ret + r.savers_of_c2[i]->name;
@@ -1118,7 +1217,12 @@ struct entity_manager
                     ret = ret + " ";
             }
 
-            ret = ret + "intervened to reduce the damage against " + c2->name + " to " + to_string_prec(r.reduction * 100) + "%\n";
+            ret = ret + "intervened to reduce the damage against " + c2->name + " to " + to_string_prec(r.reduction * 100) + "%";
+
+            if(c2->is_dead())
+            {
+                ret = ret + ", although this was tragically insufficient";
+            }
         }
 
         return ret;
@@ -1244,6 +1348,9 @@ struct entity_manager
                 valid_enemies.push_back(team_to_chars[other_team][kk]);
         }
 
+        if(valid_enemies.size() == 0)
+            return;
+
         int rand_num = randf<1, int>(0, valid_enemies.size());
 
         character* enemy = valid_enemies[rand_num];
@@ -1358,6 +1465,16 @@ struct entity_manager
         std::cout << str;
 
         half_turn_counter++;
+
+        if(fight_over())
+        {
+            on_fight_end();
+        }
+    }
+
+    void on_fight_end()
+    {
+
     }
 
     bool fight_over()
@@ -1388,6 +1505,8 @@ namespace economics
 
     ///value for damage scaling
     float damage_max_value = 10000.f;
+
+    float percent_value_lost_per_wear_level = 0.1;
 }
 
 struct economic_item
@@ -1404,7 +1523,13 @@ struct economic_item
 
         int value_added_damage = i->attack_boost_hp_flat * economics::damage_max_value;
 
+        int wear = i->get_wear();
+
+        int notoriety = i->notoriety;
+
         value = nominal_value + value_added_damage;
+
+        value = value - value * wear * economics::percent_value_lost_per_wear_level;
     }
 };
 
@@ -1425,7 +1550,8 @@ int main()
 
     character* base_char = entity_manage.make_new(0);
 
-    base_char->rand_manual_classname("DOG", "DOG", "DEX");
+    //base_char->rand_manual_classname("DOG", "DOG", "DEX");
+    base_char->rand_stats();
 
     base_char->add_to_invent(nitem);
 
@@ -1439,10 +1565,16 @@ int main()
 
     character* monster_char = entity_manage.make_new(1);
 
-    monster_char->rand_manual_classname("BOAR", "FIGHTER", "STR", 2);
+    monster_char->rand_manual_classname("BOAR", "FIGHTER", "STR", 0);
 
-    monster_char->auto_level();
+    //monster_char->auto_level();
 
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
+    entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
     entity_manage.resolve_half_turn();
