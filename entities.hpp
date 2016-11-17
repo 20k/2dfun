@@ -109,10 +109,13 @@ struct character : combat_entity, stattable
             xp += pow(xp, stats::xp_curve);
         }
 
+        if(level == 0)
+            xp = 0;
+
         return xp;
     }
 
-    float get_accum_xp_relative()
+    float find_level()
     {
         float level = 0;
 
@@ -125,9 +128,25 @@ struct character : combat_entity, stattable
             }
         }
 
+        return level;
+    }
+
+    float get_accum_xp_relative()
+    {
+        float level = find_level();
+
         float upper = get_level(level);
 
-        return upper;
+        return upper - get_level(level-1);
+    }
+
+    float get_level_adjusted_xp_accum()
+    {
+        float level = find_level();
+
+        float lower = get_level(level-1);
+
+        return xp_accum - lower;
     }
 
     void register_kill() override
@@ -355,7 +374,8 @@ struct character : combat_entity, stattable
             }
         }
 
-        str = str + to_string_prec(xp_accum, 3) + " XP/" + to_string_prec(get_accum_xp_relative(), 3) + "\n";
+        str = str + to_string_prec(get_level_adjusted_xp_accum(), 3) + " XP/" + to_string_prec(get_accum_xp_relative(), 3) + "\n";
+        //str = str + to_string_prec(xp_accum, 3) + " XP/" + to_string_prec(get_accum_xp_relative(), 3) + "\n";
 
         return str;
     }
