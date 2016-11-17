@@ -59,6 +59,11 @@ struct scenario_manager
         stages = _stages;
     }
 
+    int get_scenario_stages()
+    {
+        return 2;
+    }
+
     int get_monster_type()
     {
         return randf<1, int>(0, stats::monsternames.size());
@@ -129,6 +134,19 @@ struct scenario_manager
         rest();
     }
 
+    void fully_resolve_scenario()
+    {
+        int stages = get_scenario_stages();
+
+        for(int i=0; i<stages; i++)
+        {
+            begin_fight();
+
+            complete_fight();
+        }
+    }
+
+    ///automatically called
     void rest()
     {
         for(int i=0; i<stats::turns_between_fights; i++)

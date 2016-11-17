@@ -66,8 +66,10 @@ int main()
 
     doom.insert_party(party);
 
-    doom.begin_fight();
-    doom.complete_fight();
+    //doom.begin_fight();
+    //doom.complete_fight();
+
+    doom.fully_resolve_scenario();
 
     //p3->add_xp(21.f + 84 + 324);
 
