@@ -69,6 +69,8 @@ int main()
     doom.begin_fight();
     doom.complete_fight();
 
+    p3->add_xp(21.f);
+
     std::cout << std::endl << party.display_critical() << std::endl;
 
 

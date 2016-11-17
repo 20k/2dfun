@@ -123,6 +123,38 @@ struct scenario_manager
 
             c++;
         }
+
+        dish_out_xp();
+    }
+
+    bool is_player(character* c)
+    {
+        for(auto& i : players_backup)
+        {
+            if(i == c)
+                return true;
+        }
+
+        return false;
+    }
+
+    ///lumpy xp, or even split?
+    void dish_out_xp()
+    {
+        float xp = 0.f;
+
+        for(character* i : fights.back().chars)
+        {
+            if(!is_player(i))
+            {
+                xp += i->get_difficulty();
+            }
+        }
+
+        for(character* i : players_backup)
+        {
+            i->add_xp(xp / players_backup.size());
+        }
     }
 };
 

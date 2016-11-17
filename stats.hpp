@@ -304,6 +304,9 @@ namespace stats
     float dex_to_dodge_chance = 0.04f;
 
     float hpdamage_to_healing_conversion = 0.015f;
+
+    float first_level_xp = 40;
+    float xp_curve = 1.2f;
 }
 
 struct stattable

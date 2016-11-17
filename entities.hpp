@@ -100,6 +100,36 @@ struct character : combat_entity, stattable
         init_stats(10.f);
     }
 
+    float get_level(int level)
+    {
+        float xp = stats::first_level_xp;
+
+        for(int i=1; i<level; i++)
+        {
+            xp += pow(xp, stats::xp_curve);
+        }
+
+        return xp;
+    }
+
+    float get_accum_xp_relative()
+    {
+        float level = 0;
+
+        for(int i=1; i<100; i++)
+        {
+            if(get_level(i) > xp_accum)
+            {
+                level = i;
+                break;
+            }
+        }
+
+        float upper = get_level(level);
+
+        return upper;
+    }
+
     void register_kill() override
     {
         invent.register_kill();
@@ -324,6 +354,8 @@ struct character : combat_entity, stattable
                 str = str + i->display();
             }
         }
+
+        str = str + to_string_prec(xp_accum, 3) + " XP/" + to_string_prec(get_accum_xp_relative(), 3) + "\n";
 
         return str;
     }
