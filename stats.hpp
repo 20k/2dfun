@@ -305,6 +305,9 @@ namespace stats
 
     float hpdamage_to_healing_conversion = 0.015f;
 
+    ///ie we get 10 turns of healing, whatever else might happen
+    int turns_between_fights = 10;
+
     float first_level_xp = 40;
     float xp_curve = 1.1f;
 }

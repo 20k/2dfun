@@ -21,7 +21,7 @@
 
 }*/
 
-
+///resting, levelling (new xp stuff!), multi phase attacks
 int main()
 {
     item_manager item_manage;
@@ -69,7 +69,7 @@ int main()
     doom.begin_fight();
     doom.complete_fight();
 
-    p3->add_xp(21.f + 84 + 324);
+    //p3->add_xp(21.f + 84 + 324);
 
     std::cout << std::endl << party.display_critical() << std::endl;
 

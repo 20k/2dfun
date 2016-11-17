@@ -125,6 +125,16 @@ struct scenario_manager
         }
 
         dish_out_xp();
+
+        rest();
+    }
+
+    void rest()
+    {
+        for(int i=0; i<stats::turns_between_fights; i++)
+        {
+            fights.back().idle_turn();
+        }
     }
 
     bool is_player(character* c)

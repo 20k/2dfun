@@ -448,6 +448,24 @@ struct character : combat_entity, stattable
         return cur;
     }
 
+    float get_passive_regen()
+    {
+        float cur = 0.f;
+
+        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+
+        cur += get_item_modified_stat_val("CON") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+
+        return cur;
+    }
+
+    void do_passive_regen()
+    {
+        float val = get_passive_regen();
+
+        modify_hp(val);
+    }
+
     ///starts to shine vs 2+ enemies
     float calculate_group_damage()
     {
@@ -854,7 +872,7 @@ struct entity_manager
 
     void on_fight_end()
     {
-
+        std::cout << "battle finished" << std::endl;
     }
 
     bool fight_over()
@@ -872,6 +890,19 @@ struct entity_manager
         }
 
         return str;
+    }
+
+    ///one turn of resting
+    void idle_turn()
+    {
+        std::string msg = process_heals(0);
+
+        std::cout << msg;
+
+        for(auto& i : chars)
+        {
+            i->do_passive_regen();
+        }
     }
 };
 
