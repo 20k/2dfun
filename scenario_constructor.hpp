@@ -69,9 +69,24 @@ struct scenario_manager
         return 2;
     }
 
+    std::string get_monster_name(int type)
+    {
+        return stats::monsternames[type];
+    }
+
+    std::string get_monster_class(const std::string& name)
+    {
+        return stats::monstername_to_class[name];
+    }
+
     void insert_party(const std::vector<character*>& cs)
     {
         players_backup = cs;
+    }
+
+    void insert_party(entity_manager& manage)
+    {
+        players_backup = manage.chars;
     }
 
     void begin_fight()
@@ -80,9 +95,13 @@ struct scenario_manager
 
         entity_manager& manage = fights.back();
 
+        int monster_type = get_monster_type();
+
         for(int i=0; i<get_monster_num(); i++)
         {
             character* monst = manage.make_new(1);
+
+            monst->rand_manual_classname(get_monster_name(monster_type), get_monster_class(get_monster_name(monster_type)), "STR", difficulty);
 
             if(difficulty == 0)
                 monst->delevel_fully();
@@ -98,9 +117,9 @@ struct scenario_manager
     {
         int c = 0;
 
-        while(!entity_manage.fight_over() && c < 40)
+        while(!fights.back().fight_over() && c < 40)
         {
-            entity_manage.resolve_half_turn();
+            fights.back().resolve_half_turn();
 
             c++;
         }

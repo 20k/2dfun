@@ -216,6 +216,14 @@ namespace stats
         "SLIME"
     };
 
+    std::map<std::string, std::string> monstername_to_class =
+    {
+        {"BEAR", "FIGHTER"},
+        {"GOBLIN", "RANGER"},
+        {"TROLL", "FIGHTER"},
+        {"SLIME", "FIGHTER"},
+    };
+
     std::vector<std::string> weapon_class =
     {
         "SWORD",

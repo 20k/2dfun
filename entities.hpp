@@ -299,6 +299,35 @@ struct character : combat_entity, stattable
         return str;
     }
 
+    std::string display_critical()
+    {
+        std::string str;
+
+         str = str + "Name: " + name + "\n";
+
+         //if(race != classname)
+        str = str + "Class: " + classname + "\n";
+
+        str = str + "Heal per tick: " + to_string_prec(get_teammate_heal(), 3) + "\n";
+
+        if(!is_dead())
+            str = str + "HP: " + to_string_prec(hp, 3) + "/" + to_string_prec(hp_max, 3) + "\n";
+        else
+            str = str + "KO (HP max: " + to_string_prec(hp_max, 3) + ")\n";
+
+        if(invent.num() != 0)
+        {
+            str = str + "Carrying:\n";
+
+            for(auto& i : invent.equipped)
+            {
+                str = str + i->display();
+            }
+        }
+
+        return str;
+    }
+
     void level(int level_stat)
     {
         stats[level_stat].val += 1.f;
@@ -779,6 +808,18 @@ struct entity_manager
     bool fight_over()
     {
         return all_dead(get_team(0)) || all_dead(get_team(1));
+    }
+
+    std::string display_critical()
+    {
+        std::string str;
+
+        for(character* i : chars)
+        {
+            str += i->display_critical() + "\n";
+        }
+
+        return str;
     }
 };
 

@@ -24,16 +24,57 @@
 
 int main()
 {
-    for(int i=0; i<12; i++)
-        rand();
-
     item_manager item_manage;
 
     item* nitem = item_manage.make_new();
 
     //nitem.init_weapon_class(0, 0.02f);
-    nitem->random_stat_appropriate_weapon("CHA");
+    //nitem->random_stat_appropriate_weapon("CHA");
     nitem->random_magical(2);
+
+    entity_manager party;
+
+    character* p1 = party.make_new(0);
+
+    p1->rand_stats();
+
+    character* p2 = party.make_new(0);
+
+    p2->rand_stats();
+
+    character* p3 = party.make_new(0);
+
+    p3->rand_stats();
+
+    character* p4 = party.make_new(0);
+
+    p4->rand_stats();
+
+    nitem->random_stat_appropriate_weapon(p4->primary_stat);
+    //p4->add_to_invent(nitem);
+
+    std::cout << "pdump" << std::endl;
+
+    std::cout << p1->display() << std::endl;
+    std::cout << p2->display() << std::endl;
+    std::cout << p3->display() << std::endl;
+    std::cout << p4->display() << std::endl;
+
+    std::cout << "epd" << std::endl;
+
+    scenario_manager doom;
+
+    doom.insert_party(party);
+
+    doom.begin_fight();
+    doom.complete_fight();
+
+    std::cout << std::endl << party.display_critical() << std::endl;
+
+
+    #if 0
+    for(int i=0; i<12; i++)
+        rand();
 
     entity_manager entity_manage;
 
@@ -104,6 +145,7 @@ int main()
     monster_char->auto_level();
 
     std::cout << monster_char->display() << std::endl;*/
+    #endif
 
     return 0;
 }
