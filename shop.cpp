@@ -2,10 +2,15 @@
 #include "stats.hpp"
 #include "item.hpp"
 #include "economics.hpp"
+#include "draw_manager.hpp"
 
-void shop::init(item_manager* imanage)
+void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 {
     item_manage = imanage;
+
+    dim = pdim;
+
+    grid_dim = pgrid_dim;
 }
 
 sellable* shop::make_sellable(item* i, float price)
@@ -43,4 +48,21 @@ void shop::remove_sellable(sellable* s)
             i--;
         }
     }
+}
+
+vec2i shop::pos_to_grid_snapped(vec2i pos)
+{
+    pos = pos / (float)grid_dim;
+
+    ///pos is an integer type
+    //pos = floor(pos);
+
+    pos = pos * grid_dim;
+
+    return pos;
+}
+
+void shop::draw(draw_manager& draw_manage)
+{
+
 }

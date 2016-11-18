@@ -6,6 +6,7 @@
 struct item;
 struct economic_item;
 struct item_manager;
+struct draw_manager;
 
 namespace tile_info
 {
@@ -30,21 +31,38 @@ struct sellable
     item* i = nullptr;
 };
 
+struct peon
+{
+    float wallet = 0.f;
+    ///specific weapon interest
+    ///happiness
+    ///path position random
+    ///calculate environmental modifiers
+};
+
 ///literal shop representation
 struct shop
 {
     vec2i dim;
+    int grid_dim = 0;
 
     item_manager* item_manage;
 
     std::vector<sellable*> for_sale;
 
-    void init(item_manager* imanage);
+    void init(item_manager* imanage, vec2i pdim, int pgrid_dim);
 
     ///only adds item to item list
     sellable* make_sellable(item* i, float price = -1);
 
     void remove_sellable(sellable* s);
+
+    void place_sellable(sellable* s, vec2i pos);
+
+    ///will need to convert from camera pos to shop pos
+    vec2i pos_to_grid_snapped(vec2i pos);
+
+    void draw(draw_manager& draw_manage);
 };
 
 #endif // SHOP_HPP_INCLUDED
