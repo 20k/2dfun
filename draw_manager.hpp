@@ -2,6 +2,11 @@
 #define DRAW_MANAGER_HPP_INCLUDED
 
 #include <SFML/Graphics.hpp>
+#include <imgui/imgui.h>
+#include <imgui/imgui-SFML.h>
+#include <vec/vec.hpp>
+
+struct entity_manager;
 
 struct draw_manager
 {
@@ -10,7 +15,7 @@ struct draw_manager
 
     void init(int width, int height)
     {
-        window.create(sf::VideoMode(800, 600), "Title");
+        window.create(sf::VideoMode(width, height), "Title");
 
         view = window.getDefaultView();
     }
@@ -23,7 +28,7 @@ struct draw_manager
 
         while(window.pollEvent(Event))
         {
-            //ImGui::SFML::ProcessEvent(Event);
+            ImGui::SFML::ProcessEvent(Event);
 
             if(Event.type == sf::Event::Closed)
             {
@@ -60,11 +65,13 @@ struct draw_manager
         }
     }
 
+    void draw_entity_ui(entity_manager& entity_manage);
+
     vec2f get_mouse_pos()
     {
         sf::Mouse mouse;
 
-        return {mouse.getPosition(window).x, mouse.getPosition(window).y};
+        return {(float)mouse.getPosition(window).x, (float)mouse.getPosition(window).y};
     }
 
     ///ie from
