@@ -291,6 +291,11 @@ struct character : combat_entity, stattable
             extra_weapon_scaling_damage = invent.get_damage_bonus() * (get_item_modified_stat_val(wprimary_stat) / 10.f);
 
             std::cout << "erwep " << std::to_string(extra_weapon_scaling_damage) << std::endl;
+
+            if(weap->primary_stat == primary_stat)
+            {
+                extra_weapon_scaling_damage *= stats::weapon_stat_synergy_bonus;
+            }
         }
 
         return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + extra_weapon_scaling_damage;

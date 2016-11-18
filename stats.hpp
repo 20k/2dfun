@@ -234,6 +234,8 @@ namespace stats
         "LUTE" ///smack that bitch p
     };
 
+    float weapon_stat_synergy_bonus = 1.1f;
+
     float weapon_damage_max = 0.2f;
 
     ///rand^weapon_find_power
