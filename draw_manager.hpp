@@ -74,6 +74,11 @@ struct draw_manager
         sf::Time t = sf::microseconds(dt_ms * 1000.f);
 
         ImGui::SFML::Update(t);
+
+        sf::Keyboard key;
+
+        if(key.isKeyPressed(sf::Keyboard::F10))
+            window.close();
     }
 
     void draw_entity_ui(entity_manager& entity_manage);
