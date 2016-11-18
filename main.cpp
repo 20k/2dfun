@@ -54,6 +54,7 @@ int main()
 
     nitem->random_stat_appropriate_weapon(p4->primary_stat);
     p4->add_to_invent(nitem);
+    //p4->add_xp(58);
 
     std::cout << "pdump" << std::endl;
 
