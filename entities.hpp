@@ -115,6 +115,7 @@ struct character : combat_entity, stattable
         return xp;
     }
 
+    ///if this seems incorrect, remember there's an implicit +1!
     float find_level()
     {
         float level = 0;
@@ -147,6 +148,11 @@ struct character : combat_entity, stattable
         float lower = get_level(level-1);
 
         return xp_accum - lower;
+    }
+
+    float get_raw_level_from_xp()
+    {
+        return find_level();
     }
 
     void register_kill() override

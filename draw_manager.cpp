@@ -27,13 +27,43 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     float full_width = button_width*2 + half_sep;
 
-    ImGui::Begin("Paryay");
+    ImGui::Begin("Peon");
 
     ImGui::Button(c->name.c_str(), ImVec2(full_width, 0));
+    ImGui::Button(c->classname.c_str(), ImVec2(full_width, 0));
+
+    if(c->classname != c->race.c_str())
+        ImGui::Button(c->race.c_str(), ImVec2(full_width, 0));
+
+    int clevel = c->cur_level;
+    int potential_level = c->get_raw_level_from_xp();
+
+    std::string rlevel = to_string_prec(clevel, 3);
+    std::string extra_levels = to_string_prec(potential_level - clevel);
+
+    std::string level_string = rlevel;
+
+    if(potential_level - clevel > 0)
+    {
+        level_string += " (+" + extra_levels + ")";
+    }
+
+    ImGui::Button(("LEVEL: " + level_string).c_str(), ImVec2(full_width, 0));
+
+    std::string hp_str = "HP: " + to_string_prec(c->hp, 3) + "/" + to_string_prec(c->hp_max, 3);
+
+    if(c->hp < 0)
+    {
+        hp_str = "KO'd " + std::string("(") + to_string_prec(c->hp_max, 3) + ")";
+    }
+
+    ImGui::Button(hp_str.c_str(), ImVec2(full_width, 0));
 
     ImGui::Columns(2);
 
     ImGui::SetColumnOffset(1, button_width + half_sep);
+
+    //ImGui::Button("LVL", ImVec2(button_width, 0));
 
     for(auto& i : c->stats)
     {
@@ -41,6 +71,8 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
     }
 
     ImGui::NextColumn();
+
+    //ImGui::Button(level_string.c_str(), ImVec2(button_width, 0));
 
     stattable buffs = c->invent.get_buffs();
 
