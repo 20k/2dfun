@@ -92,6 +92,10 @@ int main()
 
         shop_manage.draw(draw_manage);
 
+        draw_manage.draw_entity_ui(party);
+
+        draw_manage.render_ui();
+
         draw_manage.flip();
     }
 

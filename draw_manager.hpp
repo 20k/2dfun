@@ -13,6 +13,10 @@ struct draw_manager
     sf::RenderWindow window;
     sf::View view;
 
+    sf::Clock clk;
+
+    float dt_ms = 0.f;
+
     void init(int width, int height)
     {
         window.create(sf::VideoMode(width, height), "Title");
@@ -63,9 +67,21 @@ struct draw_manager
                 window.set_focus(false);
             }*/
         }
+
+        dt_ms = clk.getElapsedTime().asMicroseconds() / 1000.f;
+        clk.restart();
+
+        sf::Time t = sf::microseconds(dt_ms * 1000.f);
+
+        ImGui::SFML::Update(t);
     }
 
     void draw_entity_ui(entity_manager& entity_manage);
+
+    void render_ui()
+    {
+        ImGui::Render();
+    }
 
     vec2f get_mouse_pos()
     {
