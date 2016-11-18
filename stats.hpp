@@ -304,6 +304,7 @@ namespace stats
 
     ///4% per dex
     float dex_to_dodge_chance = 0.04f;
+    float dex_primary_stat_synergy = 1.1f;
 
     float hpdamage_to_healing_conversion = 0.015f;
     float heal_stat_heal_mult = 2.f; ///at 10 wis and +5 heal (max really), this would be equivalent to 10 wis of healing

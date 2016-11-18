@@ -156,7 +156,14 @@ struct character : combat_entity, stattable
 
     float get_dodge_chance() override
     {
-        return get_item_modified_stat_val("DGE") * stats::dodge_stat_to_percent_dodge  + (get_item_modified_stat_val("DEX") - 10.f) * stats::dex_to_dodge_chance;
+        float base_dodge = get_item_modified_stat_val("DGE") * stats::dodge_stat_to_percent_dodge  + (get_item_modified_stat_val("DEX") - 10.f) * stats::dex_to_dodge_chance;
+
+        if(primary_stat == "DEX")
+        {
+            base_dodge *= stats::dex_primary_stat_synergy;
+        }
+
+        return base_dodge;
     }
 
     float get_block_chance() override
