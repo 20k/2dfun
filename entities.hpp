@@ -290,7 +290,7 @@ struct character : combat_entity, stattable
 
             extra_weapon_scaling_damage = invent.get_damage_bonus() * (get_item_modified_stat_val(wprimary_stat) / 10.f);
 
-            std::cout << "erwep " << std::to_string(extra_weapon_scaling_damage) << std::endl;
+            //std::cout << "erwep " << std::to_string(extra_weapon_scaling_damage) << std::endl;
 
             if(weap->primary_stat == primary_stat)
             {
