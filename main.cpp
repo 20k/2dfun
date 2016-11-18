@@ -15,6 +15,8 @@
 #include "entities.hpp"
 #include "economics.hpp"
 #include "scenario_constructor.hpp"
+#include "shop.hpp"
+#include "draw_manager.hpp"
 
 /*std::vector<base_stat> combine(const std::vector<base_stat>& b1, const std::vector<base_stat>& b2)
 {
@@ -75,6 +77,21 @@ int main()
 
     std::cout << std::endl << party.display_critical() << std::endl;
 
+    draw_manager draw_manage;
+    draw_manage.init(800, 600);
+
+    shop shop_manage;
+
+    shop_manage.init(&item_manage, {500, 500}, 30);
+
+    while(draw_manage.window.isOpen())
+    {
+        draw_manage.tick();
+
+        shop_manage.draw(draw_manage);
+
+        draw_manage.flip();
+    }
 
     #if 0
     for(int i=0; i<12; i++)

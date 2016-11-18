@@ -43,6 +43,7 @@ struct peon
 ///literal shop representation
 struct shop
 {
+    bool view_is_init = false;
     vec2i dim;
     int grid_dim = 0;
 

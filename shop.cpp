@@ -3,6 +3,7 @@
 #include "item.hpp"
 #include "economics.hpp"
 #include "draw_manager.hpp"
+#include <SFML/Graphics.hpp>
 
 void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 {
@@ -64,5 +65,31 @@ vec2i shop::pos_to_grid_snapped(vec2i pos)
 
 void shop::draw(draw_manager& draw_manage)
 {
+    if(!view_is_init)
+    {
+        draw_manage.view.setCenter(dim.x()/2.f - grid_dim/4.f, dim.y()/2.f - grid_dim/4.f);
 
+        view_is_init = true;
+    }
+
+    draw_manage.window.setView(draw_manage.view);
+
+    sf::RectangleShape shape;
+
+    shape.setSize({grid_dim-1, grid_dim-1});
+
+    sf::Color table_col = sf::Color(139,69,19);
+    sf::Color floor_col = sf::Color(47,79,79);
+
+    shape.setFillColor(floor_col);
+
+    for(int jj=0; jj<dim.v[1] / grid_dim; jj++)
+    {
+        for(int ii=0; ii<dim.v[0] / grid_dim; ii++)
+        {
+            shape.setPosition(ii * grid_dim, jj * grid_dim);
+
+            draw_manage.window.draw(shape);
+        }
+    }
 }
