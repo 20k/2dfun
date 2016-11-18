@@ -463,7 +463,12 @@ struct character : combat_entity, stattable
         if(primary_stat == "WIS")
             cur = wis_heal;
 
-        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion * ((get_item_modified_stat_val("WIS") - 10) / 10.f);
+        float scale_min = 0.5f;
+        float scale_max = 1.5f;
+
+        float cur_wissscale = (scale_max - scale_min) * get_item_modified_stat_val("WIS") + scale_min;
+
+        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion * cur_wissscale * stats::heal_stat_heal_mult;// * ((get_item_modified_stat_val("WIS")));
 
         return cur;
     }
@@ -971,7 +976,8 @@ struct entity_manager
 
         heal_info healinfo = process_heals(cteam);
 
-        std::cout << get_heal_message(healinfo) << std::endl;
+        if(healinfo.healers.size() > 0)
+            std::cout << get_heal_message(healinfo) << std::endl;
 
         half_turn_counter++;
 
@@ -1008,7 +1014,8 @@ struct entity_manager
     {
         heal_info healinfo = process_heals(0);
 
-        std::cout << get_heal_message(healinfo) << std::endl;
+        if(healinfo.healers.size() > 0)
+            std::cout << get_heal_message(healinfo) << std::endl;
 
         for(auto& i : chars)
         {

@@ -306,6 +306,7 @@ namespace stats
     float dex_to_dodge_chance = 0.04f;
 
     float hpdamage_to_healing_conversion = 0.015f;
+    float heal_stat_heal_mult = 2.f; ///at 10 wis and +5 heal (max really), this would be equivalent to 10 wis of healing
 
     ///ie we get 10 turns of healing, whatever else might happen
     int turns_between_fights = 10;
