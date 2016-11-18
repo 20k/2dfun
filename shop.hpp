@@ -61,7 +61,7 @@ struct shop
     void place_sellable(sellable* s, vec2i pos);
 
     ///will need to convert from camera pos to shop pos
-    vec2i pos_to_grid_snapped(vec2i pos);
+    vec2i pos_to_grid_snapped(vec2f pos);
 
     void draw(draw_manager& draw_manage);
 };

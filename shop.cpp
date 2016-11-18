@@ -51,16 +51,16 @@ void shop::remove_sellable(sellable* s)
     }
 }
 
-vec2i shop::pos_to_grid_snapped(vec2i pos)
+vec2i shop::pos_to_grid_snapped(vec2f pos)
 {
     pos = pos / (float)grid_dim;
 
     ///pos is an integer type
-    //pos = floor(pos);
+    pos = floor(pos);
 
     pos = pos * grid_dim;
 
-    return pos;
+    return conv_implicit<vec2i>(pos);
 }
 
 void shop::draw(draw_manager& draw_manage)
@@ -79,7 +79,7 @@ void shop::draw(draw_manager& draw_manage)
     shape.setSize({grid_dim-1, grid_dim-1});
 
     sf::Color table_col = sf::Color(139,69,19);
-    sf::Color floor_col = sf::Color(47,79,79);
+    sf::Color floor_col = sf::Color(40,40,40);
 
     shape.setFillColor(floor_col);
 
@@ -92,4 +92,19 @@ void shop::draw(draw_manager& draw_manage)
             draw_manage.window.draw(shape);
         }
     }
+
+    ///draw tables here
+
+
+    vec2f mouse_pos = draw_manage.get_mouse_pos();
+
+    vec2f local_pos = draw_manage.screen_to_world(mouse_pos);
+
+    vec2i local_grid = pos_to_grid_snapped(local_pos);
+
+    shape.setFillColor(sf::Color(76, 153, 0));
+
+    shape.setPosition(local_grid.v[0], local_grid.v[1]);
+
+    draw_manage.window.draw(shape);
 }
