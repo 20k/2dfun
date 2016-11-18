@@ -63,6 +63,16 @@ struct inventory
         return bonus;
     }
 
+    float get_weapon_primary_stat_value()
+    {
+        item* i = get_weapon();
+
+        if(i == nullptr)
+            return 0.f;
+
+        return i->get_stat_val(i->primary_stat);
+    }
+
     ///only 1!
     item* get_weapon()
     {

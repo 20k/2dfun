@@ -52,6 +52,7 @@ int main()
 
     nitem->random_stat_appropriate_weapon(p4->primary_stat);
     p4->add_to_invent(nitem);
+    nitem->inc_stat("HEAL");
 
     std::cout << "pdump" << std::endl;
 

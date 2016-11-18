@@ -280,7 +280,20 @@ struct character : combat_entity, stattable
 
         float stats_damage_mult = stats::damage_stat_to_damage_mult[key] * stats::class_damage_mult[classname];
 
-        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + invent.get_damage_bonus() * (get_item_modified_stat_val(key) / 10.f);
+        float extra_weapon_scaling_damage = 0.f;
+
+        item* weap = invent.get_weapon();
+
+        if(weap != nullptr)
+        {
+            std::string wprimary_stat = weap->primary_stat;
+
+            extra_weapon_scaling_damage = invent.get_damage_bonus() * (get_item_modified_stat_val(wprimary_stat) / 10.f);
+
+            std::cout << "erwep " << std::to_string(extra_weapon_scaling_damage) << std::endl;
+        }
+
+        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + extra_weapon_scaling_damage;
     }
 
     float calculate_def_damage_divisor() override
@@ -440,10 +453,12 @@ struct character : combat_entity, stattable
     {
         float cur = 0.f;
 
-        if(primary_stat == "WIS")
-            cur = get_item_modified_stat_val("WIS") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+        float wis_heal = get_item_modified_stat_val("WIS") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
 
-        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion;
+        if(primary_stat == "WIS")
+            cur = wis_heal;
+
+        cur += get_item_modified_stat_val("HEAL") * stats::damage_to_hp_conversion * stats::hpdamage_to_healing_conversion * ((get_item_modified_stat_val("WIS") - 10) / 10.f);
 
         return cur;
     }
@@ -626,7 +641,17 @@ struct entity_manager
         return ret;
     }
 
-    std::string process_heals(int pteam)
+    struct heal_info
+    {
+        float total_heal = 0.f;
+
+        std::vector<character*> healers;
+        std::vector<character*> healed;
+
+        int team = 0;
+    };
+
+    /*std::string process_heals(int pteam)
     {
         std::string res;
 
@@ -684,8 +709,89 @@ struct entity_manager
         }
 
         return res;
+    }*/
+
+    heal_info process_heals(int pteam)
+    {
+        heal_info info;
+
+        info.team = pteam;
+
+        std::map<int, std::vector<character*>> team_to_chars;
+
+        for(auto& i : chars)
+        {
+            team_to_chars[i->team].push_back(i);
+        }
+
+        for(auto& team : team_to_chars)
+        {
+            if(team.first != pteam)
+                continue;
+
+            int team_size = team.second.size();
+
+            float heals = 0.f;
+
+            for(auto& ch : team.second)
+            {
+                if(ch->is_dead())
+                    continue;
+
+                heals += ch->get_teammate_heal();
+
+                if(heals > 0)
+                    info.healers.push_back(ch);
+            }
+
+            heals /= team_size;
+
+            if(heals == 0)
+                return info;
+
+            for(int i=0; i<team.second.size(); i++)
+            {
+                auto ch = team.second[i];
+
+                ch->modify_hp(heals);
+
+                info.healed.push_back(ch);
+            }
+
+            info.total_heal = heals;
+        }
+
+        return info;
     }
 
+    std::string get_heal_message(heal_info info)
+    {
+        if(info.healers.size() == 0)
+            return "";
+
+        std::string res;
+
+        for(auto& i : info.healers)
+        {
+            res = res + i->name + " ";
+        }
+
+        res = res + "heals ";
+
+        for(int i=0; i<info.healed.size(); i++)
+        {
+            res = res + info.healed[i]->name;
+
+            if(i != info.healed.size() - 1)
+            {
+                res = res + " and ";
+            }
+        }
+
+        res = res + " for " + to_string_prec(info.total_heal, 3) + " each";
+
+        return res;
+    }
 
     std::tuple<float, std::vector<character*>> check_intercept_against(character* c)
     {
@@ -858,9 +964,9 @@ struct entity_manager
             std::cout << get_battle_message(i) << std::endl;
         }
 
-        std::string str = process_heals(cteam);
+        heal_info healinfo = process_heals(cteam);
 
-        std::cout << str;
+        std::cout << get_heal_message(healinfo) << std::endl;
 
         half_turn_counter++;
 
@@ -895,9 +1001,9 @@ struct entity_manager
     ///one turn of resting
     void idle_turn()
     {
-        std::string msg = process_heals(0);
+        heal_info healinfo = process_heals(0);
 
-        std::cout << msg;
+        std::cout << get_heal_message(healinfo) << std::endl;
 
         for(auto& i : chars)
         {

@@ -144,6 +144,11 @@ struct item : stattable
         init_weapon_class(random_weapon, damage);
     }
 
+    void inc_stat(const std::string& key, int val = 1)
+    {
+        modify_stat_val(key, val);
+    }
+
     void inc_accumulated_wear()
     {
         accumulated_wear++;
