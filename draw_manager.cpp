@@ -104,7 +104,9 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     ImGui::Text("Group Heal Per Turn %s", stringify_to_percent(c->get_teammate_heal()).c_str());
 
+    std::string xp_str = "XP " + to_string_prec(c->get_level_adjusted_xp_accum(), 3) + "/" + to_string_prec(c->get_accum_xp_relative(), 3);
 
+    ImGui::Text("%s", xp_str.c_str());
 
     ImGui::End();
 
