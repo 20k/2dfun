@@ -713,7 +713,7 @@ struct entity_manager
 
         for(int i=0; i<valid_saver_teammates.size(); i++)
         {
-            if(randf_s(0.f, 1.f) < valid_saver_teammates[i]->get_intercept_chance())
+            if(randf_s(0.f, 1.f) < valid_saver_teammates[i]->get_intercept_chance() && valid_saver_teammates[i] != c)
             {
                 reduction_mult *= stats::damage_taken_through_block;
 
