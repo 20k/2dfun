@@ -13,7 +13,7 @@ namespace economics
         "Ultra rare",
         "Holy crap!"*/
     ///see rarity
-    std::vector<int> approx_economic_value
+    static std::vector<int> approx_economic_value
     {
         100,
         200,
@@ -24,11 +24,11 @@ namespace economics
     };
 
     ///value for damage scaling
-    float damage_max_value = 10000.f;
+    static float damage_max_value = 10000.f;
 
-    float percent_value_lost_per_wear_level = 0.1;
+    static float percent_value_lost_per_wear_level = 0.1;
 
-    float notoriety_value_mult_max = 10;
+    static float notoriety_value_mult_max = 10;
 }
 
 ///Ooh. We need a loot table, of course!

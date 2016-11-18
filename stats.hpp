@@ -13,7 +13,7 @@ struct base_stat
 namespace stats
 {
     ///add defence?
-    std::vector<std::string> stat_names =
+    static std::vector<std::string> stat_names =
     {
         "STR",
         "CON",
@@ -23,16 +23,16 @@ namespace stats
         "CHA"
     };
 
-    int primary_stat_end = stat_names.size();
+    static int primary_stat_end = stat_names.size();
 
-    std::vector<std::string> secondary_stats =
+    static std::vector<std::string> secondary_stats =
     {
         "DEF",
         "DGE", ///not a %, a stat
         "HEAL",
     };
 
-    std::vector<int> can_be_a_magical_property =
+    static std::vector<int> can_be_a_magical_property =
     {
         1, ///str
         1, ///con
@@ -44,7 +44,7 @@ namespace stats
         1  ///dodge stat
     };
 
-    std::vector<base_stat> default_stats(float to_what)
+    static std::vector<base_stat> default_stats(float to_what)
     {
         std::vector<base_stat> ret;
 
@@ -72,9 +72,9 @@ namespace stats
         return ret;
     }*/
 
-    int num = stat_names.size();
+    static int num = stat_names.size();
 
-    std::vector<std::string> races =
+    static std::vector<std::string> races =
     {
         "HUMIE",
         "HUMUN",
@@ -98,7 +98,7 @@ namespace stats
         "100% PEAR"
     };
 
-    std::vector<std::string> names =
+    static std::vector<std::string> names =
     {
         "JIM",
         "BOB",
@@ -141,7 +141,7 @@ namespace stats
     };
 
     ///sadly these need to be vaguely sensible
-    std::vector<std::string> classnames =
+    static std::vector<std::string> classnames =
     {
         "FIGHTER", ///fine. High damage direct
         "PRIEST", ///fine. Heal teammates
@@ -152,7 +152,7 @@ namespace stats
         //"STAFF" ///better at being general staff?
     };
 
-    std::map<std::string, std::string> class_to_damage_stat =
+    static std::map<std::string, std::string> class_to_damage_stat =
     {
         {"FIGHTER", "STR"},
         {"PRIEST", "WIS"},
@@ -164,7 +164,7 @@ namespace stats
 
     ///with the way health and damage go atm, fighter is objective the best class
     ///we can remedy this by allowing the other classes to do other things
-    std::map<std::string, float> damage_stat_to_damage_mult =
+    static std::map<std::string, float> damage_stat_to_damage_mult =
     {
         {"STR", 1.f},
         {"WIS", 0.8f},
@@ -174,7 +174,7 @@ namespace stats
         {"CON", 0.6f}, ///?
     };
 
-    std::map<std::string, float> primary_stat_to_hp_mult =
+    static std::map<std::string, float> primary_stat_to_hp_mult =
     {
         {"STR", 1.f},
         {"WIS", 0.7f},
@@ -184,7 +184,7 @@ namespace stats
         {"CON", 1.2f}, ///?
     };
 
-    std::map<std::string, float> class_damage_mult =
+    static std::map<std::string, float> class_damage_mult =
     {
         {"FIGHTER", 1.f},
         {"PRIEST", 1.f},
@@ -194,7 +194,7 @@ namespace stats
         {"DOG", 0.4f},
     };
 
-    std::map<std::string, float> class_hp_mult =
+    static std::map<std::string, float> class_hp_mult =
     {
         {"FIGHTER", 1.f},
         {"PRIEST", 1.f},
@@ -205,10 +205,10 @@ namespace stats
     };
 
     ///1 con = con_to_hp hp
-    float con_to_hp = 0.1f;
+    static float con_to_hp = 0.1f;
 
     ///needs to be kept brief, monsters must have consistently defined stats
-    std::vector<std::string> monsternames =
+    static std::vector<std::string> monsternames =
     {
         "BEAR",
         "GOBLIN",
@@ -216,7 +216,7 @@ namespace stats
         "SLIME"
     };
 
-    std::map<std::string, std::string> monstername_to_class =
+    static std::map<std::string, std::string> monstername_to_class =
     {
         {"BEAR", "FIGHTER"},
         {"GOBLIN", "RANGER"},
@@ -224,7 +224,7 @@ namespace stats
         {"SLIME", "FIGHTER"},
     };
 
-    std::vector<std::string> weapon_class =
+    static std::vector<std::string> weapon_class =
     {
         "SWORD",
         "BOW",
@@ -234,15 +234,15 @@ namespace stats
         "LUTE" ///smack that bitch p
     };
 
-    float weapon_stat_synergy_bonus = 1.1f;
+    static float weapon_stat_synergy_bonus = 1.1f;
 
-    float weapon_damage_max = 0.2f;
+    static float weapon_damage_max = 0.2f;
 
     ///rand^weapon_find_power
-    float weapon_find_power = 3.f;
+    static float weapon_find_power = 3.f;
 
     ///name potions after alcoholic drinks
-    std::vector<std::string> item_class =
+    static std::vector<std::string> item_class =
     {
         "POTION",
         "AMULET",
@@ -253,7 +253,7 @@ namespace stats
         "LEGGINGS"
     };
 
-    std::map<int, std::string> weapon_class_to_primary_stat =
+    static std::map<int, std::string> weapon_class_to_primary_stat =
     {
         {0, "STR"},
         {1, "DEX"},
@@ -263,7 +263,7 @@ namespace stats
         {5, "CHA"},
     };
 
-    std::vector<std::string> item_rarity =
+    static std::vector<std::string> item_rarity =
     {
         "Common",
         "Good Quality",
@@ -274,7 +274,7 @@ namespace stats
     };
 
     ///basically wear level - maintenance
-    std::vector<std::string> weapon_wear =
+    static std::vector<std::string> weapon_wear =
     {
         "PRISTINE",
         "GOOD",
@@ -284,7 +284,7 @@ namespace stats
         "RUSTED"
     };
 
-    std::vector<std::string> weapon_notoriety
+    static std::vector<std::string> weapon_notoriety
     {
         "GOOD",
         "JUST A PINCH",
@@ -293,27 +293,27 @@ namespace stats
         "UGLY",
     };
 
-    float damage_to_hp_conversion = 0.2f;
+    static float damage_to_hp_conversion = 0.2f;
 
     ///maximum dodge stat = 40% dodge
-    float dodge_stat_to_percent_dodge = 0.02f;
-    float defence_stat_to_percent_block = 0.06f;
-    float cha_intercept_to_percent_block = 0.01f;
+    static float dodge_stat_to_percent_dodge = 0.02f;
+    static float defence_stat_to_percent_block = 0.06f;
+    static float cha_intercept_to_percent_block = 0.01f;
 
-    float damage_taken_through_block = 0.3f;
+    static float damage_taken_through_block = 0.3f;
 
     ///4% per dex
-    float dex_to_dodge_chance = 0.04f;
-    float dex_primary_stat_synergy = 1.1f;
+    static float dex_to_dodge_chance = 0.04f;
+    static float dex_primary_stat_synergy = 1.1f;
 
-    float hpdamage_to_healing_conversion = 0.015f;
-    float heal_stat_heal_mult = 2.f; ///at 10 wis and +5 heal (max really), this would be equivalent to 10 wis of healing
+    static float hpdamage_to_healing_conversion = 0.015f;
+    static float heal_stat_heal_mult = 2.f; ///at 10 wis and +5 heal (max really), this would be equivalent to 10 wis of healing
 
     ///ie we get 10 turns of healing, whatever else might happen
-    int turns_between_fights = 10;
+    static int turns_between_fights = 10;
 
-    float first_level_xp = 40;
-    float xp_curve = 1.1f;
+    static float first_level_xp = 40;
+    static float xp_curve = 1.1f;
 }
 
 struct stattable
