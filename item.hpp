@@ -3,7 +3,6 @@
 
 #include "shared.hpp"
 
-
 struct item : stattable
 {
     int id = -1;
@@ -126,7 +125,7 @@ struct item : stattable
         {
             if(i.second == stat)
             {
-                appropriate_weapons.push_back(id);
+                appropriate_weapons.push_back(i.first);
             }
         }
 

@@ -280,7 +280,7 @@ struct character : combat_entity, stattable
 
         float stats_damage_mult = stats::damage_stat_to_damage_mult[key] * stats::class_damage_mult[classname];
 
-        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + invent.get_damage_bonus();
+        return 1.f * (get_item_modified_stat_val(key) / 10.f) * stats_damage_mult + invent.get_damage_bonus() * (get_item_modified_stat_val(key) / 10.f);
     }
 
     float calculate_def_damage_divisor() override

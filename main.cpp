@@ -51,7 +51,7 @@ int main()
     p4->rand_stats();
 
     nitem->random_stat_appropriate_weapon(p4->primary_stat);
-    //p4->add_to_invent(nitem);
+    p4->add_to_invent(nitem);
 
     std::cout << "pdump" << std::endl;
 
