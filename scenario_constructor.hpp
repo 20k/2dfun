@@ -40,9 +40,10 @@ struct scenario_manager
         {
             if(chars[i] == c)
             {
-                delete chars[i];
-
                 chars.erase(chars.begin() + i);
+
+                delete c;
+
                 i--;
             }
         }
