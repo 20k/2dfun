@@ -113,14 +113,14 @@ void render_character_ui(character* c, int column_id)
     //std::string blk_chance = to_string_prec(c->get_block_chance()*100, 3);
 
     ///def dodge heal
-    ImGui::Text("Block Chance %s%%", stringify_to_percent(c->get_block_chance()).c_str());
+    ImGui::Text("Block: %s%%", stringify_to_percent(c->get_block_chance()).c_str());
 
     //std::string dge_chance = to_string_prec(c->get_dodge_chance()*100, 3);
 
     ///def dodge heal
-    ImGui::Text("Dodge Chance %s%%", stringify_to_percent(c->get_dodge_chance()).c_str());
+    ImGui::Text("Dodge: %s%%", stringify_to_percent(c->get_dodge_chance()).c_str());
 
-    ImGui::Text("Intervene Chance %s%%", stringify_to_percent(c->get_intercept_chance()).c_str());
+    ImGui::Text("Intervene: %s%%", stringify_to_percent(c->get_intercept_chance()).c_str());
 
     ImGui::Text("Heal per tick %s", stringify_to_percent(c->get_teammate_heal()).c_str());
 
@@ -160,6 +160,8 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
     //character* c = entity_manage.chars[3];
     ImGui::Begin("Peons");
 
+    float horizontal_sep = 20.f;
+
     //ImGui::Columns(entity_manage.chars.size());
 
     for(int i=0; i<entity_manage.chars.size(); i++)
@@ -173,7 +175,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
         //if(i == entity_manage.chars.size()-1)
             //ImGui::NextColumn();
 
-        ImGui::SameLine();
+        ImGui::SameLine(0.f, horizontal_sep);
     }
 
     //ImGui::Columns(1);
