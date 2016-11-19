@@ -410,12 +410,18 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
             }
 
             res = res + cur + " ";
+
+            ImGui::Text((cur + " ").c_str());
+
+            ImGui::SameLine(0, 0);
         }
+
+        ImGui::NewLine();
 
         res = res + "\n";
     }
 
-    ImGui::Text(res.c_str());
+    //ImGui::Text(res.c_str());
 
     ImGui::EndGroup();
 }

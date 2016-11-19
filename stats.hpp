@@ -273,9 +273,14 @@ namespace stats
         "Holy crap!"
     };
 
-    std::map<int, vec3f> colour_table
+    static std::map<int, vec3f> colour_table
     {
         {0, {1.f, 1.f, 1.f}},
+        {1, {0, 1, 0}},
+        {1, {0, 0, 1}},
+        {1, {1, 0, 1}},
+        {1, {0, 1, 1}},
+        {1, {1, 0.5, 0}},
     };
 
     ///basically wear level - maintenance
