@@ -31,8 +31,46 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-std=gnu++14" />
+			<Add option="-Wno-sign-compare" />
+			<Add option="-Wno-narrowing" />
+			<Add option="-Wno-unused-variable" />
 		</Compiler>
+		<Linker>
+			<Add option="-lmingw32" />
+			<Add option="-limgui" />
+			<Add option="-lsfml-graphics" />
+			<Add option="-lsfml-audio" />
+			<Add option="-lsfml-network" />
+			<Add option="-lsfml-window" />
+			<Add option="-lsfml-system" />
+			<Add option="-lfreetype" />
+			<Add option="-ljpeg" />
+			<Add option="-lopengl32" />
+			<Add option="-lopencl" />
+			<Add option="-lglew64.dll" />
+			<Add option="-lws2_32" />
+			<Add option="-lwinmm" />
+			<Add option="-lgdi32" />
+			<Add option="-lflac" />
+			<Add option="-lopenal32" />
+			<Add option="-logg" />
+			<Add option="-lmyo64" />
+			<Add option="-limm32" />
+			<Add option="-lSDL2" />
+		</Linker>
+		<Unit filename="draw_manager.cpp" />
+		<Unit filename="draw_manager.hpp" />
+		<Unit filename="economics.hpp" />
+		<Unit filename="entities.hpp" />
+		<Unit filename="inventory.hpp" />
+		<Unit filename="item.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="scenario_constructor.hpp" />
+		<Unit filename="shared.hpp" />
+		<Unit filename="shop.cpp" />
+		<Unit filename="shop.hpp" />
+		<Unit filename="stats.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

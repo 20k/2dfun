@@ -32,7 +32,7 @@ namespace stats
         "HEAL",
     };
 
-    static std::vector<int> can_be_a_magical_property =
+    /*static std::vector<int> can_be_a_magical_property =
     {
         1, ///str
         1, ///con
@@ -42,7 +42,7 @@ namespace stats
         1, ///cha
         1, ///def
         1  ///dodge stat
-    };
+    };*/
 
     static std::vector<base_stat> default_stats(float to_what)
     {
@@ -114,7 +114,7 @@ namespace stats
         "BABLE",
         "SEEBLE",
         "DWEEBLE",
-        "EVIL",
+        "EEGL",
         "ETHIL",
         "GERBIL",
         "HANDLE",
@@ -271,6 +271,11 @@ namespace stats
         "Rare",
         "Ultra rare",
         "Holy crap!"
+    };
+
+    std::map<int, vec3f> colour_table
+    {
+        {0, {1.f, 1.f, 1.f}},
     };
 
     ///basically wear level - maintenance

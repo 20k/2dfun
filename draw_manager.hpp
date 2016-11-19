@@ -17,6 +17,51 @@ struct draw_manager
 
     float dt_ms = 0.f;
 
+    std::string* font_memory = new std::string;
+    ImFontConfig* cfg = new ImFontConfig;
+    ImGuiStyle style;
+
+    /*struct ImFontConfig
+    {
+        void*           FontData;                   //          // TTF data
+        int             FontDataSize;               //          // TTF data size
+        bool            FontDataOwnedByAtlas;       // true     // TTF data ownership taken by the container ImFontAtlas (will delete memory itself). Set to true
+        int             FontNo;                     // 0        // Index of font within TTF file
+        float           SizePixels;                 //          // Size in pixels for rasterizer
+        int             OversampleH, OversampleV;   // 3, 1     // Rasterize at higher quality for sub-pixel positioning. We don't use sub-pixel positions on the Y axis.
+        bool            PixelSnapH;                 // false    // Align every character to pixel boundary (if enabled, set OversampleH/V to 1)
+        ImVec2          GlyphExtraSpacing;          // 0, 0     // Extra spacing (in pixels) between glyphs
+        const ImWchar*  GlyphRanges;                //          // Pointer to a user-provided list of Unicode range (2 value per range, values are inclusive, zero-terminated list). THE ARRAY DATA NEEDS TO PERSIST AS LONG AS THE FONT IS ALIVE.
+        bool            MergeMode;                  // false    // Merge into previous ImFont, so you can combine multiple inputs font into one ImFont (e.g. ASCII font + icons + Japanese glyphs).
+        bool            MergeGlyphCenterV;          // false    // When merging (multiple ImFontInput for one ImFont), vertically center new glyphs instead of aligning their baseline
+
+        // [Internal]
+        char            Name[32];                               // Name (strictly for debugging)
+        ImFont*         DstFont;
+
+        IMGUI_API ImFontConfig();
+    };*/
+
+    std::string read_file(const std::string& fname)
+    {
+        FILE *f = fopen(fname.c_str(), "rb");
+
+        fseek(f, 0, SEEK_END);
+
+        long fsize = ftell(f);
+
+        fseek(f, 0, SEEK_SET);
+
+        std::string str;
+        str.resize(fsize+1);
+
+        fread(&str[0], fsize, 1, f);
+
+        fclose(f);
+
+        return str;
+    }
+
     void init(int width, int height)
     {
         window.create(sf::VideoMode(width, height), "Title");
@@ -24,11 +69,38 @@ struct draw_manager
         view = window.getDefaultView();
 
         ImGuiIO io = ImGui::GetIO();
+
+        *font_memory = read_file("ProggyClean.ttf");
+        //*font_memory = read_file("VeraMono.ttf");
+
+        if(font_memory->size() == 0)
+        {
+            std::cout << "No veramono.ttf or read error" << std::endl;
+            return;
+        }
+
+        cfg->FontData = &(*font_memory)[0];
+        cfg->FontDataSize = font_memory->size();
+        cfg->FontDataOwnedByAtlas = true;
+        cfg->FontNo = 0;
+        cfg->SizePixels = 13;
+        cfg->OversampleH = 3;
+        cfg->OversampleV = 1;
+        cfg->PixelSnapH = false;
+        cfg->GlyphExtraSpacing = ImVec2(0,0);
+        cfg->GlyphRanges = nullptr;
+        cfg->MergeMode = false;
+        cfg->MergeGlyphCenterV = false;
+
+        io.Fonts->AddFont(cfg);
+
         //io.MouseDrawCursor = false;
 
         //io.Fonts->AddFontFromFileTTF("VeraMono.ttf", 13.0f);
 
-        //style = ImGui::GetStyle();
+        style = ImGui::GetStyle();
+
+        //printf("%f %f style\n", style.FramePadding.x, style.FramePadding.y);
     }
 
     void tick()
