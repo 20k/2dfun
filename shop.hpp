@@ -22,7 +22,10 @@ struct tile
 {
     tile_info::stile tile_type;
 
-    int item_type_id_for_sale = -1;
+    //int item_type_id_for_sale = -1;
+    std::string item_class;
+    int rarity;
+    item* specific_object = nullptr;
 };
 
 struct sellable
@@ -40,7 +43,19 @@ struct peon
     ///calculate environmental modifiers
 };
 
+struct place_info
+{
+    std::string item_class;
+    int rarity = -1;
+    bool placing = false;
+
+    ///ignore me for the moment
+    item* specific_object = nullptr;
+};
+
 ///literal shop representation
+///need to list if items are equipped
+///need character -> equip and character -> unequip, and possibly a can_sell tag, or something more useful
 struct shop
 {
     bool view_is_init = false;
@@ -49,7 +64,11 @@ struct shop
 
     item_manager* item_manage;
 
+    place_info currently_placing;
+
     std::vector<sellable*> for_sale;
+
+    std::vector<tile> tiles;
 
     void init(item_manager* imanage, vec2i pdim, int pgrid_dim);
 
@@ -58,12 +77,20 @@ struct shop
 
     void remove_sellable(sellable* s);
 
-    void place_sellable(sellable* s, vec2i pos);
+    void place_sellable(sellable* s, vec2f pos); ///pos is snapped
+
+    void place_selection(vec2f pos);
 
     ///will need to convert from camera pos to shop pos
     vec2i pos_to_grid_snapped(vec2f pos);
 
     void draw(draw_manager& draw_manage);
+
+    void draw_shopfront_ui(draw_manager& draw_manage);
+
+    void tick(draw_manager& draw_manage);
+
+    std::vector<sellable*> get_sellable_by_rarity(int rarity);
 };
 
 #endif // SHOP_HPP_INCLUDED

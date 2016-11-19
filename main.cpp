@@ -28,15 +28,6 @@ int main()
 {
     item_manager item_manage;
 
-    for(int i=0; i<stats::starting_items; i++)
-    {
-        item* ni = item_manage.make_new();
-
-        ni->random_item_or_weapon();
-
-        std::cout << ni->display() << std::endl;
-    }
-
     item* nitem = item_manage.make_new();
 
     //nitem.init_weapon_class(0, 0.02f);
@@ -96,13 +87,27 @@ int main()
 
     shop_manage.init(&item_manage, {500, 500}, 30);
 
+    for(int i=0; i<stats::starting_items; i++)
+    {
+        item* ni = item_manage.make_new();
+
+        ni->random_item_or_weapon();
+
+        shop_manage.make_sellable(ni);
+
+        //std::cout << ni->display() << std::endl;
+    }
+
     while(draw_manage.window.isOpen())
     {
         draw_manage.tick();
+        shop_manage.tick(draw_manage); ///for world transforms
 
         shop_manage.draw(draw_manage);
 
         draw_manage.draw_entity_ui(party);
+
+        shop_manage.draw_shopfront_ui(draw_manage);
 
         draw_manage.render_ui();
 
