@@ -35,6 +35,12 @@ struct item : stattable
 
     void init_weapon_class(int id, float extra_hp_damage)
     {
+        if(id >= stats::weapon_class.size())
+        {
+            printf("what in init_weapon_class %i\n", id);
+            return;
+        }
+
         weapon_class = id;
 
         primary_stat = stats::weapon_class_to_primary_stat[weapon_class];
@@ -86,6 +92,10 @@ struct item : stattable
         {
             ret = ret + first_letter + "ealing an extra " + to_string_prec(attack_boost_hp_flat, 3) + " hp of damage\n";
         }
+        else
+        {
+            ret = ret + "\n";
+        }
 
         ret = ret + "Condition: " + stats::weapon_wear[get_wear()] + "\n";
         ret = ret + "Notoriety: " + stats::weapon_notoriety[get_notoriety()] + "\n";
@@ -96,6 +106,22 @@ struct item : stattable
             ret.push_back('\n');
 
         return ret;
+    }
+
+    void random_item_or_weapon()
+    {
+        if(randf_s(0.f, 1.f) < 0.5f)
+        {
+            int rv = randf<1, int>(0, stats::weapon_class.size());
+
+            random_weapon_with_class(rv);
+        }
+        else
+        {
+            int rv = randf<1, int>(0, stats::item_class.size());
+
+            init_item(rv);
+        }
     }
 
     void random_magical(int extra_stats)
@@ -113,6 +139,13 @@ struct item : stattable
         }
 
         rarity += extra_stats;
+    }
+
+    void random_weapon_with_class(int wclass)
+    {
+        float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
+
+        init_weapon_class(wclass, damage);
     }
 
     void random_stat_appropriate_weapon(const std::string& stat)
@@ -139,9 +172,7 @@ struct item : stattable
 
         int random_weapon = appropriate_weapons[random_weapon_num];
 
-        float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
-
-        init_weapon_class(random_weapon, damage);
+        random_weapon_with_class(random_weapon);
     }
 
     void inc_stat(const std::string& key, int val = 1)

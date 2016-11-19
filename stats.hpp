@@ -324,6 +324,8 @@ namespace stats
 
     static float first_level_xp = 40;
     static float xp_curve = 1.1f;
+
+    static int starting_items = 100;
 }
 
 struct stattable

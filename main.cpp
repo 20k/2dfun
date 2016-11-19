@@ -28,6 +28,15 @@ int main()
 {
     item_manager item_manage;
 
+    for(int i=0; i<stats::starting_items; i++)
+    {
+        item* ni = item_manage.make_new();
+
+        ni->random_item_or_weapon();
+
+        std::cout << ni->display() << std::endl;
+    }
+
     item* nitem = item_manage.make_new();
 
     //nitem.init_weapon_class(0, 0.02f);
