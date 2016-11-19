@@ -258,9 +258,28 @@ void render_character_alt(character* c, int column_id)
     ImGui::EndGroup();
 }
 
-std::vector<std::string> get_render_strings(character* c)
+struct render_info
 {
-    std::vector<std::string> displays;
+    std::string tooltip;
+    std::string str;
+    vec3f col = {1,1,1};
+
+    render_info(const std::string& s)
+    {
+        str = s;
+    }
+
+    render_info(const std::string& s, vec3f c, const std::string& t = "")
+    {
+        str = s;
+        col = c;
+        tooltip = t;
+    }
+};
+
+std::vector<render_info> get_render_strings(character* c)
+{
+    std::vector<render_info> displays;
 
     std::string name = c->name;
     std::string classname = c->classname;
@@ -299,6 +318,7 @@ std::vector<std::string> get_render_strings(character* c)
     displays.push_back(hp_str);
     displays.push_back(xp_str);
 
+    ///we need to know what item is given which buffs
     stattable buffs = c->invent.get_buffs();
 
     int max_character_length = 0;
@@ -309,17 +329,49 @@ std::vector<std::string> get_render_strings(character* c)
 
         float v2 = buffs.get_stat_val(i.key);
 
+        #ifdef USE_PLUSBRACKET_NOTATION
+
         if(v2 > 0)
             val = val + " (+" + to_string_prec(v2, 3) + ")";
 
+        #endif
+
+        int iv = clamp(v2, 0, stats::colour_table.size()-1);
+
+        #define USE_COLOURS
+        #ifdef USE_COLOURS
+
+        vec3f col = {1,1,1};
+
+        if(v2 > 0)
+            col = stats::colour_table[iv];
+
+        #endif
+
+        #ifndef USE_PLUSBRACKET_NOTATION
+        float combo = i.val + v2;
+
+        val = to_string_prec(combo);
+        #endif // USE_PLUSBRACKET_NOTATION
+
+        std::string tooltip_optional;
+
+        #define USE_TOOLTIP
+        #ifdef USE_TOOLTIP
+
+        if(v2 > 0)
+            tooltip_optional = "Base " + to_string_prec(i.val, 3) + " with +" + to_string_prec(v2, 3) + " from item(s)";
+
+        #endif // USE_TOOLTIP
+
         std::string res = i.key + " " + val;
 
-        displays.push_back(res);
+        displays.push_back(render_info(res, col, tooltip_optional));
     }
 
     for(auto& i : displays)
     {
-        i = fix_imgui_percent(i);
+        i.str = fix_imgui_percent(i.str);
     }
 
     return displays;
@@ -329,7 +381,7 @@ std::vector<int> get_max_in_3_group(character* c)
 {
     std::vector<int> max_in_3_group;
 
-    std::vector<std::string> displays = get_render_strings(c);
+    std::vector<render_info> displays = get_render_strings(c);
 
     for(int i=0; i<displays.size(); i++)
     {
@@ -338,7 +390,7 @@ std::vector<int> get_max_in_3_group(character* c)
         if(max_in_3_group.size() < column_num+1)
             max_in_3_group.push_back(0);
 
-        int str_len = get_len_nodoublecount_percents(displays[i]);
+        int str_len = get_len_nodoublecount_percents(displays[i].str);
 
         max_in_3_group[column_num] = std::max(max_in_3_group[column_num], str_len);
     }
@@ -366,7 +418,7 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
     //std::vector<int> max_in_3_group;
     float button_width = 80.f;
 
-    std::vector<std::string> displays = get_render_strings(c);
+    std::vector<render_info> displays = get_render_strings(c);
 
     //for(auto& i : displays)
     /*for(int i=0; i<displays.size(); i++)
@@ -400,7 +452,8 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
             if(id >= displays.size())
                 continue;
 
-            std::string cur = displays[id];
+            std::string cur = displays[id].str;
+            vec3f col = displays[id].col;
 
             int cmax = max_in_3_group[j];
 
@@ -411,7 +464,21 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
 
             res = res + cur + " ";
 
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(col.v[0], col.v[1], col.v[2], 1));
+
             ImGui::Text((cur + " ").c_str());
+
+            ImGui::PopStyleColor();
+
+            if(ImGui::IsItemHovered())
+            {
+                std::string tooltip = displays[id].tooltip;
+
+                if(tooltip != "")
+                {
+                    ImGui::SetTooltip(tooltip.c_str());
+                }
+            }
 
             ImGui::SameLine(0, 0);
         }
@@ -457,13 +524,13 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     //ImGui::Columns(entity_manage.chars.size());
 
-    std::vector<std::vector<std::string>> displays;
+    //std::vector<std::vector<render_info>> displays;
 
     std::vector<int> max_in_3_group;
 
     for(auto& i : entity_manage.chars)
     {
-        displays.push_back(get_render_strings(i));
+        //displays.push_back(get_render_strings(i));
 
         auto tmax = get_max_in_3_group(i);
 
