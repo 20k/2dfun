@@ -65,6 +65,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     //ImGui::Button("LVL", ImVec2(button_width, 0));
 
+    ///defence dodge and heal are possible too much info
     for(auto& i : c->stats)
     {
         ImGui::Button(i.key.c_str(), ImVec2(button_width, 0));
@@ -93,14 +94,14 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
     //std::string blk_chance = to_string_prec(c->get_block_chance()*100, 3);
 
     ///def dodge heal
-    ImGui::Text("Block Chance %%%s", stringify_to_percent(c->get_block_chance()).c_str());
+    ImGui::Text("Block Chance %s%%", stringify_to_percent(c->get_block_chance()).c_str());
 
     //std::string dge_chance = to_string_prec(c->get_dodge_chance()*100, 3);
 
     ///def dodge heal
-    ImGui::Text("Dodge Chance %%%s", stringify_to_percent(c->get_dodge_chance()).c_str());
+    ImGui::Text("Dodge Chance %s%%", stringify_to_percent(c->get_dodge_chance()).c_str());
 
-    ImGui::Text("Intervene Chance %%%s", stringify_to_percent(c->get_intercept_chance()).c_str());
+    ImGui::Text("Intervene Chance %s%%", stringify_to_percent(c->get_intercept_chance()).c_str());
 
     ImGui::Text("Heal per tick %s", stringify_to_percent(c->get_teammate_heal()).c_str());
 

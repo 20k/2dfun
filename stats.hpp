@@ -388,6 +388,16 @@ struct stattable
         return -1.f;
     }
 
+    float get_scaled_stat_val(const std::string& key, float minscale = 0.5f, float maxscale = 1.5f)
+    {
+        float val = get_stat_val(key);
+
+        val *= (maxscale - minscale);
+        val += minscale;
+
+        return val;
+    }
+
     float modify_stat_val(const std::string& key, float diff)
     {
         for(auto& i : stats)

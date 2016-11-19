@@ -22,6 +22,13 @@ struct draw_manager
         window.create(sf::VideoMode(width, height), "Title");
 
         view = window.getDefaultView();
+
+        ImGuiIO io = ImGui::GetIO();
+        //io.MouseDrawCursor = false;
+
+        //io.Fonts->AddFontFromFileTTF("VeraMono.ttf", 13.0f);
+
+        //style = ImGui::GetStyle();
     }
 
     void tick()
