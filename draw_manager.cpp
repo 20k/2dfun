@@ -443,6 +443,8 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
 
     std::string res;
 
+    int extra_spacing = 2;
+
     for(int i=0; i<3; i++)
     {
         for(int j=0; j<num_in_row; j++)
@@ -457,7 +459,9 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
 
             int cmax = max_in_3_group[j];
 
-            for(int i=cur.size(); i<cmax; i++)
+            int str_len = get_len_nodoublecount_percents(cur);
+
+            for(int i=str_len; i<cmax + extra_spacing; i++)
             {
                 cur = cur + " ";
             }
