@@ -179,6 +179,8 @@ void shop::draw(draw_manager& draw_manage)
     shape.setPosition(local_grid.v[0], local_grid.v[1]);
 
     draw_manage.window.draw(shape);
+
+    peon_manage.draw_peons(draw_manage);
 }
 
 struct sorted_item_info
@@ -343,14 +345,16 @@ void shop::tick(draw_manager& draw_manage)
 
         place_selection(proj);
     }
+
+    peon_manage.tick(*this);
 }
 
 vec2i shop::sellable_to_tile(sellable* s)
 {
-    for(auto& i : tiles)
+    for(auto& t : tiles)
     {
-        if(i.specific_object == s->i)
-            return i.array_pos;
+        if((s->i->item_class == t.item_class && s->i->rarity == t.rarity) || s->i == t.specific_object)
+            return t.array_pos;
     }
 
     printf("No sellable at any tile\n");
@@ -373,4 +377,41 @@ void shop::purchase(sellable* s)
             i--;
         }
     }
+}
+
+void shop::spawn_random_peon()
+{
+    peon* p = peon_manage.make_peon();
+    p->init(0);
+}
+
+std::vector<tile> shop::get_table_tiles()
+{
+    std::vector<tile> ret;
+
+    for(auto& i : tiles)
+    {
+        if(i.tile_type == tile_info::TABLE_WITH_ITEM)
+            ret.push_back(i);
+    }
+
+    return ret;
+}
+
+std::vector<sellable*> shop::get_purchasable_sellables_on_tables()
+{
+    std::vector<sellable*> ret;
+
+    std::vector<tile> tables = get_table_tiles();
+
+    for(auto& i : for_sale)
+    {
+        for(auto& t : tables)
+        {
+            if((i->i->item_class == t.item_class && i->i->rarity == t.rarity) || i->i == t.specific_object)
+                ret.push_back(i);
+        }
+    }
+
+    return ret;
 }

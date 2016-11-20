@@ -87,6 +87,8 @@ int main()
 
     shop_manage.init(&item_manage, {500, 500}, 30);
 
+    shop_manage.spawn_random_peon();
+
     for(int i=0; i<stats::starting_items; i++)
     {
         item* ni = item_manage.make_new();

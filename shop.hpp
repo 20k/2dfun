@@ -95,6 +95,12 @@ struct shop
     vec2i sellable_to_tile(sellable* s);
 
     void purchase(sellable* s);
+
+    void spawn_random_peon();
+
+    std::vector<tile> get_table_tiles();
+
+    std::vector<sellable*> get_purchasable_sellables_on_tables();
 };
 
 #endif // SHOP_HPP_INCLUDED
