@@ -358,6 +358,11 @@ void shop::draw_shopinfo_ui(draw_manager& draw_manage)
     ImGui::Button(money_str.c_str());
     ImGui::Button(customer_str.c_str());
 
+    if(ImGui::Button("Spawn Peon"))
+    {
+        spawn_random_peon();
+    }
+
     ImGui::End();
 }
 

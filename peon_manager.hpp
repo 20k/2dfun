@@ -40,6 +40,8 @@ struct peon
     void set_pathfind(vec2f p);
 
     bool should_leave(shop& s);
+
+    bool within_door(shop& s);
 };
 
 struct peon_manager

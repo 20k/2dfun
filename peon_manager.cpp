@@ -21,6 +21,9 @@ void peon::seek_random_item(shop& s)
 
     }*/
 
+    if(currently_seeking)
+        return;
+
     if(s.for_sale.size() == 0)
         return;
 
@@ -55,6 +58,8 @@ void peon::seek_random_item(shop& s)
 
         should_pathfind = true;
         pathfinding_destination = conv_implicit<vec2f>(s.sellable_to_tile(currently_seeking)) * (float)s.grid_dim + s.grid_dim/2.f;
+
+        success = true;
     }
 }
 
@@ -165,6 +170,13 @@ bool peon::should_leave(shop& s)
     return true;
 }
 
+bool peon::within_door(shop& s)
+{
+    vec2f door_pos = s.get_door_world_pos() + s.grid_dim/2.f;
+
+    return (pos - door_pos).length() < 0.4f;
+}
+
 peon* peon_manager::make_peon()
 {
     peon* p = new peon;
@@ -207,6 +219,17 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
             //printf("sl");
 
             i->set_pathfind(s.get_door_world_pos() + s.grid_dim/2.f);
+        }
+    }
+
+    for(int i=0; i<peons.size(); i++)
+    {
+        peon* p = peons[i];
+
+        if(p->should_leave(s) && p->within_door(s))
+        {
+            remove_peon(p);
+            i--;
         }
     }
 }
