@@ -11,7 +11,7 @@ void peon::init(int ptier)
 
     money = money + money * randf_s(-stats::peon_money_variation, stats::peon_money_variation);
 
-    wallet = money;
+    wallet = (int)money;
 }
 
 void peon::seek_random_item(shop& s)
@@ -170,9 +170,12 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
     }
 }
 
+///draw tooltips when mousing over peons with imgui
+///need to know their cash
+///also pathfind them out the shop
 void peon_manager::draw_peons(draw_manager& draw_manage)
 {
-    sf::Color col(0, 0, 255);
+    sf::Color col(128, 128, 255);
     sf::CircleShape shape;
     shape.setFillColor(col);
 
@@ -181,6 +184,10 @@ void peon_manager::draw_peons(draw_manager& draw_manage)
     shape.setRadius(rad);
     shape.setOrigin(rad, rad);
 
+    sf::Text txt;
+    txt.setFont(draw_manage.font);
+    txt.setCharacterSize(12);
+
     for(peon* p : peons)
     {
         vec2f pos = p->pos;
@@ -188,5 +195,12 @@ void peon_manager::draw_peons(draw_manager& draw_manage)
         shape.setPosition({pos.x(), pos.y()});
 
         draw_manage.window.draw(shape);
+
+        std::string wallet_money = to_string_prec(p->wallet, 4);
+
+        txt.setString(wallet_money.c_str());
+        txt.setPosition(shape.getPosition());
+
+        draw_manage.window.draw(txt);
     }
 }

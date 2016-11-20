@@ -15,7 +15,8 @@ namespace tile_info
     {
         FLOOR,
         TABLE_WITH_ITEM,
-        WALL
+        WALL,
+        DOOR
     };
 }
 
@@ -87,6 +88,7 @@ struct shop
     void draw(draw_manager& draw_manage);
 
     void draw_shopfront_ui(draw_manager& draw_manage);
+    void draw_shopinfo_ui(draw_manager& draw_manage);
 
     void tick(draw_manager& draw_manage);
 

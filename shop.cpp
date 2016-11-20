@@ -13,14 +13,22 @@ void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 
     grid_dim = pgrid_dim;
 
-    for(int i=0; i<dim.x() * dim.y(); i++)
+    vec2i rdim = dim / pgrid_dim;
+
+    for(int i=0; i<rdim.x() * rdim.y(); i++)
     {
-        int x = i % dim.x();
-        int y = i / dim.x();
+        int x = i % rdim.x();
+        int y = i / rdim.x();
 
         tile base;
         base.tile_type = tile_info::FLOOR;
-        base.array_pos = {x, y};
+        base.array_pos = (vec2i){x, y};
+
+        ///halfway on the bottom
+        if(i == rdim.x() * rdim.y() - rdim.x()/2)
+        {
+            base.tile_type = tile_info::DOOR;
+        }
 
         tiles.push_back(base);
     }
@@ -69,8 +77,8 @@ void shop::place_sellable(sellable* s, vec2f pos)
 {
     vec2i local = pos_to_grid_snapped(pos);
 
-    if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() || local.y() >= dim.y())
-        return;
+    //if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() || local.y() >= dim.y())
+    //    return;
 
 }
 
@@ -78,10 +86,10 @@ void shop::place_selection(vec2f pos)
 {
     vec2i local = pos_to_grid_snapped(pos) / grid_dim;
 
-    if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() || local.y() >= dim.y())
+    if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() / grid_dim || local.y() >= dim.y() / grid_dim)
         return;
 
-    tile& t = tiles[local.y() * dim.x() + local.x()];
+    tile& t = tiles[local.y() * (dim.x() / grid_dim) + local.x()];
 
     t.tile_type = tile_info::TABLE_WITH_ITEM;
 
@@ -120,6 +128,7 @@ void shop::draw(draw_manager& draw_manage)
     sf::Color table_col = sf::Color(139,69,19);
     sf::Color floor_col = sf::Color(40,40,40);
     sf::Color wall_col = sf::Color(140, 128, 120);
+    sf::Color door_col = sf::Color(220, 220, 100);
 
     shape.setFillColor(floor_col);
 
@@ -144,12 +153,12 @@ void shop::draw(draw_manager& draw_manage)
     {
         for(int ii=0; ii<dim.x() / grid_dim; ii++)
         {
-            tile& t = tiles[jj*dim.x() + ii];
-
-            std::string& str = t.item_class;
+            tile& t = tiles[jj*(dim.x() / grid_dim) + ii];
 
             if(t.tile_type == tile_info::TABLE_WITH_ITEM)
             {
+                std::string& str = t.item_class;
+
                 shape.setPosition(ii * grid_dim, jj * grid_dim);
 
                 draw_manage.window.draw(shape);
@@ -160,6 +169,24 @@ void shop::draw(draw_manager& draw_manage)
 
                 draw_manage.window.draw(txt);
             }
+        }
+    }
+
+    for(auto& i : tiles)
+    {
+        if(i.tile_type == tile_info::DOOR)
+        {
+            shape.setFillColor(door_col);
+
+            vec2i pos = i.array_pos;
+
+            vec2f world_pos = conv_implicit<vec2f>(pos * grid_dim);
+
+            //printf("wp %f %f\n", EXPAND_2(world_pos));
+
+            shape.setPosition({world_pos.x(), world_pos.y()});
+
+            draw_manage.window.draw(shape);
         }
     }
 
@@ -312,6 +339,24 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage)
             draw_expanded_rarity(draw_manage, *this, i);
         }
     }
+
+    ImGui::End();
+}
+
+void shop::draw_shopinfo_ui(draw_manager& draw_manage)
+{
+    float current_shop_money = money;
+
+    std::string money_str = "Gold: " + to_string_prec(current_shop_money, 6);
+
+    int current_customers = peon_manage.peons.size();
+
+    std::string customer_str = "Customers: " + std::to_string(current_customers);
+
+    ImGui::Begin("Shop Info");
+
+    ImGui::Button(money_str.c_str());
+    ImGui::Button(customer_str.c_str());
 
     ImGui::End();
 }
