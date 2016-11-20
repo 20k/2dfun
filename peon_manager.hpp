@@ -37,6 +37,9 @@ struct peon
 
     ///to target
     void pathfind(shop& s, float dt_s);
+    void set_pathfind(vec2f p);
+
+    bool should_leave(shop& s);
 };
 
 struct peon_manager

@@ -130,13 +130,39 @@ void peon::pathfind(shop& s, float dt_s)
     //    md = dist;
 
     if(dist < 0.1f)
+    {
+        should_pathfind = false;
         return;
+    }
 
     vec2f dir = (dest - cur).norm();
 
     cur = cur + dir * md;
 
     pos = cur;
+}
+
+void peon::set_pathfind(vec2f p)
+{
+    if((p - pos).length() < 0.1f)
+        return;
+
+    should_pathfind = true;
+
+    pathfinding_destination = p;
+}
+
+bool peon::should_leave(shop& s)
+{
+    std::vector<sellable*> sells = s.get_purchasable_sellables_on_tables();
+
+    for(auto& i : sells)
+    {
+        if(i->listed_price < wallet)
+            return false;
+    }
+
+    return true;
 }
 
 peon* peon_manager::make_peon()
@@ -175,6 +201,13 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 
         if(!i->should_pathfind)
             i->seek_random_item(s);
+
+        if(i->should_leave(s))
+        {
+            //printf("sl");
+
+            i->set_pathfind(s.get_door_world_pos() + s.grid_dim/2.f);
+        }
     }
 }
 
