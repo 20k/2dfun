@@ -69,7 +69,7 @@ bool peon::within_purchase_distance_of_currently_seeking(shop& s)
 
     float len = dist.length();
 
-    printf("%f buydist\n", len);
+    //printf("%f buydist\n", len);
 
     if(len < 0.5)
         return true;
