@@ -233,6 +233,20 @@ struct item_manager
     {
         return new item(gid++);
     }
+
+    void destroy(item* f)
+    {
+        for(int i=0; i<items.size(); i++)
+        {
+            if(items[i] == f)
+            {
+                items.erase(items.begin() + i);
+                delete f;
+
+                i--;
+            }
+        }
+    }
 };
 
 #endif // ITEM_HPP_INCLUDED

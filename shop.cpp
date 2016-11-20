@@ -15,11 +15,17 @@ void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 
     for(int i=0; i<dim.x() * dim.y(); i++)
     {
+        int x = i % dim.x();
+        int y = i / dim.x();
+
         tile base;
         base.tile_type = tile_info::FLOOR;
+        base.array_pos = {x, y};
 
         tiles.push_back(base);
     }
+
+    money = stats::starting_cash;
 }
 
 sellable* shop::make_sellable(item* i, float price)
@@ -336,5 +342,35 @@ void shop::tick(draw_manager& draw_manage)
         proj = draw_manage.screen_to_world(proj);
 
         place_selection(proj);
+    }
+}
+
+vec2i shop::sellable_to_tile(sellable* s)
+{
+    for(auto& i : tiles)
+    {
+        if(i.specific_object == s->i)
+            return i.array_pos;
+    }
+
+    printf("No sellable at any tile\n");
+
+    return {-1, -1};
+}
+
+void shop::purchase(sellable* s)
+{
+    for(int i=0; i<for_sale.size(); i++)
+    {
+        if(for_sale[i] == s)
+        {
+            money += s->listed_price;
+
+            item_manage->destroy(s->i);
+
+            remove_sellable(s);
+
+            i--;
+        }
     }
 }

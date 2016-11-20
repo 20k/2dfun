@@ -303,6 +303,18 @@ namespace stats
         "UGLY",
     };
 
+    static std::vector<int> peon_class_money_base
+    {
+        100,
+        500,
+        1000,
+        10000,
+        100000,
+    };
+
+    ///*100 = %
+    static float peon_money_variation = 0.1f;
+
     static float damage_to_hp_conversion = 0.2f;
 
     ///maximum dodge stat = 40% dodge
@@ -326,6 +338,7 @@ namespace stats
     static float xp_curve = 1.1f;
 
     static int starting_items = 100;
+    static int starting_cash = 1000.f;
 }
 
 struct stattable

@@ -2,6 +2,7 @@
 #define SHOP_HPP_INCLUDED
 
 #include <vec/vec.hpp>
+#include "peon_manager.hpp"
 
 struct item;
 struct economic_item;
@@ -20,6 +21,8 @@ namespace tile_info
 
 struct tile
 {
+    vec2i array_pos;
+
     tile_info::stile tile_type;
 
     //int item_type_id_for_sale = -1;
@@ -32,15 +35,7 @@ struct sellable
 {
     float listed_price = 0.f;
     item* i = nullptr;
-};
-
-struct peon
-{
-    float wallet = 0.f;
-    ///specific weapon interest
-    ///happiness
-    ///path position random
-    ///calculate environmental modifiers
+    bool locked = false;
 };
 
 struct place_info
@@ -59,6 +54,10 @@ struct place_info
 ///implement drag and drop from shop items to character invents
 struct shop
 {
+    float money = 0;
+
+    peon_manager peon_manage;
+
     bool view_is_init = false;
     vec2i dim;
     int grid_dim = 0;
@@ -92,6 +91,10 @@ struct shop
     void tick(draw_manager& draw_manage);
 
     std::vector<sellable*> get_sellable_by_rarity(int rarity);
+
+    vec2i sellable_to_tile(sellable* s);
+
+    void purchase(sellable* s);
 };
 
 #endif // SHOP_HPP_INCLUDED
