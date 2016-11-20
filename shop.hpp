@@ -56,6 +56,7 @@ struct place_info
 ///literal shop representation
 ///need to list if items are equipped
 ///need character -> equip and character -> unequip, and possibly a can_sell tag, or something more useful
+///implement drag and drop from shop items to character invents
 struct shop
 {
     bool view_is_init = false;

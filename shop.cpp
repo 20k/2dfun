@@ -72,8 +72,6 @@ void shop::place_selection(vec2f pos)
 {
     vec2i local = pos_to_grid_snapped(pos) / grid_dim;
 
-    printf("%f %f %i %i\n", EXPAND_2(pos), EXPAND_2(local));
-
     if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() || local.y() >= dim.y())
         return;
 
@@ -84,8 +82,6 @@ void shop::place_selection(vec2f pos)
     t.item_class = currently_placing.item_class;
     t.rarity = currently_placing.rarity;
     t.specific_object = currently_placing.specific_object;
-
-    printf("hi");
 }
 
 vec2i shop::pos_to_grid_snapped(vec2f pos)
@@ -133,6 +129,10 @@ void shop::draw(draw_manager& draw_manage)
 
     shape.setFillColor(table_col);
 
+    sf::Text txt;
+    txt.setFont(draw_manage.font);
+    txt.setCharacterSize(10);
+
     ///draw tables here
     for(int jj=0; jj<dim.y() / grid_dim; jj++)
     {
@@ -140,11 +140,19 @@ void shop::draw(draw_manager& draw_manage)
         {
             tile& t = tiles[jj*dim.x() + ii];
 
+            std::string& str = t.item_class;
+
             if(t.tile_type == tile_info::TABLE_WITH_ITEM)
             {
                 shape.setPosition(ii * grid_dim, jj * grid_dim);
 
                 draw_manage.window.draw(shape);
+
+                txt.setString(str.c_str());
+
+                txt.setPosition(ii * grid_dim, jj * grid_dim);
+
+                draw_manage.window.draw(txt);
             }
         }
     }

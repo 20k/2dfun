@@ -20,6 +20,7 @@ struct draw_manager
     std::string* font_memory = new std::string;
     ImFontConfig* cfg = new ImFontConfig;
     ImGuiStyle style;
+    sf::Font font;
 
     /*struct ImFontConfig
     {
@@ -64,7 +65,10 @@ struct draw_manager
 
     void init(int width, int height)
     {
-        window.create(sf::VideoMode(width, height), "Title");
+        sf::ContextSettings settings;
+        settings.antialiasingLevel = 8;
+
+        window.create(sf::VideoMode(width, height), "Title", sf::Style::Default, settings);
 
         view = window.getDefaultView();
 
@@ -99,6 +103,8 @@ struct draw_manager
         //io.Fonts->AddFontFromFileTTF("VeraMono.ttf", 13.0f);
 
         style = ImGui::GetStyle();
+
+        font.loadFromFile("VeraMono.ttf");
 
         //printf("%f %f style\n", style.FramePadding.x, style.FramePadding.y);
     }
