@@ -31,6 +31,9 @@ struct peon
     bool can_purchase_currently_seeking(shop& s);
 
     bool try_purchase_currently_seeking(shop& s);
+
+    ///to target
+    void pathfind(shop& s, float dt_s);
 };
 
 struct peon_manager
@@ -41,7 +44,7 @@ struct peon_manager
 
     void remove_peon(peon* p);
 
-    void tick(shop& s);
+    void tick(shop& s, draw_manager& draw_manage);
 
     void draw_peons(draw_manager& draw_manage);
 };

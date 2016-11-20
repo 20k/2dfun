@@ -346,7 +346,7 @@ void shop::tick(draw_manager& draw_manage)
         place_selection(proj);
     }
 
-    peon_manage.tick(*this);
+    peon_manage.tick(*this, draw_manage);
 }
 
 vec2i shop::sellable_to_tile(sellable* s)

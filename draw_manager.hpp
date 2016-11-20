@@ -203,6 +203,11 @@ struct draw_manager
         window.display();
         window.clear();
     }
+
+    float get_frametime_s()
+    {
+        return dt_ms / 1000.f;
+    }
 };
 
 #endif // DRAW_MANAGER_HPP_INCLUDED

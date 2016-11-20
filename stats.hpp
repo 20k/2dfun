@@ -314,6 +314,7 @@ namespace stats
 
     ///*100 = %
     static float peon_money_variation = 0.1f;
+    static float peon_move_speed = 40.f; ///PER SECOND
 
     static float damage_to_hp_conversion = 0.2f;
 

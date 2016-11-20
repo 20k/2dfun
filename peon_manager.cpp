@@ -63,15 +63,15 @@ bool peon::within_purchase_distance_of_currently_seeking(shop& s)
 
     vec2f world_pos = pos;
 
-    vec2i grid_pos = s.pos_to_grid_snapped(world_pos);
+    vec2f grid_pos = world_pos / s.grid_dim;
 
-    vec2i dist = tile_pos - grid_pos;
+    vec2f dist = conv_implicit<vec2f>(tile_pos) - grid_pos;
 
     float len = dist.length();
 
     printf("%f buydist\n", len);
 
-    if(len < 2)
+    if(len < 0.5)
         return true;
 
     return false;
@@ -104,6 +104,31 @@ bool peon::try_purchase_currently_seeking(shop& s)
     return true;
 }
 
+void peon::pathfind(shop& s, float dt_s)
+{
+    vec2i target_grid = s.sellable_to_tile(currently_seeking);
+
+    vec2f dest = (vec2f){target_grid.x(), target_grid.y()} * (float)s.grid_dim;
+
+    vec2f cur = pos;
+
+    float md = stats::peon_move_speed * dt_s;
+
+    float dist = (dest - cur).length();
+
+    if(dist < md)
+        md = dist;
+
+    if(dist < 0.1f)
+        return;
+
+    vec2f dir = (dest - cur).norm();
+
+    cur = cur + dir * md;
+
+    pos = cur;
+}
+
 peon* peon_manager::make_peon()
 {
     peon* p = new peon;
@@ -127,13 +152,16 @@ void peon_manager::remove_peon(peon* p)
 }
 
 ///need to move towards seek
-void peon_manager::tick(shop& s)
+void peon_manager::tick(shop& s, draw_manager& draw_manage)
 {
     for(peon* i : peons)
     {
         if(i->currently_seeking)
         {
-            i->try_purchase_currently_seeking(s);
+            bool success = i->try_purchase_currently_seeking(s);
+
+            if(!success)
+                i->pathfind(s, draw_manage.get_frametime_s());
 
             continue;
         }
@@ -148,7 +176,7 @@ void peon_manager::draw_peons(draw_manager& draw_manage)
     sf::CircleShape shape;
     shape.setFillColor(col);
 
-    float rad = 4.f;
+    float rad = 3.f;
 
     shape.setRadius(rad);
     shape.setOrigin(rad, rad);
