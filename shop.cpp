@@ -70,7 +70,9 @@ void shop::place_sellable(sellable* s, vec2f pos)
 
 void shop::place_selection(vec2f pos)
 {
-    vec2i local = pos_to_grid_snapped(pos);
+    vec2i local = pos_to_grid_snapped(pos) / grid_dim;
+
+    printf("%f %f %i %i\n", EXPAND_2(pos), EXPAND_2(local));
 
     if(local.x() < 0 || local.y() < 0 || local.x() >= dim.x() || local.y() >= dim.y())
         return;
@@ -82,6 +84,8 @@ void shop::place_selection(vec2f pos)
     t.item_class = currently_placing.item_class;
     t.rarity = currently_placing.rarity;
     t.specific_object = currently_placing.specific_object;
+
+    printf("hi");
 }
 
 vec2i shop::pos_to_grid_snapped(vec2f pos)
@@ -311,6 +315,7 @@ void shop::tick(draw_manager& draw_manage)
 {
     sf::Mouse mouse;
 
+    //middle click to remove tiles?
     if(once<sf::Mouse::Right>())
     {
         currently_placing.placing = false;
@@ -318,7 +323,9 @@ void shop::tick(draw_manager& draw_manage)
 
     if(once<sf::Mouse::Left>() && currently_placing.placing)
     {
-        vec2f proj = draw_manage.screen_to_world({mouse.getPosition().x, mouse.getPosition().y});
+        vec2f proj = draw_manage.get_mouse_pos();
+
+        proj = draw_manage.screen_to_world(proj);
 
         place_selection(proj);
     }
