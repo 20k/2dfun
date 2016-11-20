@@ -430,6 +430,7 @@ void shop::spawn_random_peon()
 {
     peon* p = peon_manage.make_peon();
     p->init(0);
+    p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
 }
 
 std::vector<tile> shop::get_table_tiles()
@@ -461,4 +462,19 @@ std::vector<sellable*> shop::get_purchasable_sellables_on_tables()
     }
 
     return ret;
+}
+
+vec2f shop::get_door_world_pos()
+{
+    for(auto& i : tiles)
+    {
+        if(i.tile_type == tile_info::DOOR)
+        {
+            return conv_implicit<vec2f>(i.array_pos * grid_dim);
+        }
+    }
+
+    printf("no door??\n");
+
+    return {-1, -1};
 }

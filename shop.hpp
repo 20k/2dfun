@@ -103,6 +103,8 @@ struct shop
     std::vector<tile> get_table_tiles();
 
     std::vector<sellable*> get_purchasable_sellables_on_tables();
+
+    vec2f get_door_world_pos();
 };
 
 #endif // SHOP_HPP_INCLUDED
