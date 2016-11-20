@@ -10,6 +10,9 @@ struct draw_manager;
 
 struct peon
 {
+    vec2f pathfinding_destination;
+    bool should_pathfind = false;
+
     vec2f pos = {0, 0};
     float wallet = 0.f;
     int tier = 0;

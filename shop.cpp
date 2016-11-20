@@ -128,7 +128,7 @@ void shop::draw(draw_manager& draw_manage)
     sf::Color table_col = sf::Color(139,69,19);
     sf::Color floor_col = sf::Color(40,40,40);
     sf::Color wall_col = sf::Color(140, 128, 120);
-    sf::Color door_col = sf::Color(220, 220, 100);
+    sf::Color door_col = sf::Color(200, 80, 50);
 
     shape.setFillColor(floor_col);
 

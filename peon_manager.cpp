@@ -52,6 +52,9 @@ void peon::seek_random_item(shop& s)
 
         currently_seeking = seek;
         currently_seeking->locked = true;
+
+        should_pathfind = true;
+        pathfinding_destination = conv_implicit<vec2f>(s.sellable_to_tile(currently_seeking)) * (float)s.grid_dim + s.grid_dim/2.f;
     }
 }
 
@@ -59,17 +62,17 @@ bool peon::within_purchase_distance_of_currently_seeking(shop& s)
 {
     sellable* c = currently_seeking;
 
-    vec2i tile_pos = s.sellable_to_tile(c);
+    vec2f tile_pos = conv_implicit<vec2f>(s.sellable_to_tile(c)) + 0.5f;
 
     vec2f world_pos = pos;
 
     vec2f grid_pos = world_pos / s.grid_dim;
 
-    vec2f dist = conv_implicit<vec2f>(tile_pos) - grid_pos;
+    vec2f dist = tile_pos - grid_pos;
 
     float len = dist.length();
 
-    //printf("%f buydist\n", len);
+    //printf("buydist %f\n", len);
 
     if(len < 0.5)
         return true;
@@ -101,14 +104,21 @@ bool peon::try_purchase_currently_seeking(shop& s)
 
     currently_seeking = nullptr;
 
+    should_pathfind = false;
+
     return true;
 }
 
 void peon::pathfind(shop& s, float dt_s)
 {
-    vec2i target_grid = s.sellable_to_tile(currently_seeking);
+    if(!should_pathfind)
+        return;
 
-    vec2f dest = (vec2f){target_grid.x(), target_grid.y()} * (float)s.grid_dim;
+    /*vec2i target_grid = s.sellable_to_tile(currently_seeking);
+
+    vec2f dest = (vec2f){target_grid.x(), target_grid.y()} * (float)s.grid_dim;*/
+
+    vec2f dest = pathfinding_destination;
 
     vec2f cur = pos;
 
@@ -116,8 +126,8 @@ void peon::pathfind(shop& s, float dt_s)
 
     float dist = (dest - cur).length();
 
-    if(dist < md)
-        md = dist;
+    //if(dist < md)
+    //    md = dist;
 
     if(dist < 0.1f)
         return;
@@ -159,14 +169,12 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
         if(i->currently_seeking)
         {
             bool success = i->try_purchase_currently_seeking(s);
-
-            if(!success)
-                i->pathfind(s, draw_manage.get_frametime_s());
-
-            continue;
         }
 
-        i->seek_random_item(s);
+        i->pathfind(s, draw_manage.get_frametime_s());
+
+        if(!i->should_pathfind)
+            i->seek_random_item(s);
     }
 }
 
