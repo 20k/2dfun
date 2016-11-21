@@ -369,6 +369,73 @@ std::vector<render_info> get_render_strings(character* c)
         displays.push_back(render_info(res, col, tooltip_optional));
     }
 
+    ///do fun with wepons here
+
+    inventory& invent = c->invent;
+
+
+    /*Uncommon BOW of +1 STR +1 CHA
+    Dealing an extra 0.135 hp of damage
+    Condition: PRISTINE
+    Notoriety: GOOD*/
+
+    if(invent.equipped.size() != 0)
+    {
+        std::string pad = ":";
+
+        displays.push_back(pad + "E:");
+        displays.push_back(pad + "Q:");
+        displays.push_back(pad + "P:");
+    }
+
+    ///condition and notoriety as tooltips
+    for(int i=0; i<invent.equipped.size(); i++)
+    {
+        item* it = invent.equipped[i];
+
+        std::string kv_stats;
+
+        int rarity = clamp(it->rarity, 0, stats::item_rarity.size()-1);
+
+        if(rarity > 0)
+        {
+            auto base_stats = it->stats;
+
+            for(auto& i : base_stats)
+            {
+                if(i.val <= 0)
+                    continue;
+
+                kv_stats += i.key + " +" + to_string_prec(i.val, 3) + "\n";
+            }
+        }
+
+        vec3f rarity_col = stats::colour_table[rarity];
+
+        ///construct row by rows
+
+        std::string str = it->item_class;
+
+        if(it->weapon_class != -1)
+            str += " (" + it->primary_stat + ")";
+
+        render_info name_info(str, rarity_col, kv_stats);
+
+        displays.push_back(name_info);
+
+        std::string rarity_str = stats::item_rarity[rarity];
+
+        render_info rinfo(rarity_str);//, rarity_col, kv_stats);
+
+        displays.push_back(rinfo);
+
+        float hp_damage = it->attack_boost_hp_flat;
+
+        std::string hp_str = "Dam: " + to_string_prec(hp_damage, 3);
+
+        displays.push_back(hp_str);
+    }
+
     for(auto& i : displays)
     {
         i.str = fix_imgui_percent(i.str);

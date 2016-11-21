@@ -84,6 +84,8 @@ struct combat_entity
     virtual bool is_dead(){return false;};
 };
 
+///drag and drop weapons onto entity
+///we need visual display first
 struct character : combat_entity, stattable
 {
     inventory invent;
