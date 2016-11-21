@@ -352,7 +352,7 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage)
 
     if(grabbing)
     {
-        ImGui::SetTooltip("Bums");
+        ImGui::SetTooltip(grabbed->i->display().c_str());
     }
 
     sf::Mouse mouse;
