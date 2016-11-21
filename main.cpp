@@ -28,12 +28,17 @@ int main()
 {
     item_manager item_manage;
 
+
+    item* nitem2 = item_manage.make_new();
+
     item* nitem = item_manage.make_new();
 
     //nitem.init_weapon_class(0, 0.02f);
     //nitem->random_stat_appropriate_weapon("CHA");
     nitem->random_magical(2);
     //nitem->accumulated_wear+=5;
+    nitem2->random_magical(1);
+    //nitem2->random_item();
 
     entity_manager party;
 
@@ -54,7 +59,11 @@ int main()
     p4->rand_stats();
 
     nitem->random_stat_appropriate_weapon(p4->primary_stat);
+    nitem2->random_stat_appropriate_weapon(p4->primary_stat);
     p4->add_to_invent(nitem);
+    //bool added = p4->add_to_invent(nitem2);
+
+    //std::cout << "poo " << added << std::endl;
     //p4->add_xp(58);
 
     std::cout << "pdump" << std::endl;

@@ -118,10 +118,19 @@ struct item : stattable
         }
         else
         {
-            int rv = randf<1, int>(0, stats::item_class.size());
+            /*int rv = randf<1, int>(0, stats::item_class.size());
 
-            init_item(rv);
+            init_item(rv);*/
+
+            random_item();
         }
+    }
+
+    void random_item()
+    {
+        int rv = randf<1, int>(0, stats::item_class.size());
+
+        init_item(rv);
     }
 
     void random_magical(int extra_stats)
@@ -220,6 +229,11 @@ struct item : stattable
     int get_kills()
     {
         return kills;
+    }
+
+    bool is_weapon()
+    {
+        return weapon_class >= 0;
     }
 };
 

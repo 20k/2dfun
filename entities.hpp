@@ -457,16 +457,31 @@ struct character : combat_entity, stattable
         return get_total() * 0.1f + get_item_modified_stat_val(primary_stat) + get_item_modified_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat] * stats::class_hp_mult[classname] + cur_level * 3;
     }
 
+    bool has_weapon()
+    {
+        return invent.get_weapon() != nullptr;
+    }
+
     inventory& get_invent()
     {
         return invent;
     }
 
-    void add_to_invent(item* i)
+    bool add_to_invent(item* i)
     {
+        if(i->is_weapon() && this->has_weapon())
+            return false;
+
+        int cnum = invent.get_by_type(i->item_class).size();
+
+        if(cnum >= stats::max_equippable[i->item_class])
+            return false;
+
         invent.add_item(i);
 
         recalculate_hp();
+
+        return true;
     }
 
     float get_teammate_heal()

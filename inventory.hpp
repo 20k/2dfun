@@ -106,6 +106,21 @@ struct inventory
             ptr->register_kill();
         }
     }
+
+    std::vector<item*> get_by_type(const std::string& item_classname)
+    {
+        std::vector<item*> ret;
+
+        for(item* i : equipped)
+        {
+            if(i->item_class == item_classname)
+            {
+                ret.push_back(i);
+            }
+        }
+
+        return ret;
+    }
 };
 
 #endif // INVENTORY_HPP_INCLUDED

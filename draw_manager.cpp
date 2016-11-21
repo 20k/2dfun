@@ -442,9 +442,8 @@ std::vector<render_info> get_render_strings(character* c)
         if(notoriety > 0)
             general_info += "\nNotoriety: " + notoriety_str;
 
-        general_info += "\nKills: " + std::to_string(kills);
-
-
+        if(it->is_weapon())
+            general_info += "\nKills: " + std::to_string(kills);
 
 
         render_info rinfo(rarity_str, condition_col_bad, general_info);//, rarity_col, kv_stats);
@@ -455,7 +454,10 @@ std::vector<render_info> get_render_strings(character* c)
 
         float hp_damage = it->attack_boost_hp_flat;
 
-        std::string hp_str = "Dam: " + to_string_prec(hp_damage, 3);
+        std::string hp_str;
+
+        if(hp_damage > 0)
+            hp_str = "Dam: " + to_string_prec(hp_damage, 3);
 
         displays.push_back(hp_str);
     }

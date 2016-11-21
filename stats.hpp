@@ -253,6 +253,23 @@ namespace stats
         "LEGGINGS"
     };
 
+    static std::map<std::string, int> max_equippable
+    {
+        {"SWORD", 1},
+        {"BOW", 1},
+        {"WIZARD STAFF", 1},
+        {"MACE", 1},
+        {"KNUCKLE DUSTERS", 1},
+        {"LUTE", 1},
+        {"POTION", 5},
+        {"AMULET", 1},
+        {"RING", 2},
+        {"HAT", 1},
+        {"GLOVES", 1},
+        {"CHESTPLATE", 1},
+        {"LEGGINGS", 1},
+    };
+
     static std::map<int, std::string> weapon_class_to_primary_stat =
     {
         {0, "STR"},
