@@ -38,6 +38,7 @@ struct peon
     ///to target
     void pathfind(shop& s, float dt_s);
     void set_pathfind(vec2f p);
+    void cancel_pathfind();
 
     bool should_leave(shop& s);
 
@@ -55,6 +56,8 @@ struct peon_manager
     void tick(shop& s, draw_manager& draw_manage);
 
     void draw_peons(draw_manager& draw_manage);
+
+    void check_peon_release_sellable(sellable* s);
 };
 
 #endif // PEON_MANAGER_HPP_INCLUDED

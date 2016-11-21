@@ -157,6 +157,15 @@ void peon::set_pathfind(vec2f p)
     pathfinding_destination = p;
 }
 
+void peon::cancel_pathfind()
+{
+    should_pathfind = false;
+
+    pathfinding_destination = {-1.f, -1.f};
+
+    currently_seeking = nullptr;
+}
+
 bool peon::should_leave(shop& s)
 {
     std::vector<sellable*> sells = s.get_purchasable_sellables_on_tables();
@@ -266,5 +275,16 @@ void peon_manager::draw_peons(draw_manager& draw_manage)
         txt.setPosition(shape.getPosition());
 
         draw_manage.window.draw(txt);
+    }
+}
+
+void peon_manager::check_peon_release_sellable(sellable* s)
+{
+    for(peon* i : peons)
+    {
+        if(i->currently_seeking == s)
+        {
+            i->cancel_pathfind();
+        }
     }
 }
