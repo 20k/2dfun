@@ -33,6 +33,7 @@ int main()
     //nitem.init_weapon_class(0, 0.02f);
     //nitem->random_stat_appropriate_weapon("CHA");
     nitem->random_magical(2);
+    //nitem->accumulated_wear+=5;
 
     entity_manager party;
 
