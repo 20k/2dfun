@@ -38,7 +38,7 @@ int main()
     nitem->random_magical(2);
     //nitem->accumulated_wear+=5;
     nitem2->random_magical(1);
-    //nitem2->random_item();
+    nitem2->random_item();
 
     entity_manager party;
 
@@ -59,8 +59,15 @@ int main()
     p4->rand_stats();
 
     nitem->random_stat_appropriate_weapon(p4->primary_stat);
-    nitem2->random_stat_appropriate_weapon(p4->primary_stat);
+    //nitem2->random_stat_appropriate_weapon(p4->primary_stat);
     p4->add_to_invent(nitem);
+
+    /*for(int i=0; i<6; i++)
+    {
+        std::cout << nitem2->item_class << " " << p4->add_to_invent(nitem2) << std::endl;
+    }*/
+
+
     //bool added = p4->add_to_invent(nitem2);
 
     //std::cout << "poo " << added << std::endl;
