@@ -59,6 +59,8 @@
 			<Add option="-limm32" />
 			<Add option="-lSDL2" />
 		</Linker>
+		<Unit filename="drag_manager.cpp" />
+		<Unit filename="drag_manager.hpp" />
 		<Unit filename="draw_manager.cpp" />
 		<Unit filename="draw_manager.hpp" />
 		<Unit filename="economics.hpp" />
@@ -66,6 +68,8 @@
 		<Unit filename="inventory.hpp" />
 		<Unit filename="item.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="peon_manager.cpp" />
+		<Unit filename="peon_manager.hpp" />
 		<Unit filename="scenario_constructor.hpp" />
 		<Unit filename="shared.hpp" />
 		<Unit filename="shop.cpp" />
