@@ -57,6 +57,7 @@ struct shop
 {
     bool grabbing = false;
     sellable* grabbed = nullptr;
+    bool peon_window_hovered = false;
 
     float money = 0;
 

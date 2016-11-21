@@ -506,7 +506,7 @@ std::vector<int> combine_3_group(const std::vector<int>& r1, const std::vector<i
     return ret;
 }
 
-void render_character_text(character* c, int column_id, const std::vector<int>& max_in_3_group)
+void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group)
 {
     //std::vector<int> max_in_3_group;
     float button_width = 80.f;
@@ -588,6 +588,13 @@ void render_character_text(character* c, int column_id, const std::vector<int>& 
     //ImGui::Text(res.c_str());
 
     ImGui::EndGroup();
+
+    if(ImGui::IsItemHovered())
+    {
+        entity_manage.entity_num_hovered = column_id;
+
+        //printf("%i cl\n", column_id);
+    }
 }
 
 void render_test(character* c)
@@ -623,6 +630,8 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     //std::vector<std::vector<render_info>> displays;
 
+    entity_manage.entity_num_hovered = -1;
+
     std::vector<int> max_in_3_group;
 
     for(auto& i : entity_manage.chars)
@@ -641,7 +650,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
     {
         character* c = entity_manage.chars[i];
 
-        render_character_text(c, i, max_in_3_group);
+        render_character_text(entity_manage, c, i, max_in_3_group);
 
         //render_test(c);
 
@@ -655,5 +664,8 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     //ImGui::Columns(1);
 
+    //std::cout << ImGui::IsWindowHovered() << std::endl;
+
     ImGui::End();
+
 }
