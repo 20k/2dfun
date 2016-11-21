@@ -256,6 +256,8 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
 
     std::vector<sorted_item_info> grouped_info = sort_to_class(items);
 
+    sf::Mouse mouse;
+
     ImGui::Indent();
     ImGui::BeginGroup();
 
@@ -306,6 +308,12 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
 
                 }
 
+                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !s.grabbing)
+                {
+                    s.grabbing = true;
+                    s.grabbed = j;
+                }
+
                 id++;
             }
 
@@ -341,6 +349,18 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage)
     }
 
     ImGui::End();
+
+    if(grabbing)
+    {
+        ImGui::SetTooltip("Bums");
+    }
+
+    sf::Mouse mouse;
+
+    if(!mouse.isButtonPressed(sf::Mouse::Left))
+    {
+        grabbing = false;
+    }
 }
 
 void shop::draw_shopinfo_ui(draw_manager& draw_manage)
@@ -365,6 +385,11 @@ void shop::draw_shopinfo_ui(draw_manager& draw_manage)
 
     ImGui::End();
 }
+
+/*void shop::tick_draw(draw_manager& draw_manage)
+{
+
+}*/
 
 std::vector<sellable*> shop::get_sellable_by_rarity(int rarity)
 {

@@ -55,6 +55,9 @@ struct place_info
 ///implement drag and drop from shop items to character invents
 struct shop
 {
+    bool grabbing = false;
+    sellable* grabbed = nullptr;
+
     float money = 0;
 
     peon_manager peon_manage;
@@ -89,6 +92,8 @@ struct shop
 
     void draw_shopfront_ui(draw_manager& draw_manage);
     void draw_shopinfo_ui(draw_manager& draw_manage);
+
+    //void tick_draw(draw_manager& draw_manage);
 
     void tick(draw_manager& draw_manage);
 
