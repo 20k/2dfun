@@ -4,6 +4,8 @@
 #include "economics.hpp"
 #include "draw_manager.hpp"
 #include <SFML/Graphics.hpp>
+#include "inventory.hpp"
+#include "entities.hpp"
 
 void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 {
@@ -312,6 +314,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
                 {
                     s.grabbing = true;
                     s.grabbed = j;
+                    s.grab_c = 2;
                 }
 
                 id++;
@@ -326,6 +329,52 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
 
     ImGui::EndGroup();
     ImGui::Unindent();
+}
+
+void shop::do_character_entity_grab(entity_manager& entity_manage)
+{
+    if(grabbing)
+    {
+        ImGui::SetTooltip(grabbed->i->display().c_str());
+    }
+
+    sf::Mouse mouse;
+
+    bool left = mouse.isButtonPressed(sf::Mouse::Left);
+
+    if(!left && entity_manage.entity_num_hovered != -1 && grabbing)
+    {
+        if(entity_manage.entity_num_hovered >= entity_manage.chars.size())
+        {
+            printf("invalid entity num\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[entity_manage.entity_num_hovered];
+
+        bool success = c->add_to_invent(grabbed->i);
+
+        if(success)
+        {
+            grabbed->locked = false;
+            remove_sellable(grabbed);
+            peon_manage.check_peon_release_sellable(grabbed);
+        }
+
+        grabbing = false;
+        grabbed = nullptr;
+    }
+
+    if(!left)
+    {
+        if(grab_c == 0)
+        {
+            grabbing = false;
+            grabbed = nullptr;
+        }
+
+        grab_c--;
+    }
 }
 
 void shop::draw_shopfront_ui(draw_manager& draw_manage)
@@ -349,18 +398,6 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage)
     }
 
     ImGui::End();
-
-    if(grabbing)
-    {
-        ImGui::SetTooltip(grabbed->i->display().c_str());
-    }
-
-    sf::Mouse mouse;
-
-    if(!mouse.isButtonPressed(sf::Mouse::Left))
-    {
-        grabbing = false;
-    }
 }
 
 void shop::draw_shopinfo_ui(draw_manager& draw_manage)

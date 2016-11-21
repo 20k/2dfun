@@ -8,6 +8,7 @@ struct item;
 struct economic_item;
 struct item_manager;
 struct draw_manager;
+struct entity_manager;
 
 namespace tile_info
 {
@@ -58,6 +59,7 @@ struct shop
     bool grabbing = false;
     sellable* grabbed = nullptr;
     bool peon_window_hovered = false;
+    int grab_c = 2; //wait one frame
 
     float money = 0;
 
@@ -88,6 +90,8 @@ struct shop
 
     ///will need to convert from camera pos to shop pos
     vec2i pos_to_grid_snapped(vec2f pos);
+
+    void do_character_entity_grab(entity_manager& entity_manage);
 
     void draw(draw_manager& draw_manage);
 

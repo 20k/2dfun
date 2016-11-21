@@ -122,15 +122,14 @@ int main()
         draw_manage.tick();
         shop_manage.tick(draw_manage); ///for world transforms
 
+        shop_manage.do_character_entity_grab(party);
+
         shop_manage.draw(draw_manage);
-
         draw_manage.draw_entity_ui(party);
-
         shop_manage.draw_shopfront_ui(draw_manage);
         shop_manage.draw_shopinfo_ui(draw_manage);
 
         draw_manage.render_ui();
-
         draw_manage.flip();
     }
 

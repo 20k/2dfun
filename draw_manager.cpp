@@ -454,7 +454,7 @@ std::vector<render_info> get_render_strings(character* c)
 
         float hp_damage = it->attack_boost_hp_flat;
 
-        std::string hp_str;
+        std::string hp_str = "";
 
         if(hp_damage > 0)
             hp_str = "Dam: " + to_string_prec(hp_damage, 3);
@@ -530,7 +530,7 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     float r12_size = button_width * 2;
 
-    int num_in_row = ceilf(displays.size() / 3.f);
+    int num_in_row = (displays.size()) / 3;
 
     ImGui::BeginGroup();
 
@@ -549,6 +549,12 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
             std::string cur = displays[id].str;
             vec3f col = displays[id].col;
+
+            if(j >= max_in_3_group.size())
+            {
+                std::cout << "ruh roh " << num_in_row << " " << j << " " << displays.size() << " " << max_in_3_group.size() << std::endl;
+                exit(0xDEADED);
+            }
 
             int cmax = max_in_3_group[j];
 
@@ -593,7 +599,7 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
     {
         entity_manage.entity_num_hovered = column_id;
 
-        //printf("%i cl\n", column_id);
+        //printf("%i cl ", column_id);
     }
 }
 
@@ -641,7 +647,10 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
         auto tmax = get_max_in_3_group(i);
 
         ///will alloc first time, do nothing the rest of the time
-        max_in_3_group.resize(tmax.size());
+        max_in_3_group.resize(std::max(tmax.size(), max_in_3_group.size()));
+
+        if(tmax.size() < max_in_3_group.size())
+           tmax.resize(max_in_3_group.size());
 
         max_in_3_group = combine_3_group(max_in_3_group, tmax);
     }
