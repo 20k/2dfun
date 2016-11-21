@@ -395,6 +395,13 @@ std::vector<render_info> get_render_strings(character* c)
 
         std::string kv_stats;
 
+        int kills = it->kills;
+        int wear = it->get_wear();
+        int notoriety = it->get_notoriety();
+
+        std::string wear_str = stats::weapon_wear[wear];
+        std::string notoriety_str = stats::weapon_notoriety[notoriety];
+
         int rarity = clamp(it->rarity, 0, stats::item_rarity.size()-1);
 
         if(rarity > 0)
@@ -423,11 +430,28 @@ std::vector<render_info> get_render_strings(character* c)
 
         displays.push_back(name_info);
 
+
+
+
         std::string rarity_str = stats::item_rarity[rarity];
 
-        render_info rinfo(rarity_str);//, rarity_col, kv_stats);
+        vec3f condition_col_bad = stats::colours_table_bad[wear];
+
+        std::string general_info = "Wear: " + wear_str;
+
+        if(notoriety > 0)
+            general_info += "\nNotoriety: " + notoriety_str;
+
+        general_info += "\nKills: " + std::to_string(kills);
+
+
+
+
+        render_info rinfo(rarity_str, condition_col_bad, general_info);//, rarity_col, kv_stats);
 
         displays.push_back(rinfo);
+
+
 
         float hp_damage = it->attack_boost_hp_flat;
 

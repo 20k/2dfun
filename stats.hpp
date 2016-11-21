@@ -294,9 +294,19 @@ namespace stats
         "RUSTED"
     };
 
+    static std::map<int, vec3f> colours_table_bad
+    {
+        {0, {1.f, 1.f, 1.f}},
+        {1, {0.8f, 0.8f, 0.8f}},
+        {2, {0.6f, 0.6f, 0.6f}},
+        {3, {0.8f, 0.8f, 0.f}},
+        {4, {1, 0, 1}},
+        {5, {1, 0, 0}},
+    };
+
     static std::vector<std::string> weapon_notoriety
     {
-        "GOOD",
+        "NONE",
         "JUST A PINCH",
         "BAD",
         "A PINCH MORE",
