@@ -332,7 +332,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
     ImGui::Unindent();
 }
 
-void shop::do_character_entity_grab(entity_manager& entity_manage, drag_manager& drag_manage)
+/*void shop::do_character_entity_grab(entity_manager& entity_manage, drag_manager& drag_manage)
 {
     if(drag_manage.grabbing)
     {
@@ -376,7 +376,7 @@ void shop::do_character_entity_grab(entity_manager& entity_manage, drag_manager&
 
         drag_manage.grab_c--;
     }
-}
+}*/
 
 void shop::draw_shopfront_ui(draw_manager& draw_manage, drag_manager& drag_manage)
 {

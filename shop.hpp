@@ -58,11 +58,6 @@ struct drag_manager;
 ///implement drag and drop from shop items to character invents
 struct shop
 {
-    /*bool grabbing = false;
-    sellable* grabbed = nullptr;
-    bool peon_window_hovered = false;
-    int grab_c = 2; //wait one frame*/
-
     float money = 0;
 
     peon_manager peon_manage;
