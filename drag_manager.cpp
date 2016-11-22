@@ -13,6 +13,13 @@ void drag_manager::grab_sellable(sellable* s)
     grab_c = 2;
 }
 
+void drag_manager::grab_item(item* i)
+{
+    grabbed_item = i;
+    grabbing_item = true;
+    grab_c = 2;
+}
+
 void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 {
     if(grabbing_sellable)
@@ -64,9 +71,21 @@ void drag_manager::tick()
 
         grab_c--;
     }
+
+    //printf("shopfront %i\n", shopfront_window_hovered);
 }
 
 bool drag_manager::sellable_is_grabbed()
 {
     return grabbing_sellable;
+}
+
+bool drag_manager::item_is_grabbed()
+{
+    return grabbing_item;
+}
+
+bool drag_manager::any_grabbed()
+{
+    return sellable_is_grabbed() || item_is_grabbed();
 }

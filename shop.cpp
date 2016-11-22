@@ -311,7 +311,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
 
                 }
 
-                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.sellable_is_grabbed())
+                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.any_grabbed())
                 {
                     drag_manage.grab_sellable(j);
                 }
@@ -395,6 +395,8 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage, drag_manager& drag_manag
             draw_expanded_rarity(draw_manage, *this, i, drag_manage);
         }
     }
+
+    drag_manage.shopfront_window_hovered = ImGui::IsWindowHovered();
 
     ImGui::End();
 }
