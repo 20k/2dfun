@@ -31,7 +31,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
     bool left = mouse.isButtonPressed(sf::Mouse::Left);
 
-    if(!left && entity_num_hovered != -1 && grabbing_sellable)
+    if(!left && hovering_over_any_entity() && sellable_is_grabbed())
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
@@ -67,6 +67,9 @@ void drag_manager::tick()
         {
             grabbing_sellable = false;
             grabbed_sellable = nullptr;
+
+            grabbing_item = false;
+            grabbed_item = nullptr;
         }
 
         grab_c--;
@@ -88,4 +91,14 @@ bool drag_manager::item_is_grabbed()
 bool drag_manager::any_grabbed()
 {
     return sellable_is_grabbed() || item_is_grabbed();
+}
+
+bool drag_manager::hovering_over_any_entity()
+{
+    return entity_num_hovered != -1;
+}
+
+bool drag_manager::hovering_over_shopfront_window()
+{
+    return shopfront_window_hovered;
 }

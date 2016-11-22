@@ -41,6 +41,9 @@ struct drag_manager
     bool item_is_grabbed();
 
     bool any_grabbed();
+
+    bool hovering_over_any_entity();
+    bool hovering_over_shopfront_window();
 };
 
 #endif // DRAG_MANAGER_HPP_INCLUDED

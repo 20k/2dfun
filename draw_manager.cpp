@@ -466,6 +466,19 @@ std::vector<render_info> get_render_strings(character* c)
         displays.push_back(hp_str);
     }
 
+    ///so we can drag onto the empty space past an item
+    ///unfortunately it kind of breaks window resizing... but we may have to just live with that
+    int end_pad_len = 2;
+
+    for(int i=0; i<end_pad_len; i++)
+    {
+        std::string str(end_pad_len, ' ');
+
+        displays.push_back(str);
+        displays.push_back(str);
+        displays.push_back(str);
+    }
+
     for(auto& i : displays)
     {
         i.str = fix_imgui_percent(i.str);
