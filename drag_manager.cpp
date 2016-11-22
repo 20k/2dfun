@@ -40,6 +40,15 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         grabbed = nullptr;
     }
 
+
+}
+
+void drag_manager::tick()
+{
+    sf::Mouse mouse;
+
+    bool left = mouse.isButtonPressed(sf::Mouse::Left);
+
     if(!left)
     {
         if(grab_c == 0)

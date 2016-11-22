@@ -3,6 +3,7 @@
 
 #include "shared.hpp"
 
+///sort invent
 struct inventory
 {
     ///equipped is anything you take with you on a quest, cant use loot during?

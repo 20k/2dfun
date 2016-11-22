@@ -134,6 +134,8 @@ int main()
 
         drag_manage.tick_entity_grab(party, shop_manage);
 
+        drag_manage.tick();
+
         draw_manage.render_ui();
         draw_manage.flip();
     }

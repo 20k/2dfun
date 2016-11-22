@@ -28,6 +28,7 @@ struct drag_manager
     int entity_num_hovered = -1;
 
     void tick_entity_grab(entity_manager& entity_manage, shop& s);
+    void tick();
 };
 
 #endif // DRAG_MANAGER_HPP_INCLUDED
