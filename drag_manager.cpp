@@ -6,6 +6,13 @@
 #include "shop.hpp"
 #include <imgui/imgui.h>
 
+void drag_manager::grab_sellable(sellable* s)
+{
+    grabbed = s;
+    grabbing = true;
+    grab_c = 2;
+}
+
 void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 {
     if(grabbing)
@@ -39,8 +46,6 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         grabbing = false;
         grabbed = nullptr;
     }
-
-
 }
 
 void drag_manager::tick()

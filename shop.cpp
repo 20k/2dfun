@@ -313,9 +313,11 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
 
                 if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.grabbing)
                 {
-                    drag_manage.grabbing = true;
+                    /*drag_manage.grabbing = true;
                     drag_manage.grabbed = j;
-                    drag_manage.grab_c = 2;
+                    drag_manage.grab_c = 2;*/
+
+                    drag_manage.grab_sellable(j);
                 }
 
                 id++;

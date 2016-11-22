@@ -27,6 +27,8 @@ struct drag_manager
 
     int entity_num_hovered = -1;
 
+    void grab_sellable(sellable* s);
+
     void tick_entity_grab(entity_manager& entity_manage, shop& s);
     void tick();
 };
