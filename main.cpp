@@ -125,8 +125,6 @@ int main()
         draw_manage.tick();
         shop_manage.tick(draw_manage); ///for world transforms
 
-        //shop_manage.do_character_entity_grab(party, drag_manage);
-
         shop_manage.draw(draw_manage);
         draw_manage.draw_entity_ui(party, drag_manage);
         shop_manage.draw_shopfront_ui(draw_manage, drag_manage);

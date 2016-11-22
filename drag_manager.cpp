@@ -98,7 +98,17 @@ bool drag_manager::hovering_over_any_entity()
     return entity_num_hovered != -1;
 }
 
+bool drag_manager::hovering_over_specific_entity_column()
+{
+    return entity_column_hovered != -1;
+}
+
 bool drag_manager::hovering_over_shopfront_window()
 {
     return shopfront_window_hovered;
+}
+
+int drag_manager::get_inventory_item_id()
+{
+    return entity_column_hovered - 5;
 }

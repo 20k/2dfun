@@ -29,7 +29,8 @@ struct drag_manager
     bool peon_window_hovered = false;
     int grab_c = 2;
 
-    int entity_num_hovered = -1;
+    int entity_num_hovered = -1; ///which entity number
+    int entity_column_hovered = -1; ///which part of the entity
 
     void grab_sellable(sellable* s);
     void grab_item(item* i);
@@ -43,7 +44,11 @@ struct drag_manager
     bool any_grabbed();
 
     bool hovering_over_any_entity();
+    bool hovering_over_specific_entity_column();
     bool hovering_over_shopfront_window();
+
+    ///specific_entity_column - 5
+    int get_inventory_item_id();
 };
 
 #endif // DRAG_MANAGER_HPP_INCLUDED

@@ -549,11 +549,13 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     int num_in_row = (displays.size()) / 3;
 
+    int extra_spacing = 2;
+
+    #define ALT_GROUP
+    #ifndef ALT_GROUP
     ImGui::BeginGroup();
 
     std::string res;
-
-    int extra_spacing = 2;
 
     for(int i=0; i<3; i++)
     {
@@ -612,12 +614,90 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     ImGui::EndGroup();
 
+
     if(ImGui::IsItemHovered())
     {
         drag_manage.entity_num_hovered = column_id;
 
         //printf("%i cl ", column_id);
     }
+    #endif // ALT_GROUP
+
+
+    #ifdef ALT_GROUP
+    std::string res;
+
+    ImGui::BeginGroup();
+
+    for(int j=0; j<num_in_row; j++)
+    {
+        ImGui::BeginGroup();
+
+        for(int i=0; i<3; i++)
+        {
+            int id = j * 3 + i;
+
+            if(id >= displays.size())
+                continue;
+
+            std::string cur = displays[id].str;
+            vec3f col = displays[id].col;
+
+            if(j >= max_in_3_group.size())
+            {
+                std::cout << "ruh roh " << num_in_row << " " << j << " " << displays.size() << " " << max_in_3_group.size() << std::endl;
+                exit(0xDEADED);
+            }
+
+            int cmax = max_in_3_group[j];
+
+            int str_len = get_len_nodoublecount_percents(cur);
+
+            for(int i=str_len; i<cmax + extra_spacing; i++)
+            {
+                cur = cur + " ";
+            }
+
+            res = res + cur + " ";
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(col.v[0], col.v[1], col.v[2], 1));
+
+            ImGui::Text((cur + " ").c_str());
+
+            ImGui::PopStyleColor();
+
+            if(ImGui::IsItemHovered())
+            {
+                std::string tooltip = displays[id].tooltip;
+
+                if(tooltip != "")
+                {
+                    ImGui::SetTooltip(tooltip.c_str());
+                }
+            }
+        }
+
+        ImGui::EndGroup();
+
+        if(ImGui::IsItemHovered())
+        {
+            drag_manage.entity_column_hovered = j;
+        }
+
+        if(j != num_in_row-1)
+            ImGui::SameLine();
+    }
+
+    ImGui::EndGroup();
+
+    if(ImGui::IsItemHovered())
+    {
+        drag_manage.entity_num_hovered = column_id;
+
+        //printf("%i cl ", column_id);
+    }
+
+    #endif // ALT_GROUP
 }
 
 void render_test(character* c)
@@ -654,6 +734,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
     //std::vector<std::vector<render_info>> displays;
 
     drag_manage.entity_num_hovered = -1;
+    drag_manage.entity_column_hovered = -1;
 
     std::vector<int> max_in_3_group;
 
@@ -694,4 +775,5 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
     ImGui::End();
 
+    //printf("%i dg\n", drag_manage.entity_column_hovered);
 }
