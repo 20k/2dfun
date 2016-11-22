@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include "inventory.hpp"
 #include "entities.hpp"
+#include "drag_manager.hpp"
 
 void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
 {
@@ -252,7 +253,7 @@ std::vector<sorted_item_info> sort_to_class(const std::vector<sellable*>& items)
     return ret;
 }
 
-void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
+void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_manager& drag_manage)
 {
     std::vector<sellable*> items = s.get_sellable_by_rarity(rarity);
 
@@ -310,11 +311,11 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
 
                 }
 
-                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !s.grabbing)
+                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.grabbing)
                 {
-                    s.grabbing = true;
-                    s.grabbed = j;
-                    s.grab_c = 2;
+                    drag_manage.grabbing = true;
+                    drag_manage.grabbed = j;
+                    drag_manage.grab_c = 2;
                 }
 
                 id++;
@@ -331,53 +332,53 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity)
     ImGui::Unindent();
 }
 
-void shop::do_character_entity_grab(entity_manager& entity_manage)
+void shop::do_character_entity_grab(entity_manager& entity_manage, drag_manager& drag_manage)
 {
-    if(grabbing)
+    if(drag_manage.grabbing)
     {
-        ImGui::SetTooltip(grabbed->i->display().c_str());
+        ImGui::SetTooltip(drag_manage.grabbed->i->display().c_str());
     }
 
     sf::Mouse mouse;
 
     bool left = mouse.isButtonPressed(sf::Mouse::Left);
 
-    if(!left && entity_manage.entity_num_hovered != -1 && grabbing)
+    if(!left && drag_manage.entity_num_hovered != -1 && drag_manage.grabbing)
     {
-        if(entity_manage.entity_num_hovered >= entity_manage.chars.size())
+        if(drag_manage.entity_num_hovered >= entity_manage.chars.size())
         {
             printf("invalid entity num\n");
             return;
         }
 
-        character* c = entity_manage.chars[entity_manage.entity_num_hovered];
+        character* c = entity_manage.chars[drag_manage.entity_num_hovered];
 
-        bool success = c->add_to_invent(grabbed->i);
+        bool success = c->add_to_invent(drag_manage.grabbed->i);
 
         if(success)
         {
-            grabbed->locked = false;
-            remove_sellable(grabbed);
-            peon_manage.check_peon_release_sellable(grabbed);
+            drag_manage.grabbed->locked = false;
+            remove_sellable(drag_manage.grabbed);
+            peon_manage.check_peon_release_sellable(drag_manage.grabbed);
         }
 
-        grabbing = false;
-        grabbed = nullptr;
+        drag_manage.grabbing = false;
+        drag_manage.grabbed = nullptr;
     }
 
     if(!left)
     {
-        if(grab_c == 0)
+        if(drag_manage.grab_c == 0)
         {
-            grabbing = false;
-            grabbed = nullptr;
+            drag_manage.grabbing = false;
+            drag_manage.grabbed = nullptr;
         }
 
-        grab_c--;
+        drag_manage.grab_c--;
     }
 }
 
-void shop::draw_shopfront_ui(draw_manager& draw_manage)
+void shop::draw_shopfront_ui(draw_manager& draw_manage, drag_manager& drag_manage)
 {
     /*Uncommon LUTE of +1 INT +1 WIS
     Dealing an extra 0.000964 hp of damage
@@ -393,7 +394,7 @@ void shop::draw_shopfront_ui(draw_manager& draw_manage)
 
         if(get_sellable_by_rarity(i).size() > 0 && ImGui::CollapsingHeader(rarity.c_str()))
         {
-            draw_expanded_rarity(draw_manage, *this, i);
+            draw_expanded_rarity(draw_manage, *this, i, drag_manage);
         }
     }
 

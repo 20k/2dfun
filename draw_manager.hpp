@@ -7,6 +7,7 @@
 #include <vec/vec.hpp>
 
 struct entity_manager;
+struct drag_manager;
 
 struct draw_manager
 {
@@ -166,7 +167,7 @@ struct draw_manager
             window.close();
     }
 
-    void draw_entity_ui(entity_manager& entity_manage);
+    void draw_entity_ui(entity_manager& entity_manage, drag_manager& drag_manage);
 
     void render_ui()
     {

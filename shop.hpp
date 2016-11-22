@@ -50,16 +50,18 @@ struct place_info
     item* specific_object = nullptr;
 };
 
+struct drag_manager;
+
 ///literal shop representation
 ///need to list if items are equipped
 ///need character -> equip and character -> unequip, and possibly a can_sell tag, or something more useful
 ///implement drag and drop from shop items to character invents
 struct shop
 {
-    bool grabbing = false;
+    /*bool grabbing = false;
     sellable* grabbed = nullptr;
     bool peon_window_hovered = false;
-    int grab_c = 2; //wait one frame
+    int grab_c = 2; //wait one frame*/
 
     float money = 0;
 
@@ -91,11 +93,11 @@ struct shop
     ///will need to convert from camera pos to shop pos
     vec2i pos_to_grid_snapped(vec2f pos);
 
-    void do_character_entity_grab(entity_manager& entity_manage);
+    void do_character_entity_grab(entity_manager& entity_manage, drag_manager& drag_manage);
 
     void draw(draw_manager& draw_manage);
 
-    void draw_shopfront_ui(draw_manager& draw_manage);
+    void draw_shopfront_ui(draw_manager& draw_manage, drag_manager& drag_manage);
     void draw_shopinfo_ui(draw_manager& draw_manage);
 
     //void tick_draw(draw_manager& draw_manage);

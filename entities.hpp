@@ -539,7 +539,7 @@ struct character : combat_entity, stattable
 ///really each fight should create a new entity manager, and we'll add the correct entities in
 struct entity_manager
 {
-    int entity_num_hovered = -1;
+    //int entity_num_hovered = -1;
 
     std::vector<character*> chars;
 

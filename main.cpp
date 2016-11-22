@@ -17,6 +17,7 @@
 #include "scenario_constructor.hpp"
 #include "shop.hpp"
 #include "draw_manager.hpp"
+#include "drag_manager.hpp"
 
 /*std::vector<base_stat> combine(const std::vector<base_stat>& b1, const std::vector<base_stat>& b2)
 {
@@ -26,6 +27,8 @@
 ///resting, levelling (new xp stuff!), multi phase attacks
 int main()
 {
+    drag_manager drag_manage;
+
     item_manager item_manage;
 
 
@@ -122,11 +125,11 @@ int main()
         draw_manage.tick();
         shop_manage.tick(draw_manage); ///for world transforms
 
-        shop_manage.do_character_entity_grab(party);
+        shop_manage.do_character_entity_grab(party, drag_manage);
 
         shop_manage.draw(draw_manage);
-        draw_manage.draw_entity_ui(party);
-        shop_manage.draw_shopfront_ui(draw_manage);
+        draw_manage.draw_entity_ui(party, drag_manage);
+        shop_manage.draw_shopfront_ui(draw_manage, drag_manage);
         shop_manage.draw_shopinfo_ui(draw_manage);
 
         draw_manage.render_ui();

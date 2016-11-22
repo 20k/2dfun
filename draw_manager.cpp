@@ -3,6 +3,7 @@
 #include "item.hpp"
 #include "inventory.hpp"
 #include "entities.hpp"
+#include "drag_manager.hpp"
 
 std::string stringify_to_percent(float val)
 {
@@ -282,7 +283,7 @@ std::vector<render_info> get_render_strings(character* c)
     std::vector<render_info> displays;
 
     std::string name = c->name;
-    std::string classname = c->classname;
+    std::string classname = c->classname + " (" + c->primary_stat + ")";
     std::string race = c->race;
 
     int clevel = c->cur_level;
@@ -311,6 +312,9 @@ std::vector<render_info> get_render_strings(character* c)
 
 
     displays.push_back(name);
+
+    //render_info class_info(classname, {1, 1, 1}, "(" + c->primary_stat + ")");
+
     displays.push_back(classname);
     displays.push_back(race);
 
@@ -506,7 +510,7 @@ std::vector<int> combine_3_group(const std::vector<int>& r1, const std::vector<i
     return ret;
 }
 
-void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group)
+void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group, drag_manager& drag_manage)
 {
     //std::vector<int> max_in_3_group;
     float button_width = 80.f;
@@ -597,7 +601,7 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     if(ImGui::IsItemHovered())
     {
-        entity_manage.entity_num_hovered = column_id;
+        drag_manage.entity_num_hovered = column_id;
 
         //printf("%i cl ", column_id);
     }
@@ -622,7 +626,7 @@ void render_test(character* c)
     ImGui::EndGroup();*/
 }
 
-void draw_manager::draw_entity_ui(entity_manager& entity_manage)
+void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& drag_manage)
 {
     if(entity_manage.chars.size() == 0)
         return;
@@ -636,7 +640,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
 
     //std::vector<std::vector<render_info>> displays;
 
-    entity_manage.entity_num_hovered = -1;
+    drag_manage.entity_num_hovered = -1;
 
     std::vector<int> max_in_3_group;
 
@@ -659,7 +663,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage)
     {
         character* c = entity_manage.chars[i];
 
-        render_character_text(entity_manage, c, i, max_in_3_group);
+        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage);
 
         //render_test(c);
 
