@@ -266,7 +266,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
 
     int cgrp = 0;
 
-    for(auto& i : grouped_info)
+    for(sorted_item_info& i : grouped_info)
     {
         std::string plural = "";
 
@@ -277,7 +277,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
 
         item_class_header += " " + to_string_prec(i.get_listed_price(), 5) + " Gold";
 
-        item_class_header += "###" + i.item_class + "expanded_rarity";
+        item_class_header += "###" + i.item_class + "expanded_rarity" + std::to_string(rarity);
 
         std::string bname = std::string("Place") + "##" + std::to_string(cgrp);
 
