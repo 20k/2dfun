@@ -59,8 +59,6 @@ struct peon_manager
 
     void draw_peons(draw_manager& draw_manage);
 
-    void check_peon_release_sellable(sellable* s);
-
     void force_unseek(sellable* s);
 };
 

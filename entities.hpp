@@ -484,6 +484,15 @@ struct character : combat_entity, stattable
         return true;
     }
 
+    bool remove_from_invent(item* i)
+    {
+        invent.remove_item(i);
+
+        recalculate_hp();
+
+        return true;
+    }
+
     float get_teammate_heal()
     {
         float cur = 0.f;

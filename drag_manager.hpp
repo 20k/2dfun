@@ -65,6 +65,8 @@ struct drag_manager
     void force_peons_unseek_current_sellable(shop& s);
 
     void update_entity_window_pos(vec2f p);
+
+    void release_sellable_lock();
 };
 
 #endif // DRAG_MANAGER_HPP_INCLUDED

@@ -289,17 +289,6 @@ void peon_manager::draw_peons(draw_manager& draw_manage)
     }
 }
 
-void peon_manager::check_peon_release_sellable(sellable* s)
-{
-    for(peon* i : peons)
-    {
-        if(i->currently_seeking == s)
-        {
-            i->cancel_pathfind();
-        }
-    }
-}
-
 void peon_manager::force_unseek(sellable* s)
 {
     for(auto& i : peons)

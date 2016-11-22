@@ -130,9 +130,10 @@ int main()
         shop_manage.draw_shopfront_ui(draw_manage, drag_manage);
         shop_manage.draw_shopinfo_ui(draw_manage);
 
-        drag_manage.tick_entity_grab(party, shop_manage);
 
+        drag_manage.tick_entity_grab(party, shop_manage);
         drag_manage.tick();
+
 
         draw_manage.render_ui();
         draw_manage.flip();

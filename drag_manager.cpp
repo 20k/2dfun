@@ -45,10 +45,13 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
     bool left = mouse.isButtonPressed(sf::Mouse::Left);
 
+    //printf("%i hv\n", (int)hovering_over_any_entity() && sellable_is_grabbed());
+
     if(!left && hovering_over_any_entity() && sellable_is_grabbed())
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
+            release_sellable_lock();
             ungrab();
 
             printf("invalid entity num, in drop path\n");
@@ -61,9 +64,36 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
         if(success)
         {
-            grabbed_sellable->locked = false;
             s.remove_sellable(grabbed_sellable);
-            s.peon_manage.check_peon_release_sellable(grabbed_sellable);
+            s.peon_manage.force_unseek(grabbed_sellable);
+        }
+        else
+        {
+            release_sellable_lock();
+        }
+
+        ungrab();
+    }
+
+    if(!left && hovering_over_any_entity() && item_is_grabbed())
+    {
+        if(entity_num_hovered >= entity_manage.chars.size() || saved_entity_num < 0 || saved_entity_num >= entity_manage.chars.size())
+        {
+            ungrab();
+
+            printf("invalid entity num, in drop path\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[entity_num_hovered];
+
+        bool success = c->add_to_invent(grabbed_item);
+
+        if(success)
+        {
+            character* old_c = entity_manage.chars[saved_entity_num];
+
+            old_c->remove_from_invent(grabbed_item);
         }
 
         ungrab();
@@ -142,6 +172,11 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
         //printf("D %f %f\n", EXPAND_2(last_entity_window_pos));
     }
+
+    if(sellable_is_grabbed())
+    {
+        s.peon_manage.force_unseek(grabbed_sellable);
+    }
 }
 
 void drag_manager::tick()
@@ -154,6 +189,7 @@ void drag_manager::tick()
     {
         if(grab_c == 0)
         {
+            release_sellable_lock();
             ungrab();
         }
 
@@ -232,4 +268,12 @@ void drag_manager::update_entity_window_pos(vec2f p)
 {
     last_entity_window_pos = entity_window_pos;
     entity_window_pos = p;
+}
+
+void drag_manager::release_sellable_lock()
+{
+    if(grabbed_sellable != nullptr)
+    {
+        grabbed_sellable->locked = false;
+    }
 }
