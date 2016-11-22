@@ -311,7 +311,7 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
 
                 }
 
-                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.grabbing)
+                if(ImGui::IsItemHovered() && mouse.isButtonPressed(sf::Mouse::Left) && !drag_manage.sellable_is_grabbed())
                 {
                     drag_manage.grab_sellable(j);
                 }

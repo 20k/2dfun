@@ -9,13 +9,13 @@
 void drag_manager::grab_sellable(sellable* s)
 {
     grabbed_sellable = s;
-    grabbing = true;
+    grabbing_sellable = true;
     grab_c = 2;
 }
 
 void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 {
-    if(grabbing)
+    if(grabbing_sellable)
     {
         ImGui::SetTooltip(grabbed_sellable->i->display().c_str());
     }
@@ -24,7 +24,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
     bool left = mouse.isButtonPressed(sf::Mouse::Left);
 
-    if(!left && entity_num_hovered != -1 && grabbing)
+    if(!left && entity_num_hovered != -1 && grabbing_sellable)
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
@@ -43,7 +43,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
             s.peon_manage.check_peon_release_sellable(grabbed_sellable);
         }
 
-        grabbing = false;
+        grabbing_sellable = false;
         grabbed_sellable = nullptr;
     }
 }
@@ -58,10 +58,15 @@ void drag_manager::tick()
     {
         if(grab_c == 0)
         {
-            grabbing = false;
+            grabbing_sellable = false;
             grabbed_sellable = nullptr;
         }
 
         grab_c--;
     }
+}
+
+bool drag_manager::sellable_is_grabbed()
+{
+    return grabbing_sellable;
 }

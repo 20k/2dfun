@@ -19,7 +19,8 @@ struct drag_manager
     bool clicked = false;
     bool dragging = false;
 
-    bool grabbing = false;
+    bool grabbing_sellable = false;
+    bool grabbing_item = false;
     sellable* grabbed_sellable = nullptr;
     item* grabbed_item = nullptr;
 
@@ -32,6 +33,9 @@ struct drag_manager
 
     void tick_entity_grab(entity_manager& entity_manage, shop& s);
     void tick();
+
+    bool sellable_is_grabbed();
+    bool item_is_grabbed();
 };
 
 #endif // DRAG_MANAGER_HPP_INCLUDED
