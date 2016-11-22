@@ -20,7 +20,8 @@ struct drag_manager
     bool dragging = false;
 
     bool grabbing = false;
-    sellable* grabbed = nullptr;
+    sellable* grabbed_sellable = nullptr;
+    item* grabbed_item = nullptr;
 
     bool peon_window_hovered = false;
     int grab_c = 2;

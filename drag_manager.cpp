@@ -8,7 +8,7 @@
 
 void drag_manager::grab_sellable(sellable* s)
 {
-    grabbed = s;
+    grabbed_sellable = s;
     grabbing = true;
     grab_c = 2;
 }
@@ -17,7 +17,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 {
     if(grabbing)
     {
-        ImGui::SetTooltip(grabbed->i->display().c_str());
+        ImGui::SetTooltip(grabbed_sellable->i->display().c_str());
     }
 
     sf::Mouse mouse;
@@ -34,17 +34,17 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
         character* c = entity_manage.chars[entity_num_hovered];
 
-        bool success = c->add_to_invent(grabbed->i);
+        bool success = c->add_to_invent(grabbed_sellable->i);
 
         if(success)
         {
-            grabbed->locked = false;
-            s.remove_sellable(grabbed);
-            s.peon_manage.check_peon_release_sellable(grabbed);
+            grabbed_sellable->locked = false;
+            s.remove_sellable(grabbed_sellable);
+            s.peon_manage.check_peon_release_sellable(grabbed_sellable);
         }
 
         grabbing = false;
-        grabbed = nullptr;
+        grabbed_sellable = nullptr;
     }
 }
 
@@ -59,7 +59,7 @@ void drag_manager::tick()
         if(grab_c == 0)
         {
             grabbing = false;
-            grabbed = nullptr;
+            grabbed_sellable = nullptr;
         }
 
         grab_c--;
