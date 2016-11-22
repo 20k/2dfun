@@ -88,7 +88,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         ///if i == nullptr, nothing happens
         int s = grab_item(i);
 
-        printf("%i %i gb\n", s, inventory_item);
+        //printf("%i %i gb\n", s, inventory_item);
     }
 
     if(!left && hovering_over_shopfront_window() && item_is_grabbed())
