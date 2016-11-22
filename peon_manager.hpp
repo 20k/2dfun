@@ -43,6 +43,8 @@ struct peon
     bool should_leave(shop& s);
 
     bool within_door(shop& s);
+
+    void force_unseek(sellable* s);
 };
 
 struct peon_manager
@@ -58,6 +60,8 @@ struct peon_manager
     void draw_peons(draw_manager& draw_manage);
 
     void check_peon_release_sellable(sellable* s);
+
+    void force_unseek(sellable* s);
 };
 
 #endif // PEON_MANAGER_HPP_INCLUDED

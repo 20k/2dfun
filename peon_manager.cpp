@@ -186,6 +186,17 @@ bool peon::within_door(shop& s)
     return (pos - door_pos).length() < 0.4f;
 }
 
+void peon::force_unseek(sellable* s)
+{
+    if(s == nullptr)
+        return;
+
+    if(s == currently_seeking)
+    {
+        cancel_pathfind();
+    }
+}
+
 peon* peon_manager::make_peon()
 {
     peon* p = new peon;
@@ -286,5 +297,13 @@ void peon_manager::check_peon_release_sellable(sellable* s)
         {
             i->cancel_pathfind();
         }
+    }
+}
+
+void peon_manager::force_unseek(sellable* s)
+{
+    for(auto& i : peons)
+    {
+        i->force_unseek(s);
     }
 }

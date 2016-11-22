@@ -682,6 +682,8 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
         if(ImGui::IsItemHovered())
         {
             drag_manage.entity_column_hovered = j;
+
+            //printf("%i fdf\n", j);
         }
 
         if(j != num_in_row-1)
@@ -723,6 +725,11 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 {
     if(entity_manage.chars.size() == 0)
         return;
+
+    if(drag_manage.item_is_grabbed())
+    {
+        ImGui::SetNextWindowPos(ImVec2(drag_manage.entity_window_pos.x(), drag_manage.entity_window_pos.y()));
+    }
 
     //character* c = entity_manage.chars[3];
     ImGui::Begin("Peons");
@@ -768,6 +775,10 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
         ImGui::Separator();
     }
+
+    ImVec2 win_pos = ImGui::GetWindowPos();
+
+    drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
 
     //ImGui::Columns(1);
 

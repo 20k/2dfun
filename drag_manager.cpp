@@ -6,18 +6,32 @@
 #include "shop.hpp"
 #include <imgui/imgui.h>
 
-void drag_manager::grab_sellable(sellable* s)
+bool drag_manager::grab_sellable(sellable* s)
 {
+    if(s == nullptr)
+        return false;
+
     grabbed_sellable = s;
     grabbing_sellable = true;
+    grabbed_sellable->locked = true;
     grab_c = 2;
+
+    return true;
 }
 
-void drag_manager::grab_item(item* i)
+bool drag_manager::grab_item(item* i)
 {
+    if(i == nullptr)
+        return false;
+
     grabbed_item = i;
     grabbing_item = true;
     grab_c = 2;
+
+    saved_entity_column = entity_column_hovered;
+    saved_entity_num = entity_num_hovered;
+
+    return true;
 }
 
 void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
@@ -35,7 +49,9 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
-            printf("invalid entity num\n");
+            ungrab();
+
+            printf("invalid entity num, in drop path\n");
             return;
         }
 
@@ -50,8 +66,81 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
             s.peon_manage.check_peon_release_sellable(grabbed_sellable);
         }
 
-        grabbing_sellable = false;
-        grabbed_sellable = nullptr;
+        ungrab();
+    }
+
+    if(left && hovering_over_specific_entity_column())
+    {
+        if(entity_num_hovered >= entity_manage.chars.size())
+        {
+            ungrab();
+
+            printf("invalid entity num, in specific column grab path\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[entity_num_hovered];
+
+        int inventory_item = column_id_to_invent(entity_column_hovered);
+
+        item* i = c->invent.get_item(inventory_item);
+
+        ///if i == nullptr, nothing happens
+        int s = grab_item(i);
+
+        printf("%i %i gb\n", s, inventory_item);
+    }
+
+    if(!left && hovering_over_shopfront_window() && item_is_grabbed())
+    {
+        ///uuh. Auto sell?
+
+        if(saved_entity_num >= entity_manage.chars.size() || saved_entity_num < 0)
+        {
+            ungrab();
+
+            printf("invalid entity num, in specific column drop path\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[saved_entity_num];
+
+        int inventory_item = column_id_to_invent(saved_entity_column);
+
+        item* i = c->invent.get_item(inventory_item);
+
+        ///we have to nullptr check this as something may have happened in between
+        if(i != nullptr)
+        {
+            s.make_sellable(i);
+
+            entity_manage.fully_remove_item(i);
+
+            ungrab();
+        }
+    }
+
+    if(item_is_grabbed())
+    {
+        if(saved_entity_num >= entity_manage.chars.size() || saved_entity_num < 0)
+        {
+            ungrab();
+
+            printf("invalid entity num, in tooltip\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[saved_entity_num];
+
+        int inventory_item = column_id_to_invent(saved_entity_column);
+
+        item* i = c->invent.get_item(inventory_item);
+
+        ImGui::SetTooltip(i->display().c_str());
+
+        ImGui::SetWindowPos("Peons", ImVec2(last_entity_window_pos.x(), last_entity_window_pos.y()));
+
+        //printf("D %f %f\n", EXPAND_2(last_entity_window_pos));
     }
 }
 
@@ -65,11 +154,7 @@ void drag_manager::tick()
     {
         if(grab_c == 0)
         {
-            grabbing_sellable = false;
-            grabbed_sellable = nullptr;
-
-            grabbing_item = false;
-            grabbed_item = nullptr;
+            ungrab();
         }
 
         grab_c--;
@@ -108,7 +193,43 @@ bool drag_manager::hovering_over_shopfront_window()
     return shopfront_window_hovered;
 }
 
-int drag_manager::get_inventory_item_id()
+/*int drag_manager::get_inventory_item_id()
 {
-    return entity_column_hovered - 5;
+    return saved_entity_column - 6; ///6 because there are 0 -> 5 before me, and i am 6! 6-6 = 0, aka i'm an idiot
+}*/
+
+int drag_manager::column_id_to_invent(int col_id)
+{
+    return col_id - 6;
+}
+
+void drag_manager::ungrab()
+{
+    grabbing_sellable = false;
+    grabbing_item = false;
+
+    grabbed_sellable = nullptr;
+    grabbed_item = nullptr;
+}
+
+bool drag_manager::carrying_sellable(sellable* s)
+{
+    if(!grabbing_sellable)
+        return false;
+
+    return s == grabbed_sellable;
+}
+
+void drag_manager::force_peons_unseek_current_sellable(shop& s)
+{
+    if(!sellable_is_grabbed())
+        return;
+
+    s.peon_manage.force_unseek(grabbed_sellable);
+}
+
+void drag_manager::update_entity_window_pos(vec2f p)
+{
+    last_entity_window_pos = entity_window_pos;
+    entity_window_pos = p;
 }

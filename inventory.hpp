@@ -25,6 +25,14 @@ struct inventory
         return st;
     }
 
+    item* get_item(int num)
+    {
+        if(num < 0 || num >= equipped.size())
+            return nullptr;
+
+        return equipped[num];
+    }
+
     ///must be 0 or 1
     int get_weapon_num()
     {
@@ -42,6 +50,18 @@ struct inventory
     void add_item(item* i)
     {
         equipped.push_back(i);
+    }
+
+    void remove_item(item* ii)
+    {
+        for(int i=0; i<equipped.size(); i++)
+        {
+            if(equipped[i] != ii)
+                continue;
+
+            equipped.erase(equipped.begin() + i);
+            i--;
+        }
     }
 
     int num()

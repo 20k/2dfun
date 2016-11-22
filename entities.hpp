@@ -1053,6 +1053,17 @@ struct entity_manager
             i->do_passive_regen();
         }
     }
+
+    ///perhaps its been destroyed, perhaps its been sold
+    void fully_remove_item(item* i)
+    {
+        for(auto& c : chars)
+        {
+            inventory& invent = c->get_invent();
+
+            invent.remove_item(i);
+        }
+    }
 };
 
 
