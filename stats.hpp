@@ -346,7 +346,7 @@ namespace stats
 
     static std::vector<int> peon_class_money_base
     {
-        100,
+        150,
         500,
         1000,
         10000,
