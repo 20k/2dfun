@@ -312,7 +312,7 @@ namespace stats
         {5, 0.3f},
     };
 
-    static float weapon_damage_random = 0.05f;
+    static float weapon_damage_random = 0.07f;
 
     ///basically wear level - maintenance
     static std::vector<std::string> weapon_wear =

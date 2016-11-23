@@ -26,7 +26,7 @@ namespace economics
     ///value for damage scaling
     //static float damage_max_value = 2000.f;
 
-    static float damage_percent_add_value_max = 0.1f;
+    static float damage_percent_add_value_max = 0.4f;
 
     static float percent_value_lost_per_wear_level = 0.2;
 
