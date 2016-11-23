@@ -106,6 +106,7 @@ struct shop
     void purchase(sellable* s);
 
     void spawn_random_peon();
+    void spawn_peon_of_tier(int tier);
 
     std::vector<tile> get_table_tiles();
 

@@ -503,6 +503,13 @@ void shop::spawn_random_peon()
     p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
 }
 
+void shop::spawn_peon_of_tier(int tier)
+{
+    peon* p = peon_manage.make_peon();
+    p->init(tier);
+    p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+}
+
 std::vector<tile> shop::get_table_tiles()
 {
     std::vector<tile> ret;
