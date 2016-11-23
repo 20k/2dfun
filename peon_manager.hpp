@@ -35,6 +35,8 @@ struct peon
 
     bool try_purchase_currently_seeking(shop& s);
 
+    bool is_currently_seeking(sellable* s);
+
     ///to target
     void pathfind(shop& s, float dt_s);
     void set_pathfind(vec2f p);

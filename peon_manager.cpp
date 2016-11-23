@@ -114,6 +114,11 @@ bool peon::try_purchase_currently_seeking(shop& s)
     return true;
 }
 
+bool peon::is_currently_seeking(sellable* s)
+{
+    return s == currently_seeking && should_pathfind;
+}
+
 void peon::pathfind(shop& s, float dt_s)
 {
     if(!should_pathfind)
@@ -172,7 +177,10 @@ bool peon::should_leave(shop& s)
 
     for(auto& i : sells)
     {
-        if(i->listed_price < wallet)
+        if(is_currently_seeking(i))
+            return false;
+
+        if(i->listed_price < wallet && !i->locked)
             return false;
     }
 
