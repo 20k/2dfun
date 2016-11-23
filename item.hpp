@@ -18,6 +18,7 @@ struct item : stattable
 
     ///times base_stat
     float attack_boost_hp_flat = 0.f;
+    float extra_damage = 0.f;
 
     ///(character stat + stat_boost)/10 * attack_boost_hp_flat
     std::string primary_stat;
@@ -29,9 +30,14 @@ struct item : stattable
     std::default_random_engine generator;
     std::normal_distribution<float> distribution;
 
-    void set_attack_boost(float hp)
+    /*void set_attack_boost(float hp)
     {
         attack_boost_hp_flat = hp;
+    }*/
+
+    void recalculate_attack_boost()
+    {
+        attack_boost_hp_flat = stats::rarity_to_damage[rarity] + extra_damage;
     }
 
     item(int _id) : distribution(0.0f,stats::weapon_find_stddev)
@@ -42,7 +48,7 @@ struct item : stattable
         generator.seed(id);
     }
 
-    void init_weapon_class(int id, float extra_hp_damage)
+    /*void init_weapon_class(int id, float extra_hp_damage)
     {
         if(id >= stats::weapon_class.size())
         {
@@ -56,6 +62,24 @@ struct item : stattable
         item_class = stats::weapon_class[weapon_class];
 
         set_attack_boost(extra_hp_damage);
+    }*/
+
+    void init_weapon_class(int id, float pextra_damage)
+    {
+        if(id >= stats::weapon_class.size())
+        {
+            printf("what in init_weapon_class %i\n", id);
+            return;
+        }
+
+        weapon_class = id;
+
+        primary_stat = stats::weapon_class_to_primary_stat[weapon_class];
+        item_class = stats::weapon_class[weapon_class];
+
+        extra_damage = pextra_damage;
+
+        recalculate_attack_boost();
     }
 
     void init_stat_boosts(const std::vector<base_stat>& extra_stats)
@@ -63,7 +87,11 @@ struct item : stattable
         for(auto& s : extra_stats)
         {
             modify_stat_val(s.key, s.val);
+
+            rarity += s.val;
         }
+
+        recalculate_attack_boost();
     }
 
     void init_item(int id)
@@ -157,6 +185,8 @@ struct item : stattable
         }
 
         rarity += extra_stats;
+
+        recalculate_attack_boost();
     }
 
     void random_weapon_with_class(int wclass)
@@ -175,13 +205,16 @@ struct item : stattable
         damage *= stats::weapon_damage_max;*/
 
 
-        float damage = 0.f;
+        /*float damage = 0.f;
 
         damage = distribution(generator) * stats::weapon_damage_max;
 
-        damage = fabs(damage);
+        damage = fabs(damage);*/
 
-        init_weapon_class(wclass, damage);
+        float random_extra = randf_s(-stats::weapon_damage_random, stats::weapon_damage_random);
+
+        init_weapon_class(wclass, random_extra);
+        //init_weapon_class(wclass, damage);
     }
 
     void random_stat_appropriate_weapon(const std::string& stat)
@@ -214,6 +247,10 @@ struct item : stattable
     void inc_stat(const std::string& key, int val = 1)
     {
         modify_stat_val(key, val);
+
+        rarity += val;
+
+        recalculate_attack_boost();
     }
 
     void inc_accumulated_wear()

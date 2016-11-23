@@ -302,6 +302,18 @@ namespace stats
         {5, {1, 0.5, 0}},
     };
 
+    static std::map<int, float> rarity_to_damage
+    {
+        {0, 0.05f},
+        {1, 0.1f},
+        {2, 0.15f},
+        {3, 0.2f},
+        {4, 0.25f},
+        {5, 0.3f},
+    };
+
+    static float weapon_damage_random = 0.05f;
+
     ///basically wear level - maintenance
     static std::vector<std::string> weapon_wear =
     {

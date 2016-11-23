@@ -24,9 +24,11 @@ namespace economics
     };
 
     ///value for damage scaling
-    static float damage_max_value = 2000.f;
+    //static float damage_max_value = 2000.f;
 
-    static float percent_value_lost_per_wear_level = 0.1;
+    static float damage_percent_add_value_max = 0.1f;
+
+    static float percent_value_lost_per_wear_level = 0.2;
 
     static float notoriety_value_mult_max = 10;
 }
@@ -54,9 +56,11 @@ struct economic_item
 
         rarity = std::min(rarity, (int)economics::approx_economic_value.size()-1);
 
-        nominal_value = economics::approx_economic_value[rarity] + randf_s(-0.2, 0.2f) * economics::approx_economic_value[rarity];
+        nominal_value = economics::approx_economic_value[rarity] + randf_s(-0.005, 0.005f) * economics::approx_economic_value[rarity];
 
         float weapon_frac = i->attack_boost_hp_flat / stats::weapon_damage_max;
+
+        float random_extra_damage_frac = i->extra_damage / stats::weapon_damage_random;
 
         //value_added_damage = weapon_frac * economics::damage_max_value;
 
@@ -78,9 +82,15 @@ struct economic_item
 
         float fnot = (float)notoriety / stats::weapon_notoriety.size();
 
-        value = nominal_value + value_added_damage;
+        value = nominal_value;
 
-        value = value - value * wear * economics::percent_value_lost_per_wear_level + value * fnot * economics::notoriety_value_mult_max;
+        value_added_damage = value * random_extra_damage_frac * economics::damage_percent_add_value_max;
+
+        value = value
+         - value * wear * economics::percent_value_lost_per_wear_level + value * fnot * economics::notoriety_value_mult_max
+         + value_added_damage;
+
+        value = (int)value;
     }
 
     std::string display()
