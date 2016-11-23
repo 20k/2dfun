@@ -19,12 +19,12 @@ namespace economics
         200,
         700,
         2000,
-        10000,
-        100000
+        5000,
+        10000
     };
 
     ///value for damage scaling
-    static float damage_max_value = 10000.f;
+    static float damage_max_value = 2000.f;
 
     static float percent_value_lost_per_wear_level = 0.1;
 
@@ -47,13 +47,30 @@ struct economic_item
     {
         srand(i->id);
 
+        for(int kk=0; kk<20; kk++)
+            rand();
+
         rarity = i->rarity;
 
         rarity = std::min(rarity, (int)economics::approx_economic_value.size()-1);
 
         nominal_value = economics::approx_economic_value[rarity] + randf_s(-0.2, 0.2f) * economics::approx_economic_value[rarity];
 
-        value_added_damage = i->attack_boost_hp_flat * economics::damage_max_value;
+        float weapon_frac = i->attack_boost_hp_flat / stats::weapon_damage_max;
+
+        //value_added_damage = weapon_frac * economics::damage_max_value;
+
+        //value_added_damage = i->attack_boost_hp_flat * economics::damage_max_value;
+
+        //value_added_damage = pow(weapon_frac, stats::weapon_find_power/1.3f) * economics::damage_max_value;
+        //value_added_damage = pow(i->attack_boost_hp_flat / stats::weapon_damage_max, 1.f) * economics::damage_max_value;
+
+        //value_added_damage = ((1.f - normal_cdf(weapon_frac)) - 0.5f) * economics::damage_max_value;
+
+        //weapon_frac = clamp(weapon_frac, 0.f,1.f);
+
+        //float cumulative_probability = (normal_cdf(weapon_frac) - 0.5f) * 2
+        //value_added_damage = cumulative_probability * economics::damage_max_value;
 
         wear = i->get_wear();
 

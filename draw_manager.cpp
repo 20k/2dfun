@@ -4,6 +4,7 @@
 #include "inventory.hpp"
 #include "entities.hpp"
 #include "drag_manager.hpp"
+#include "economics.hpp"
 
 std::string stringify_to_percent(float val)
 {
@@ -448,6 +449,11 @@ std::vector<render_info> get_render_strings(character* c)
 
         if(it->is_weapon())
             general_info += "\nKills: " + std::to_string(kills);
+
+        economic_item ei;
+        ei.load_from_item(it);
+
+        general_info += "\nValue: " + to_string_prec(ei.nominal_value, 6) + " Gold";
 
 
         render_info rinfo(rarity_str, condition_col_bad, general_info);//, rarity_col, kv_stats);

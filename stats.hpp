@@ -236,10 +236,12 @@ namespace stats
 
     static float weapon_stat_synergy_bonus = 1.1f;
 
-    static float weapon_damage_max = 0.2f;
+    static float weapon_damage_max = 0.4f;
 
     ///rand^weapon_find_power
-    static float weapon_find_power = 3.f;
+    static float weapon_find_power = 4.f;
+
+    static float weapon_find_stddev = 1.f/8.5f;
 
     ///name potions after alcoholic drinks
     static std::vector<std::string> item_class =
@@ -365,7 +367,7 @@ namespace stats
     static float first_level_xp = 40;
     static float xp_curve = 1.1f;
 
-    static int starting_items = 100;
+    static int starting_items = 50;
     static int starting_cash = 1000.f;
 }
 

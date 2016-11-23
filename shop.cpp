@@ -301,6 +301,8 @@ void draw_expanded_rarity(draw_manager& draw_manage, shop& s, int rarity, drag_m
             for(sellable* j : i.items)
             {
                 std::string str_id = std::to_string(id);
+                ///If unique ids
+                //std::string str_id = std::to_string(j->i->id);
 
                 item* it = j->i;
 

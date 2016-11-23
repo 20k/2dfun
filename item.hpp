@@ -3,6 +3,10 @@
 
 #include "shared.hpp"
 
+#include <iostream>
+#include <chrono>
+#include <random>
+
 struct item : stattable
 {
     int id = -1;
@@ -22,15 +26,20 @@ struct item : stattable
     int weapon_class = -1;
     int rarity = 0;
 
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution;
+
     void set_attack_boost(float hp)
     {
         attack_boost_hp_flat = hp;
     }
 
-    item(int _id)
+    item(int _id) : distribution(0.0f,stats::weapon_find_stddev)
     {
         init_stats(0.f);
         id = _id;
+
+        generator.seed(id);
     }
 
     void init_weapon_class(int id, float extra_hp_damage)
@@ -152,7 +161,25 @@ struct item : stattable
 
     void random_weapon_with_class(int wclass)
     {
-        float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
+        //float damage = pow(randf_s(0.f, 1.f), stats::weapon_find_power) * stats::weapon_damage_max;
+
+        /*float damage = 1.f;
+
+        for(int i=0; i<stats::weapon_find_power; i++)
+        {
+            damage *= randf_s(0.f, 1.f);
+        }
+
+        damage += randf_s(0.f, 0.01f);
+
+        damage *= stats::weapon_damage_max;*/
+
+
+        float damage = 0.f;
+
+        damage = distribution(generator) * stats::weapon_damage_max;
+
+        damage = fabs(damage);
 
         init_weapon_class(wclass, damage);
     }
