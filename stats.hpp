@@ -382,7 +382,7 @@ namespace stats
     static int starting_items = 50;
     static int starting_cash = 1000.f;
 
-    static float day_len_s = 120.f;
+    static float day_len_s = 60.f;
     static float peon_idle_time_total_s = 20.f;
     static float peon_idle_time_loiter_s = 2.f;
     static float peon_spawn_time_stagger = 1.f;
