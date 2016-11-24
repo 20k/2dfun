@@ -71,7 +71,7 @@ bool peon::within_purchase_distance_of_currently_seeking(shop& s)
 
     vec2f world_pos = pos;
 
-    vec2f grid_pos = world_pos / s.grid_dim;
+    vec2f grid_pos = world_pos / (float)s.grid_dim;
 
     vec2f dist = tile_pos - grid_pos;
 

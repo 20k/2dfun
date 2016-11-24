@@ -790,7 +790,7 @@ struct entity_manager
 
                 heals += ch->get_teammate_heal();
 
-                if(heals > 0)
+                if(ch->get_teammate_heal() > 0)
                     info.healers.push_back(ch);
             }
 
