@@ -320,6 +320,7 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 
         i->pathfind(s, draw_manage.get_frametime_s());
 
+        ///need to make it random chance as to whether they're going to buy something now
         if(!i->should_pathfind)
             i->seek_random_item(s);
 
