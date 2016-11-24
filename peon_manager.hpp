@@ -25,6 +25,8 @@ struct tile;
 ///we need idle pathfinding next
 struct peon
 {
+    float buy_threshold = 0.f;
+
     float idling_time_s = FLT_MAX;
     float time_since_spawn_s = 0.f;
 
@@ -48,6 +50,7 @@ struct peon
     void init(int ptier);
 
     void seek_random_item(shop& s);
+    bool might_buy(sellable* s);
 
     bool within_purchase_distance_of_currently_seeking(shop& s);
 

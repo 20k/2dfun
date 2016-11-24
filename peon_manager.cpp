@@ -12,6 +12,8 @@ void peon::init(int ptier)
     money = money + money * randf_s(-stats::peon_money_variation, stats::peon_money_variation);
 
     wallet = (int)money;
+
+    buy_threshold = randf_s(0.f, 1.f);
 }
 
 void peon::seek_random_item(shop& s)
@@ -20,6 +22,9 @@ void peon::seek_random_item(shop& s)
     {
 
     }*/
+
+    ///so eventually we can add to the buy threshold
+    ///based on local environmental modifiers, how many nice well stocked stalls we've visited
 
     if(currently_seeking)
         return;
@@ -53,6 +58,9 @@ void peon::seek_random_item(shop& s)
         if(seek->listed_price >= wallet || seek->locked)
             continue;
 
+        if(!might_buy(seek))
+            continue;
+
         currently_seeking = seek;
         currently_seeking->locked = true;
 
@@ -61,6 +69,11 @@ void peon::seek_random_item(shop& s)
 
         success = true;
     }
+}
+
+bool peon::might_buy(sellable* s)
+{
+    return s->listed_price < wallet && buy_threshold < stats::raw_buy_threshold;
 }
 
 bool peon::within_purchase_distance_of_currently_seeking(shop& s)
@@ -203,7 +216,7 @@ bool peon::should_leave(shop& s)
         if(is_currently_seeking(i))
             return false;
 
-        if(i->listed_price < wallet && !i->locked)
+        if(i->listed_price < wallet && !i->locked && might_buy(i))
             return false;
     }
 
