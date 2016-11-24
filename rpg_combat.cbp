@@ -74,6 +74,8 @@
 		<Unit filename="shared.hpp" />
 		<Unit filename="shop.cpp" />
 		<Unit filename="shop.hpp" />
+		<Unit filename="shop_general_manager.cpp" />
+		<Unit filename="shop_general_manager.hpp" />
 		<Unit filename="stats.hpp" />
 		<Extensions>
 			<code_completion />
