@@ -113,6 +113,8 @@ struct shop
     std::vector<sellable*> get_purchasable_sellables_on_tables();
 
     vec2f get_door_world_pos();
+
+    int get_num_non_leaving_peons();
 };
 
 #endif // SHOP_HPP_INCLUDED

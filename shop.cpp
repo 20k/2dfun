@@ -555,3 +555,16 @@ vec2f shop::get_door_world_pos()
 
     return {-1, -1};
 }
+
+int shop::get_num_non_leaving_peons()
+{
+    int n = 0;
+
+    for(auto& i : peon_manage.peons)
+    {
+        if(!i->currently_leaving)
+            n++;
+    }
+
+    return n;
+}

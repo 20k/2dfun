@@ -309,6 +309,8 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
             //printf("sl");
 
             i->set_pathfind(s.get_door_world_pos() + s.grid_dim/2.f);
+
+            i->currently_leaving = true;
         }
 
         if(i->should_idle(s))

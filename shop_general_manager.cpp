@@ -12,10 +12,30 @@ void do_day_progression(shop_general_manager& shop_general)
 
     if(shop_general.is_new_day())
     {
-        for(int i=0; i<peons_per_day; i++)
+        /*for(int i=0; i<peons_per_day; i++)
         {
             shop_general.shop_manage.spawn_random_peon();
-        }
+        }*/
+
+        shop_general.peons_left_to_spawn += peons_per_day;
+    }
+
+    ///wtf
+    ///we need to stagger these random peons
+    int peon_count = shop_general.shop_manage.get_num_non_leaving_peons();
+
+    if(peon_count < 5 && shop_general.peons_left_to_spawn < 2)
+    {
+        shop_general.peons_left_to_spawn++;
+    }
+
+    if(shop_general.peons_left_to_spawn > 0 && shop_general.peon_spawn_stagger_elapsed_s > stats::peon_spawn_time_stagger)
+    {
+        shop_general.shop_manage.spawn_random_peon();
+
+        shop_general.peon_spawn_stagger_elapsed_s = 0.f;
+
+        shop_general.peons_left_to_spawn--;
     }
 }
 
@@ -25,8 +45,8 @@ void shop_general_manager::tick(float dt_s, draw_manager& draw_manage)
 
     do_day_progression(*this);
 
-    float day_current = floor(fmod(time_s, stats::day_len_s) / stats::day_len_s);
-    float day_next = floor(fmod(time_s + dt_s, stats::day_len_s) / stats::day_len_s);
+    float day_current = floor(time_s / stats::day_len_s);
+    float day_next = floor((time_s + dt_s) / stats::day_len_s);
 
     time_s += dt_s;
 
@@ -36,6 +56,10 @@ void shop_general_manager::tick(float dt_s, draw_manager& draw_manage)
     {
         new_day = true;
     }
+
+    peon_spawn_stagger_elapsed_s += dt_s;
+
+    //printf("%f %f %f\n", day_current, day_next, time_s);
 
     //printf("%i\n", (int)day_current);
 }
