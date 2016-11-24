@@ -383,6 +383,8 @@ namespace stats
     static int starting_cash = 1000.f;
 
     static float day_len_s = 60.f;
+    static float peon_idle_time_total_s = 10.f;
+    static float peon_idle_time_loiter_s = 2.f;
 }
 
 struct stattable

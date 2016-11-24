@@ -8,8 +8,11 @@ struct shop;
 struct sellable;
 struct draw_manager;
 
+///we need idle pathfinding next
 struct peon
 {
+    float time_since_spawn_s = 0.f;
+
     vec2f pathfinding_destination;
     bool should_pathfind = false;
 
@@ -43,10 +46,15 @@ struct peon
     void cancel_pathfind();
 
     bool should_leave(shop& s);
+    bool should_idle(shop& s);
+
+    void idle_pathfind(shop& s);
+
 
     bool within_door(shop& s);
 
     void force_unseek(sellable* s);
+
 };
 
 struct peon_manager

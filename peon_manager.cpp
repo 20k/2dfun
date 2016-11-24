@@ -171,9 +171,14 @@ void peon::cancel_pathfind()
     currently_seeking = nullptr;
 }
 
+///change this to be "am i done", not "is there anything left"
 bool peon::should_leave(shop& s)
 {
     std::vector<sellable*> sells = s.get_purchasable_sellables_on_tables();
+
+    ///and should not be forced to leave shop due to closure
+    if(time_since_spawn_s < stats::peon_idle_time_total_s)
+        return false;
 
     for(auto& i : sells)
     {
@@ -185,6 +190,17 @@ bool peon::should_leave(shop& s)
     }
 
     return true;
+}
+
+///idle if there's nothing I can buy, for a time?
+bool peon::should_idle(shop& s)
+{
+
+}
+
+void peon::idle_pathfind(shop& s)
+{
+
 }
 
 bool peon::within_door(shop& s)
@@ -232,6 +248,8 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 {
     for(peon* i : peons)
     {
+        i->time_since_spawn_s += draw_manage.get_frametime_s();
+
         if(i->currently_seeking)
         {
             bool success = i->try_purchase_currently_seeking(s);
