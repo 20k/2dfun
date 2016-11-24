@@ -106,7 +106,7 @@ int main()
 
     shop_general_manager shop_general;
 
-    shop_general.init(&item_manage, {500, 500}, 30);
+    shop_general.init(&item_manage, {30*9, 30*9}, 30);
 
     for(int i=0; i<stats::starting_items; i++)
     {

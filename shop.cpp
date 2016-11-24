@@ -28,7 +28,7 @@ void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
         base.array_pos = (vec2i){x, y};
 
         ///halfway on the bottom
-        if(i == rdim.x() * rdim.y() - rdim.x()/2)
+        if(i == rdim.x() * rdim.y() - round(rdim.x()/2.f))
         {
             base.tile_type = tile_info::DOOR;
         }

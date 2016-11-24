@@ -335,7 +335,7 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 
         if(i->should_idle(s))
         {
-            if(randf_s(0.f, 1.f) < 0.5f || display_table_tiles.size() == 0)
+            if(randf_s(0.f, 1.f) < 0.3f || display_table_tiles.size() == 0)
                 i->idle_pathfind(s);
             else
             {
