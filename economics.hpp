@@ -46,7 +46,6 @@ struct economic_item
     int notoriety = 0;
 
     std::minstd_rand gen;
-    //std::normal_distribution<float> distribution;
     std::uniform_real_distribution<float> dis;
 
     economic_item() : dis(0.f, 1.f)
