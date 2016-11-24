@@ -12,11 +12,6 @@ void do_day_progression(shop_general_manager& shop_general)
 
     if(shop_general.is_new_day())
     {
-        /*for(int i=0; i<peons_per_day; i++)
-        {
-            shop_general.shop_manage.spawn_random_peon();
-        }*/
-
         shop_general.peons_left_to_spawn += peons_per_day;
     }
 
