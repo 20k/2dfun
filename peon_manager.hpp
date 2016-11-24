@@ -7,6 +7,20 @@ struct peon_manager;
 struct shop;
 struct sellable;
 struct draw_manager;
+struct tile;
+
+/*namespace peon_command
+{
+    enum commands
+    {
+        SEEK,
+        WAIT,
+        IDLE_SEEK,
+        DISPLAY_SEEK, ///seek something fun
+    }
+}*/
+
+///make a command queue for peons that we can insert into, that would be better than the weird status we have atm
 
 ///we need idle pathfinding next
 struct peon
@@ -41,6 +55,8 @@ struct peon
 
     bool is_currently_seeking(sellable* s);
 
+    vec2i get_random_table_display(shop& s);
+
     ///to target
     void pathfind(shop& s, float dt_s);
     void set_pathfind(vec2f p);
@@ -50,7 +66,7 @@ struct peon
     bool should_idle(shop& s);
 
     void idle_pathfind(shop& s);
-
+    void table_display_pathfind(shop& s);
 
     bool within_door(shop& s);
 

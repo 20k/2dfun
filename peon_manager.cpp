@@ -119,6 +119,18 @@ bool peon::is_currently_seeking(sellable* s)
     return s == currently_seeking && should_pathfind;
 }
 
+vec2i peon::get_random_table_display(shop& s)
+{
+    std::vector<tile> tiles = s.get_table_tiles();
+
+    if(tiles.size() == 0)
+        return {-1, -1};
+
+    int v = randf<1, int>(0, tiles.size());
+
+    return tiles[v].array_pos;
+}
+
 void peon::pathfind(shop& s, float dt_s)
 {
     if(!should_pathfind)
@@ -214,6 +226,27 @@ void peon::idle_pathfind(shop& s)
     idling_time_s = 0.f;
 }
 
+void peon::table_display_pathfind(shop& s)
+{
+    vec2i random_table = get_random_table_display(s);
+
+    ///this is really a failure case, but not 100% sure i actually want to throw
+    ///because its fairly benign, but then you know, fail early
+    if(random_table.v[0] == -1)
+    {
+        printf("0 tile size in display pathfind");
+        return;
+    }
+
+    float rangle = randf_s(0.f, M_PI * 2.f);
+
+    vec2f rpos = {cos(rangle) * s.grid_dim, sin(rangle) * s.grid_dim};
+
+    vec2f real_pos = (conv_implicit<vec2f>(random_table) + 0.5f) * (float)s.grid_dim;
+
+    set_pathfind(real_pos + rpos);
+}
+
 bool peon::within_door(shop& s)
 {
     vec2f door_pos = s.get_door_world_pos() + s.grid_dim/2.f;
@@ -257,6 +290,8 @@ void peon_manager::remove_peon(peon* p)
 ///need to move towards seek
 void peon_manager::tick(shop& s, draw_manager& draw_manage)
 {
+    std::vector<tile> display_table_tiles = s.get_table_tiles();
+
     for(peon* i : peons)
     {
         if(i->currently_seeking)
@@ -278,7 +313,12 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 
         if(i->should_idle(s))
         {
-            i->idle_pathfind(s);
+            if(randf_s(0.f, 1.f) < 0.5f || display_table_tiles.size() == 0)
+                i->idle_pathfind(s);
+            else
+            {
+                i->table_display_pathfind(s);
+            }
         }
 
         i->time_since_spawn_s += draw_manage.get_frametime_s();
