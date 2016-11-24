@@ -194,7 +194,8 @@ bool peon::should_leave(shop& s)
     if(time_since_spawn_s < stats::peon_idle_time_total_s)
         return false;
 
-    if(should_pathfind)
+    ///if we're pathfind but we're not pathfinding to the exit
+    if(should_pathfind && !currently_leaving)
         return false;
 
     for(auto& i : sells)
@@ -251,7 +252,7 @@ bool peon::within_door(shop& s)
 {
     vec2f door_pos = s.get_door_world_pos() + s.grid_dim/2.f;
 
-    return (pos - door_pos).length() < 0.4f;
+    return (pos - door_pos).length() < s.grid_dim/3.f;
 }
 
 void peon::force_unseek(sellable* s)
