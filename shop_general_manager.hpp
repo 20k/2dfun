@@ -7,7 +7,9 @@ struct draw_manager;
 
 struct shop_general_manager
 {
-    float time_s = 0;
+    bool new_day = false;
+
+    float time_s = -1;
     shop shop_manage;
     item_manager* item_manage;
 
@@ -17,6 +19,8 @@ struct shop_general_manager
 
     void draw_tiles(draw_manager& draw_manage);
     void draw_shop_ui(draw_manager& draw_manage, drag_manager& drag_manage);
+
+    bool is_new_day();
 };
 
 #endif // SHOP_GENERAL_MANAGER_HPP_INCLUDED
