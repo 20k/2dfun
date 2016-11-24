@@ -40,7 +40,7 @@ void peon::seek_random_item(shop& s)
     bool success = false;
 
     int c = 0;
-    int max_tries = 5;
+    int max_tries = 40;
 
     while(!success && c < max_tries)
     {

@@ -3,12 +3,20 @@
 
 #include "shop.hpp"
 
+struct draw_manager;
+
 struct shop_general_manager
 {
     float time_s = 0;
-    shop s;
+    shop shop_manage;
+    item_manager* item_manage;
 
-    void tick(float dt_s);
+    void init(item_manager* it, vec2i dim, int grid_size);
+
+    void tick(float dt_s, draw_manager& draw_manage); ///for world transforms we need draw_manager
+
+    void draw_tiles(draw_manager& draw_manage);
+    void draw_shop_ui(draw_manager& draw_manage, drag_manager& drag_manage);
 };
 
 #endif // SHOP_GENERAL_MANAGER_HPP_INCLUDED

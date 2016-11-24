@@ -18,6 +18,7 @@
 #include "shop.hpp"
 #include "draw_manager.hpp"
 #include "drag_manager.hpp"
+#include "shop_general_manager.hpp"
 
 /*std::vector<base_stat> combine(const std::vector<base_stat>& b1, const std::vector<base_stat>& b2)
 {
@@ -103,11 +104,9 @@ int main()
 
     ImGui::SFML::Init(draw_manage.window);
 
-    shop shop_manage;
+    shop_general_manager shop_general;
 
-    shop_manage.init(&item_manage, {500, 500}, 30);
-
-    shop_manage.spawn_random_peon();
+    shop_general.init(&item_manage, {500, 500}, 30);
 
     for(int i=0; i<stats::starting_items; i++)
     {
@@ -115,7 +114,7 @@ int main()
 
         ni->random_item_or_weapon();
 
-        shop_manage.make_sellable(ni);
+        shop_general.shop_manage.make_sellable(ni);
 
         //std::cout << ni->display() << std::endl;
     }
@@ -123,17 +122,16 @@ int main()
     while(draw_manage.window.isOpen())
     {
         draw_manage.tick();
-        shop_manage.tick(draw_manage); ///for world transforms
 
-        shop_manage.draw(draw_manage);
+        shop_general.tick(draw_manage.get_frametime_s(), draw_manage);
+        shop_general.draw_tiles(draw_manage);
+
         draw_manage.draw_entity_ui(party, drag_manage);
-        shop_manage.draw_shopfront_ui(draw_manage, drag_manage);
-        shop_manage.draw_shopinfo_ui(draw_manage);
 
+        shop_general.draw_shop_ui(draw_manage, drag_manage);
 
-        drag_manage.tick_entity_grab(party, shop_manage);
+        drag_manage.tick_entity_grab(party, shop_general.shop_manage);
         drag_manage.tick();
-
 
         draw_manage.render_ui();
         draw_manage.flip();
