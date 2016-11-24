@@ -150,6 +150,8 @@ void peon::pathfind(shop& s, float dt_s)
     cur = cur + dir * md;
 
     pos = cur;
+
+    idling_time_s = 0.f;
 }
 
 void peon::set_pathfind(vec2f p)
@@ -198,7 +200,7 @@ bool peon::should_leave(shop& s)
 ///idle if there's nothing I can buy, for a time?
 bool peon::should_idle(shop& s)
 {
-    return !should_pathfind && !should_leave(s);
+    return !should_pathfind && !should_leave(s) && idling_time_s > stats::peon_idle_time_loiter_s;
 }
 
 void peon::idle_pathfind(shop& s)
@@ -208,6 +210,8 @@ void peon::idle_pathfind(shop& s)
     //printf("dst %f %f\n", EXPAND_2(dest));
 
     set_pathfind(dest);
+
+    idling_time_s = 0.f;
 }
 
 bool peon::within_door(shop& s)
@@ -255,8 +259,6 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
 {
     for(peon* i : peons)
     {
-        i->time_since_spawn_s += draw_manage.get_frametime_s();
-
         if(i->currently_seeking)
         {
             bool success = i->try_purchase_currently_seeking(s);
@@ -278,6 +280,10 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
         {
             i->idle_pathfind(s);
         }
+
+        i->time_since_spawn_s += draw_manage.get_frametime_s();
+
+        i->idling_time_s += draw_manage.get_frametime_s();
     }
 
     for(int i=0; i<peons.size(); i++)

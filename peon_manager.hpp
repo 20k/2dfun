@@ -11,6 +11,7 @@ struct draw_manager;
 ///we need idle pathfinding next
 struct peon
 {
+    float idling_time_s = FLT_MAX;
     float time_since_spawn_s = 0.f;
 
     vec2f pathfinding_destination;
