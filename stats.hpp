@@ -388,6 +388,7 @@ namespace stats
     static float peon_spawn_time_stagger = 1.f;
     static int peon_minimum_count = 5;
     static float raw_buy_threshold = 0.1f; ///bit of an abstract thing here
+    static float max_price_reluctance_frac = 0.4f; ///if an object costs all our money, we'll be this frac less likely to buy
 }
 
 struct stattable

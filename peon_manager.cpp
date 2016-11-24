@@ -73,7 +73,12 @@ void peon::seek_random_item(shop& s)
 
 bool peon::might_buy(sellable* s)
 {
-    return s->listed_price < wallet && buy_threshold < stats::raw_buy_threshold;
+    float wallet_frac = s->listed_price / wallet;
+
+    ///due to price
+    float willingness_removed = buy_threshold * wallet_frac * stats::max_price_reluctance_frac;
+
+    return s->listed_price < wallet && buy_threshold + willingness_removed < stats::raw_buy_threshold;
 }
 
 bool peon::within_purchase_distance_of_currently_seeking(shop& s)
