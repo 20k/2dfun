@@ -19,7 +19,7 @@ void do_day_progression(shop_general_manager& shop_general)
     ///we need to stagger these random peons
     int peon_count = shop_general.shop_manage.get_num_non_leaving_peons();
 
-    if(peon_count < 5 && shop_general.peons_left_to_spawn < 2)
+    if(peon_count < stats::peon_minimum_count && shop_general.peons_left_to_spawn < 2)
     {
         shop_general.peons_left_to_spawn++;
     }
