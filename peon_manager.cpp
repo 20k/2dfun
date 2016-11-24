@@ -180,6 +180,9 @@ bool peon::should_leave(shop& s)
     if(time_since_spawn_s < stats::peon_idle_time_total_s)
         return false;
 
+    if(should_pathfind)
+        return false;
+
     for(auto& i : sells)
     {
         if(is_currently_seeking(i))
@@ -195,12 +198,16 @@ bool peon::should_leave(shop& s)
 ///idle if there's nothing I can buy, for a time?
 bool peon::should_idle(shop& s)
 {
-
+    return !should_pathfind && !should_leave(s);
 }
 
 void peon::idle_pathfind(shop& s)
 {
+    vec2f dest = randv<2, float>((vec2f){10.f, 10.f}, conv_implicit<vec2f>(s.dim) - 10.f);
 
+    //printf("dst %f %f\n", EXPAND_2(dest));
+
+    set_pathfind(dest);
 }
 
 bool peon::within_door(shop& s)
@@ -265,6 +272,11 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
             //printf("sl");
 
             i->set_pathfind(s.get_door_world_pos() + s.grid_dim/2.f);
+        }
+
+        if(i->should_idle(s))
+        {
+            i->idle_pathfind(s);
         }
     }
 

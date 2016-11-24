@@ -45,18 +45,24 @@ struct economic_item
     int wear = 0;
     int notoriety = 0;
 
+    std::minstd_rand gen;
+    //std::normal_distribution<float> distribution;
+    std::uniform_real_distribution<float> dis;
+
+    economic_item() : dis(0.f, 1.f)
+    {
+
+    }
+
     void load_from_item(item* i)
     {
-        srand(i->id);
-
-        for(int kk=0; kk<20; kk++)
-            rand();
+        gen.seed(i->id);
 
         rarity = i->rarity;
 
         rarity = std::min(rarity, (int)economics::approx_economic_value.size()-1);
 
-        nominal_value = economics::approx_economic_value[rarity] + randf_s(-0.005, 0.005f) * economics::approx_economic_value[rarity];
+        nominal_value = economics::approx_economic_value[rarity] + rand_det_s(gen, -0.005, 0.005f) * economics::approx_economic_value[rarity];
 
         float weapon_frac = i->attack_boost_hp_flat / stats::weapon_damage_max;
 
