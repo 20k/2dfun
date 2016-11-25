@@ -100,7 +100,7 @@ int main()
     std::cout << std::endl << party.display_critical() << std::endl;
 
     draw_manager draw_manage;
-    draw_manage.init(1400, 900);
+    draw_manage.init(1600, 900);
 
     ImGui::SFML::Init(draw_manage.window);
 

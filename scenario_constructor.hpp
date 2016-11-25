@@ -12,6 +12,28 @@ namespace scenarios
         120,
         240
     };
+
+    //int num_types = 3;
+
+    std::vector<std::string> types
+    {
+        "MOUNTAINS",
+        "JUNGLE",
+        "MINES",
+        "CAVES"
+    };
+
+    ///Ok. We don't really want just one kind of monster per area
+    ///perhaps it should just be a weighting?
+    ///Ok, Probability weighting for each monster in the monster bits
+    ///Not absolute probability, attack ratio
+    std::map<std::string, std::vector<float>> type_to_monsters
+    {
+        {"MOUNTAINS", {1.f, 0.3f, 0.5f, 0.1f}},
+        {"JUNGLE", {0.3f, 1.f, 0.3f, 0.5f}},
+        {"MINES", {0.1f, 0.4f, 1.f, 0.3f}},
+        {"CAVES", {0.8f, 0.6f, 0.7f, 1.f}}, ///caves is most variable
+    };
 }
 
 ///heal in between stops, dependent on priest and potions?
@@ -22,6 +44,9 @@ struct scenario_manager
     std::vector<character*> chars; ///general entities
 
     std::vector<character*> players_backup;
+
+    ///0 -> types.size()-1
+    int scenario_type = 0;
 
     character* make_new(int team)
     {
