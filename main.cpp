@@ -120,6 +120,8 @@ int main()
         //std::cout << ni->display() << std::endl;
     }
 
+    sf::Clock party_time;
+
     while(draw_manage.window.isOpen())
     {
         draw_manage.tick();
@@ -136,6 +138,13 @@ int main()
 
         draw_manage.render_ui();
         draw_manage.flip();
+
+        if(party_time.getElapsedTime().asMicroseconds() / 1000.f / 1000.f >= stats::half_time_time_s)
+        {
+            party_time.restart();
+
+            party.idle_turn();
+        }
     }
 
     #if 0

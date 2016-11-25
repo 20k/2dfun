@@ -523,11 +523,15 @@ struct character : combat_entity, stattable
         return cur;
     }
 
-    void do_passive_regen()
+    float do_passive_regen()
     {
         float val = get_passive_regen();
 
+        float old_hp = hp;
+
         modify_hp(val);
+
+        return hp - old_hp;
     }
 
     ///starts to shine vs 2+ enemies
@@ -1078,10 +1082,10 @@ struct entity_manager
 
         for(auto& i : chars)
         {
-            i->do_passive_regen();
+            float change = i->do_passive_regen();
 
-            if(i->get_passive_regen() > 0)
-                std::cout << i->name << " regenerated for " << i->get_passive_regen() << std::endl;
+            if(change > 0)
+                std::cout << i->name << " regenerated for " << change << std::endl;
         }
     }
 
