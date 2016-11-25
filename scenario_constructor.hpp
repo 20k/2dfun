@@ -184,9 +184,11 @@ struct scenario_manager
 
         entity_manager& manage = fights.back();
 
-        std::vector<int> monster_types = get_monster_types(get_monster_num());
+        int monster_num = get_monster_num();
 
-        for(int i=0; i<get_monster_num(); i++)
+        std::vector<int> monster_types = get_monster_types(monster_num);
+
+        for(int i=0; i<monster_num; i++)
         {
             int monster_type = monster_types[i];
 
