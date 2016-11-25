@@ -236,8 +236,8 @@ struct character : combat_entity, stattable
         set_stat_val("DGE", 1.f);
         set_stat_val("HEAL", 0.f); ///heal extra. Maybe should be derived stat?
 
-        race = stats::races[randf<1, int>(0, stats::races.size())];
-        classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, flavourtext? Nope. We need real classes
+        race = stats::races[randf<1, int>(0, stats::races.size())]; ///RACE is flavourtext atm, ie monster name. Monsters have proper classes
+        classname = stats::classnames[randf<1, int>(0, stats::classnames.size())]; ///after this point, important and classes are variable
         name = stats::names[randf<1, int>(0, stats::names.size())];
 
         primary_stat = stats::class_to_damage_stat[classname];
