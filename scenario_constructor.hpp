@@ -5,7 +5,7 @@
 
 namespace scenarios
 {
-    std::vector<int> max_xp_per_fight_per_difficulty_level
+    static std::vector<int> max_xp_per_fight_per_difficulty_level
     {
         40,
         80,
@@ -15,7 +15,7 @@ namespace scenarios
 
     //int num_types = 3;
 
-    std::vector<std::string> types
+    static std::vector<std::string> types
     {
         "MOUNTAINS",
         "JUNGLE",
@@ -26,8 +26,8 @@ namespace scenarios
     ///Ok. We don't really want just one kind of monster per area
     ///perhaps it should just be a weighting?
     ///Ok, Probability weighting for each monster in the monster bits
-    ///Not absolute probability, attack ratio
-    std::map<std::string, std::vector<float>> type_to_monsters
+    ///Not absolute probability, monster ratio
+    static std::map<std::string, std::vector<float>> type_to_monsters
     {
         {"MOUNTAINS", {1.f, 0.3f, 0.5f, 0.1f}},
         {"JUNGLE", {0.3f, 1.f, 0.3f, 0.5f}},
