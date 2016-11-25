@@ -122,7 +122,7 @@ struct scenario_manager
 
     int get_monster_num()
     {
-        return 2;
+        return 8;
     }
 
     int get_random_monster()

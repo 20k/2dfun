@@ -761,7 +761,7 @@ struct entity_manager
         return res;
     }*/
 
-    heal_info process_heals(int pteam)
+    heal_info process_heals(int pteam, bool heal_dead)
     {
         heal_info info;
 
@@ -781,6 +781,19 @@ struct entity_manager
 
             int team_size = team.second.size();
 
+            int alive_teammates = 0;
+
+            for(auto& ch : team.second)
+            {
+                if(ch->is_dead())
+                    continue;
+
+                alive_teammates++;
+            }
+
+            if(alive_teammates == 0)
+                continue;
+
             float heals = 0.f;
 
             for(auto& ch : team.second)
@@ -794,7 +807,10 @@ struct entity_manager
                     info.healers.push_back(ch);
             }
 
-            heals /= team_size;
+            if(heal_dead)
+                heals /= team_size;
+            else
+                heals /= alive_teammates;
 
             if(heals == 0)
                 return info;
@@ -802,6 +818,9 @@ struct entity_manager
             for(int i=0; i<team.second.size(); i++)
             {
                 auto ch = team.second[i];
+
+                if(!heal_dead && ch->is_dead())
+                    continue;
 
                 ch->modify_hp(heals);
 
@@ -1014,7 +1033,7 @@ struct entity_manager
             std::cout << get_battle_message(i) << std::endl;
         }
 
-        heal_info healinfo = process_heals(cteam);
+        heal_info healinfo = process_heals(cteam, false);
 
         if(healinfo.healers.size() > 0)
             std::cout << get_heal_message(healinfo) << std::endl;
@@ -1052,7 +1071,7 @@ struct entity_manager
     ///one turn of resting
     void idle_turn()
     {
-        heal_info healinfo = process_heals(0);
+        heal_info healinfo = process_heals(0, true);
 
         if(healinfo.healers.size() > 0)
             std::cout << get_heal_message(healinfo) << std::endl;
