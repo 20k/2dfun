@@ -1079,6 +1079,9 @@ struct entity_manager
         for(auto& i : chars)
         {
             i->do_passive_regen();
+
+            if(i->get_passive_regen() > 0)
+                std::cout << i->name << " regenerated for " << i->get_passive_regen() << std::endl;
         }
     }
 
