@@ -38,6 +38,7 @@ namespace scenarios
 
 ///heal in between stops, dependent on priest and potions?
 ///currently makes more sense for the scenario manager to own characters
+///distribute loot
 struct scenario_manager
 {
     std::vector<entity_manager> fights;
@@ -267,10 +268,16 @@ struct scenario_manager
             }
         }
 
+        ///only distribute xp for alive players?
         for(character* i : players_backup)
         {
             i->add_xp(xp / players_backup.size());
         }
+    }
+
+    void distribute_loot()
+    {
+
     }
 };
 

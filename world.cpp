@@ -35,6 +35,16 @@ void world::draw_mission_ui(draw_manager& draw_manage)
 
 }
 
+void populate_missions(world& w)
+{
+    ///static std::vector<std::string> scenarios::types
+    ///list of mission categories
+    ///difficulty from 0 -> 4
+    ///stages go from 0 -> ... whatever you want
+    ///too long easy essentially means infinite things though
+    ///scenario constructor needs to distribute loot first before we write populate_missions
+}
+
 void world::tick(float dt_s)
 {
     time_elapsed_s += dt_s;

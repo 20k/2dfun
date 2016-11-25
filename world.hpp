@@ -5,6 +5,7 @@
 
 struct scenario_manager;
 struct draw_manager;
+struct entity_manager;
 
 ///and so we reach the top
 struct world
@@ -20,6 +21,8 @@ struct world
     void draw_mission_ui(draw_manager& draw_manage);
 
     void tick(float dt_s);
+
+    void embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s);
 };
 
 #endif // WORLD_HPP_INCLUDED
