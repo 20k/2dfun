@@ -76,18 +76,43 @@ struct scenario_manager
 
     int difficulty = 0;
     int stages = 0;
+    int type = 0;
 
     int current_stage = 0;
 
-    void init(int _difficulty, int _stages)
+    void init(int _difficulty, int _stages, int _type)
     {
         difficulty = _difficulty;
         stages = _stages;
+
+        type = _type;
+    }
+
+    void random_type()
+    {
+        type = randf<1, int>(0, scenarios::type_to_monsters.size());
+    }
+
+    std::string get_scenario_name()
+    {
+        return scenarios::types[type];
     }
 
     int get_scenario_stages()
     {
         return 2;
+    }
+
+    float get_monster_probability_divisor()
+    {
+        float v = 0;
+
+        for(auto& i : scenarios::type_to_monsters[get_scenario_name()])
+        {
+            v += i;
+        }
+
+        return v;
     }
 
     int get_monster_type()
@@ -98,6 +123,39 @@ struct scenario_manager
     int get_monster_num()
     {
         return 2;
+    }
+
+    int get_random_monster()
+    {
+        float divs = get_monster_probability_divisor();
+
+        float rand_val = randf_s(0.f, 1.f);
+
+        float cp = 0.f;
+
+        for(int i=0; i<scenarios::type_to_monsters[get_scenario_name()].size(); i++)
+        {
+            cp += scenarios::type_to_monsters[get_scenario_name()][i];
+
+            if(rand_val <= cp / divs)
+                return i;
+        }
+
+        printf("This should be impossible\n");
+
+        return -1;
+    }
+
+    std::vector<int> get_monster_types(int num)
+    {
+        std::vector<int> ret;
+
+        for(int i=0; i<num; i++)
+        {
+            ret.push_back(get_random_monster());
+        }
+
+        return ret;
     }
 
     std::string get_monster_name(int type)
@@ -126,10 +184,12 @@ struct scenario_manager
 
         entity_manager& manage = fights.back();
 
-        int monster_type = get_monster_type();
+        std::vector<int> monster_types = get_monster_types(get_monster_num());
 
         for(int i=0; i<get_monster_num(); i++)
         {
+            int monster_type = monster_types[i];
+
             character* monst = manage.make_new(1);
 
             monst->rand_manual_classname(get_monster_name(monster_type), get_monster_class(get_monster_name(monster_type)), "STR", difficulty);

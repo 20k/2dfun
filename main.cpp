@@ -87,6 +87,7 @@ int main()
     std::cout << "epd" << std::endl;
 
     scenario_manager doom;
+    doom.init(0, 2, 0);
 
     doom.insert_party(party);
 
