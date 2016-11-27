@@ -49,3 +49,8 @@ void world::tick(float dt_s)
 {
     time_elapsed_s += dt_s;
 }
+
+void world::embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s)
+{
+
+}

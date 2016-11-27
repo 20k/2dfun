@@ -34,6 +34,26 @@ namespace scenarios
         {"MINES", {0.1f, 0.4f, 1.f, 0.3f}},
         {"CAVES", {0.8f, 0.6f, 0.7f, 1.f}}, ///caves is most variable
     };
+
+    ///very VERY placeholder
+    static std::vector<int> difficulty_to_reward_num
+    {
+        8,
+        16,
+        32,
+        32,
+        64
+    };
+
+    ///this is simpler and more controllable than a procedurally generated scheme
+    static std::vector<std::vector<float>> difficulty_to_item_rarity_ratio
+    {
+        {1.f, 0.05f, 0.001f, 0.f, 0.f, 0.f},
+        {0.8, 0.2f, 0.01f, 0.001f, 0.f, 0.f},
+        {0.6f, 0.4f, 0.1f, 0.01f, 0.001f, 0.f},
+        {0.4f, 0.6f, 0.2f, 0.1f, 0.01f, 0.001f},
+        {0.2f, 0.4f, 0.3f, 0.2f, 0.05f, 0.01f},
+    };
 }
 
 ///heal in between stops, dependent on priest and potions?
@@ -81,6 +101,7 @@ struct scenario_manager
 
     int current_stage = 0;
 
+    ///difficulty = 0 -> 4
     void init(int _difficulty, int _stages, int _type)
     {
         difficulty = _difficulty;
@@ -109,6 +130,18 @@ struct scenario_manager
         float v = 0;
 
         for(auto& i : scenarios::type_to_monsters[get_scenario_name()])
+        {
+            v += i;
+        }
+
+        return v;
+    }
+
+    float get_difficulty_probability_divisor()
+    {
+        float v = 0;
+
+        for(auto& i : scenarios::difficulty_to_item_rarity_ratio[difficulty])
         {
             v += i;
         }
@@ -145,6 +178,27 @@ struct scenario_manager
         printf("This should be impossible\n");
 
         return -1;
+    }
+
+    int get_random_rarity()
+    {
+        float divs = get_difficulty_probability_divisor();
+
+        float rand_val = randf_s(0.f, 1.f);
+
+        float cp = 0.f;
+
+        for(int i=0; i<scenarios::difficulty_to_item_rarity_ratio[difficulty].size(); i++)
+        {
+            cp += scenarios::difficulty_to_item_rarity_ratio[difficulty][i];
+
+            if(rand_val <= cp / divs)
+                return i;
+        }
+
+        printf("This should be impossible in random rarity\n");
+
+        return 0;
     }
 
     std::vector<int> get_monster_types(int num)
@@ -275,9 +329,26 @@ struct scenario_manager
         }
     }
 
-    void distribute_loot()
+    std::vector<item*> distribute_loot(item_manager& item_manage)
     {
+        int num_items = scenarios::difficulty_to_reward_num[difficulty];
 
+        std::vector<item*> ret;
+
+        for(int i=0; i<num_items; i++)
+        {
+            item* it = item_manage.make_new();
+
+            it->random_item();
+
+            int rare = get_random_rarity();
+
+            it->random_magical(rare);
+
+            ret.push_back(it);
+        }
+
+        return ret;
     }
 };
 

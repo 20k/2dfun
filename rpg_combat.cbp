@@ -77,6 +77,8 @@
 		<Unit filename="shop_general_manager.cpp" />
 		<Unit filename="shop_general_manager.hpp" />
 		<Unit filename="stats.hpp" />
+		<Unit filename="world.cpp" />
+		<Unit filename="world.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

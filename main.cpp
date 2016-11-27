@@ -109,7 +109,7 @@ int main()
 
     shop_general.init(&item_manage, {30*9, 30*9}, 30);
 
-    for(int i=0; i<stats::starting_items; i++)
+    /*for(int i=0; i<stats::starting_items; i++)
     {
         item* ni = item_manage.make_new();
 
@@ -118,6 +118,13 @@ int main()
         shop_general.shop_manage.make_sellable(ni);
 
         //std::cout << ni->display() << std::endl;
+    }*/
+
+    auto items = doom.distribute_loot(item_manage);
+
+    for(auto& i : items)
+    {
+        shop_general.shop_manage.make_sellable(i);
     }
 
     sf::Clock party_time;
