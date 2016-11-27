@@ -5,6 +5,7 @@
 #include "entities.hpp"
 #include "economics.hpp"
 #include "scenario_constructor.hpp"
+#include <imgui/imgui.h>
 
 scenario_manager* world::make_scenario()
 {
@@ -32,7 +33,35 @@ void world::destroy_scenario(scenario_manager* s)
 
 void world::draw_mission_ui(draw_manager& draw_manage)
 {
+    ImGui::Begin("Mission Window");
 
+    for(int i=0; i < scenario_list.size(); i++)
+    {
+        scenario_manager* scenario_manage = scenario_list[i];
+
+        std::string label = scenarios::types[scenario_manage->type];
+
+        std::string diff = "Diff: " + std::to_string(scenario_manage->difficulty);
+
+        label += "##" + std::to_string(i);
+
+        ImGui::Button(diff.c_str());
+
+        ImGui::SameLine();
+
+        ImGui::Button(label.c_str());
+
+        ImGui::SameLine();
+
+        ///where do we store the items we get back..?
+        ///add a vector of unprocessed items?
+        if(ImGui::Button("Embark!!!"))
+        {
+
+        }
+    }
+
+    ImGui::End();
 }
 
 void populate_missions(world& w)
@@ -69,10 +98,25 @@ void world::tick(float dt_s)
     time_elapsed_s += dt_s;
 }
 
-void world::embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s)
+std::vector<item*> world::embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s, item_manager* item_manage)
 {
     for(entity_manager* entity_manage : parties)
     {
         s->insert_party(*entity_manage);
     }
+
+    s->fully_resolve_scenario();
+
+    auto items = s->distribute_loot(*item_manage);
+
+    return items;
+}
+
+std::vector<item*> world::claim_unclaimed_items()
+{
+    auto it = unclaimed_items;
+
+    unclaimed_items.clear();
+
+    return it;
 }

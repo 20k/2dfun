@@ -87,7 +87,7 @@ int main()
 
     std::cout << "epd" << std::endl;
 
-    scenario_manager doom;
+    /*scenario_manager doom;
     doom.init(0, 2, 0);
 
     doom.insert_party(party);
@@ -95,7 +95,7 @@ int main()
     //doom.begin_fight();
     //doom.complete_fight();
 
-    doom.fully_resolve_scenario();
+    doom.fully_resolve_scenario();*/
 
     //p3->add_xp(21.f + 84 + 324);
 
@@ -121,12 +121,12 @@ int main()
         //std::cout << ni->display() << std::endl;
     }*/
 
-    auto items = doom.distribute_loot(item_manage);
+    /*auto items = doom.distribute_loot(item_manage);
 
     for(auto& i : items)
     {
         shop_general.shop_manage.make_sellable(i);
-    }
+    }*/
 
     world world_state;
 
@@ -144,6 +144,8 @@ int main()
         draw_manage.draw_entity_ui(party, drag_manage);
 
         shop_general.draw_shop_ui(draw_manage, drag_manage);
+
+        world_state.draw_mission_ui(draw_manage);
 
         drag_manage.tick_entity_grab(party, shop_general.shop_manage);
         drag_manage.tick();
