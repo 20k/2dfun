@@ -134,6 +134,15 @@ int main()
 
     while(draw_manage.window.isOpen())
     {
+        world_state.register_as_active_party(&party);
+
+        std::vector<item*> unclaimed = world_state.claim_unclaimed_items();
+
+        for(auto& i : unclaimed)
+        {
+            shop_general.shop_manage.make_sellable(i);
+        }
+
         draw_manage.tick();
 
         world_state.tick(draw_manage.get_frametime_s());
@@ -145,7 +154,8 @@ int main()
 
         shop_general.draw_shop_ui(draw_manage, drag_manage);
 
-        world_state.draw_mission_ui(draw_manage);
+        ///can't figure out a way not to pass the item manager here
+        world_state.draw_mission_ui(draw_manage, &item_manage);
 
         drag_manage.tick_entity_grab(party, shop_general.shop_manage);
         drag_manage.tick();

@@ -31,7 +31,7 @@ void world::destroy_scenario(scenario_manager* s)
     }
 }
 
-void world::draw_mission_ui(draw_manager& draw_manage)
+void world::draw_mission_ui(draw_manager& draw_manage, item_manager* item_manage)
 {
     ImGui::Begin("Mission Window");
 
@@ -53,11 +53,24 @@ void world::draw_mission_ui(draw_manager& draw_manage)
 
         ImGui::SameLine();
 
+        std::string click_label = "Embark!!!##" + std::to_string(i);
+
         ///where do we store the items we get back..?
         ///add a vector of unprocessed items?
-        if(ImGui::Button("Embark!!!"))
+        ///party? How do we party?
+        ///whatever solution we do is going to have to be temporary until we get dragndrop and finalise
+        ///how the ui interaction works
+        if(ImGui::Button(click_label.c_str()))
         {
+            if(party == nullptr)
+                continue;
 
+            auto res = embark_mission({party}, scenario_manage, item_manage);
+
+            for(auto& i : res)
+            {
+                unclaimed_items.push_back(i);
+            }
         }
     }
 
@@ -98,7 +111,7 @@ void world::tick(float dt_s)
     time_elapsed_s += dt_s;
 }
 
-std::vector<item*> world::embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s, item_manager* item_manage)
+std::vector<item*> world::embark_mission(const std::vector<entity_manager*>& parties, scenario_manager* s, item_manager* item_manage)
 {
     for(entity_manager* entity_manage : parties)
     {
@@ -119,4 +132,9 @@ std::vector<item*> world::claim_unclaimed_items()
     unclaimed_items.clear();
 
     return it;
+}
+
+void world::register_as_active_party(entity_manager* _party)
+{
+    party = _party;
 }
