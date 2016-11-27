@@ -262,7 +262,7 @@ struct scenario_manager
         }
     }
 
-    void complete_fight()
+    void complete_fight(bool do_rest)
     {
         int c = 0;
 
@@ -275,18 +275,21 @@ struct scenario_manager
 
         dish_out_xp();
 
-        //rest();
+        if(do_rest)
+            rest();
     }
 
     void fully_resolve_scenario()
     {
         int stages = get_scenario_stages();
 
+        bool should_rest = false;
+
         for(int i=0; i<stages; i++)
         {
             begin_fight();
 
-            complete_fight();
+            complete_fight(should_rest);
         }
     }
 
