@@ -167,7 +167,7 @@ int main()
         {
             party_time.restart();
 
-            party.idle_turn();
+            party.idle_turn(false);
         }
     }
 

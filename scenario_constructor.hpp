@@ -157,7 +157,7 @@ struct scenario_manager
 
     int get_monster_num()
     {
-        return 4;
+        return 2;
     }
 
     int get_random_monster()
@@ -275,7 +275,7 @@ struct scenario_manager
 
         dish_out_xp();
 
-        rest();
+        //rest();
     }
 
     void fully_resolve_scenario()
@@ -295,7 +295,7 @@ struct scenario_manager
     {
         for(int i=0; i<stats::turns_between_fights; i++)
         {
-            fights.back().idle_turn();
+            fights.back().idle_turn(false);
         }
     }
 
@@ -323,10 +323,26 @@ struct scenario_manager
             }
         }
 
+        int num_alive_players = 0;
+
+        for(character* i : players_backup)
+        {
+            if(!i->is_dead())
+            {
+                num_alive_players++;
+            }
+        }
+
+        if(num_alive_players == 0)
+            return;
+
         ///only distribute xp for alive players?
         for(character* i : players_backup)
         {
-            i->add_xp(xp / players_backup.size());
+            if(i->is_dead())
+                continue;
+
+            i->add_xp(xp / num_alive_players);
         }
     }
 

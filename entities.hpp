@@ -1073,15 +1073,18 @@ struct entity_manager
     }
 
     ///one turn of resting
-    void idle_turn()
+    void idle_turn(bool can_heal_dead_people)
     {
-        heal_info healinfo = process_heals(0, true);
+        heal_info healinfo = process_heals(0, can_heal_dead_people);
 
         if(healinfo.healers.size() > 0)
             std::cout << get_heal_message(healinfo) << std::endl;
 
         for(auto& i : chars)
         {
+            if(!can_heal_dead_people && i->hp < 0)
+                continue;
+
             float change = i->do_passive_regen();
 
             if(change > 0)
