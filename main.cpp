@@ -19,6 +19,7 @@
 #include "draw_manager.hpp"
 #include "drag_manager.hpp"
 #include "shop_general_manager.hpp"
+#include "world.hpp"
 
 /*std::vector<base_stat> combine(const std::vector<base_stat>& b1, const std::vector<base_stat>& b2)
 {
@@ -127,11 +128,15 @@ int main()
         shop_general.shop_manage.make_sellable(i);
     }
 
+    world world_state;
+
     sf::Clock party_time;
 
     while(draw_manage.window.isOpen())
     {
         draw_manage.tick();
+
+        world_state.tick(draw_manage.get_frametime_s());
 
         shop_general.tick(draw_manage.get_frametime_s(), draw_manage);
         shop_general.draw_tiles(draw_manage);

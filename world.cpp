@@ -60,15 +60,19 @@ void populate_missions(world& w)
 
         ns->init(0, 2, i);
     }
-
 }
 
 void world::tick(float dt_s)
 {
+    populate_missions(*this);
+
     time_elapsed_s += dt_s;
 }
 
 void world::embark_mission(std::vector<entity_manager*>& parties, scenario_manager* s)
 {
-
+    for(entity_manager* entity_manage : parties)
+    {
+        s->insert_party(*entity_manage);
+    }
 }
