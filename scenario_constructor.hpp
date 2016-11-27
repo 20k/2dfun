@@ -10,7 +10,8 @@ namespace scenarios
         40,
         80,
         120,
-        240
+        240,
+        480
     };
 
     //int num_types = 3;
