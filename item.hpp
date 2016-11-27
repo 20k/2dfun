@@ -38,6 +38,11 @@ struct item : stattable
     void recalculate_attack_boost()
     {
         attack_boost_hp_flat = stats::rarity_to_damage[rarity] + extra_damage;
+
+        if(!is_weapon())
+        {
+            attack_boost_hp_flat = 0.f;
+        }
     }
 
     item(int _id) : distribution(0.0f,stats::weapon_find_stddev)
