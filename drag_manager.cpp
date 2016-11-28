@@ -187,6 +187,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         s.peon_manage.force_unseek(grabbed_sellable);
     }
 
+
     bool mouse_edge = once<sf::Mouse::Left>(st);
 
     ///check bounds
