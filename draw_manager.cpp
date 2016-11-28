@@ -670,6 +670,13 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
             ImGui::Text((cur + " ").c_str());
 
+            if(ImGui::IsItemHovered())
+            {
+                drag_manage.entity_individual_hovered = id;
+
+                printf("%i\n", id);
+            }
+
             ImGui::PopStyleColor();
 
             if(ImGui::IsItemHovered())

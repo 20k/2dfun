@@ -35,6 +35,7 @@ struct drag_manager
 
     int entity_num_hovered = -1; ///which entity number
     int entity_column_hovered = -1; ///which part of the entity
+    int entity_individual_hovered = -1; ///which individual element is hovered over
 
     int saved_entity_num = -1;
     int saved_entity_column = -1;
