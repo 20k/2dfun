@@ -192,9 +192,25 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
     ///check bounds
     if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && !currently_levelup_clicked)
     {
-        currently_levelup_clicked = true;
+        if(entity_num_hovered >= entity_manage.chars.size() || entity_num_hovered < 0)
+        {
+            ungrab();
 
-        mouse_edge = false;
+            printf("invalid entity num, in tooltip\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[entity_num_hovered];
+
+        int which = entity_individual_to_invent_id(entity_individual_hovered);
+
+
+        if(which >= 0 && which < stats::stat_names.size())
+        {
+            currently_levelup_clicked = true;
+
+            mouse_edge = false;
+        }
     }
 
     if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && currently_levelup_clicked)
@@ -285,6 +301,11 @@ bool drag_manager::hovering_over_individual_entity_item()
 int drag_manager::column_id_to_invent(int col_id)
 {
     return col_id - 6;
+}
+
+int drag_manager::entity_individual_to_invent_id(int val)
+{
+    return val - 6;
 }
 
 void drag_manager::ungrab()

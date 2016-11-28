@@ -64,6 +64,7 @@ struct drag_manager
     //int get_inventory_item_id();
 
     int column_id_to_invent(int col_id);
+    int entity_individual_to_invent_id(int val);
 
     void ungrab();
 
