@@ -742,14 +742,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
         ImGui::SetNextWindowPos(ImVec2(drag_manage.entity_window_pos.x(), drag_manage.entity_window_pos.y()));
     }
 
-    //character* c = entity_manage.chars[3];
     ImGui::Begin("Peons");
-
-    float horizontal_sep = 20.f;
-
-    //ImGui::Columns(entity_manage.chars.size());
-
-    //std::vector<std::vector<render_info>> displays;
 
     drag_manage.entity_num_hovered = -1;
     drag_manage.entity_column_hovered = -1;
@@ -759,8 +752,6 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
     for(auto& i : entity_manage.chars)
     {
-        //displays.push_back(get_render_strings(i));
-
         auto tmax = get_max_in_3_group(i);
 
         ///will alloc first time, do nothing the rest of the time
@@ -778,13 +769,6 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
         render_character_text(entity_manage, c, i, max_in_3_group, drag_manage);
 
-        //render_test(c);
-
-        //if(i == entity_manage.chars.size()-1)
-            //ImGui::NextColumn();
-
-        //ImGui::SameLine(0.f, horizontal_sep);
-
         ImGui::Separator();
     }
 
@@ -792,11 +776,5 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
     drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
 
-    //ImGui::Columns(1);
-
-    //std::cout << ImGui::IsWindowHovered() << std::endl;
-
     ImGui::End();
-
-    //printf("%i dg\n", drag_manage.entity_column_hovered);
 }

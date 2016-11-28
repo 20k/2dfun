@@ -45,6 +45,8 @@ int main()
     nitem2->random_magical(1);
     nitem2->random_item();
 
+    entity_manager buyable_entities;
+
     entity_manager party;
 
     character* p1 = party.make_new(0);
