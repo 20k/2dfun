@@ -596,6 +596,19 @@ struct entity_manager
         }
     }
 
+    ///only used for transferring between entity managers
+    void remove_without_destroying(character* c)
+    {
+         for(int i=0; i<chars.size(); i++)
+        {
+            if(chars[i] == c)
+            {
+                chars.erase(chars.begin() + i);
+                i--;
+            }
+        }
+    }
+
     void insert_character(character* c)
     {
         chars.push_back(c);

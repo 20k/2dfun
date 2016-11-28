@@ -105,6 +105,10 @@ struct shop
 
     void purchase(sellable* s);
 
+    ///returns true and spends price if we can
+    ///otherwise returns false
+    bool do_purchase(float price);
+
     void spawn_random_peon();
     void spawn_peon_of_tier(int tier);
 

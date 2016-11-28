@@ -5,6 +5,7 @@
 #include "entities.hpp"
 #include "drag_manager.hpp"
 #include "economics.hpp"
+#include "shop.hpp"
 
 std::string stringify_to_percent(float val)
 {
@@ -781,13 +782,13 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
     ImGui::End();
 }
 
-void draw_manager::draw_entity_shop_ui(entity_manager& entity_manage, drag_manager& drag_manage, shop& s)
+void draw_manager::draw_entity_shop_ui(entity_manager& buy_dest, entity_manager& could_buy, drag_manager& drag_manage, shop& s)
 {
     ImGui::Begin("Purchasable Entities");
 
     std::vector<int> max_in_3_group;
 
-    for(auto& i : entity_manage.chars)
+    for(auto& i : could_buy.chars)
     {
         auto tmax = get_max_in_3_group(i, 0);
 
@@ -808,17 +809,25 @@ void draw_manager::draw_entity_shop_ui(entity_manager& entity_manage, drag_manag
 
     ImVec2 iv = ImVec2(0, tx_height - pad.y/3.f);
 
-    for(int i=0; i<entity_manage.chars.size(); i++)
+    for(int i=0; i<could_buy.chars.size(); i++)
     {
-        character* c = entity_manage.chars[i];
+        character* c = could_buy.chars[i];
 
-        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage, false, 0);
+        render_character_text(could_buy, c, i, max_in_3_group, drag_manage, false, 0);
 
         ImGui::SameLine();
 
         ImGui::BeginGroup();
 
-        ImGui::Button(("Buy##" + std::to_string(i)).c_str(), iv);
+        if(ImGui::Button(("Buy##" + std::to_string(i)).c_str(), iv))
+        {
+            if(s.do_purchase(c->get_price()))
+            {
+                could_buy.remove_without_destroying(c);
+
+                buy_dest.chars.push_back(c);
+            }
+        }
 
         std::string price = std::to_string((int)c->get_price());
 

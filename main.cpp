@@ -154,7 +154,7 @@ int main()
         shop_general.draw_tiles(draw_manage);
 
         draw_manage.draw_entity_ui(party, drag_manage);
-        draw_manage.draw_entity_shop_ui(buyable_entities, drag_manage, shop_general.shop_manage);
+        draw_manage.draw_entity_shop_ui(party, buyable_entities, drag_manage, shop_general.shop_manage);
 
         shop_general.draw_shop_ui(draw_manage, drag_manage);
 

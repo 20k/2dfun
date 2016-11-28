@@ -169,7 +169,7 @@ struct draw_manager
     }
 
     void draw_entity_ui(entity_manager& entity_manage, drag_manager& drag_manage);
-    void draw_entity_shop_ui(entity_manager& entity_manage, drag_manager& drag_manage, shop& s);
+    void draw_entity_shop_ui(entity_manager& buy_dest, entity_manager& could_buy, drag_manager& drag_manage, shop& s);
 
     void render_ui()
     {

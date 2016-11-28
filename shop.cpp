@@ -407,7 +407,7 @@ void shop::draw_shopinfo_ui(draw_manager& draw_manage)
 {
     float current_shop_money = money;
 
-    std::string money_str = "Gold: " + to_string_prec(current_shop_money, 6);
+    std::string money_str = "Gold: " + std::to_string((int)current_shop_money);
 
     int current_customers = peon_manage.peons.size();
 
@@ -494,6 +494,16 @@ void shop::purchase(sellable* s)
             i--;
         }
     }
+}
+
+bool shop::do_purchase(float price)
+{
+    if(money < price)
+        return false;
+
+    money -= price;
+
+    return true;
 }
 
 void shop::spawn_random_peon()
