@@ -261,22 +261,36 @@ void render_character_alt(character* c, int column_id)
     ImGui::EndGroup();
 }
 
+void null_func()
+{
+
+}
+
+void erase_entity(entity_manager* entity_manage, character* c)
+{
+    entity_manage->delay_destroy(c);
+}
+
 struct render_info
 {
     std::string tooltip;
     std::string str;
     vec3f col = {1,1,1};
+    std::function<void()> on_click = null_func;
+    std::string tag;
 
     render_info(const std::string& s)
     {
         str = s;
     }
 
-    render_info(const std::string& s, vec3f c, const std::string& t = "")
+    render_info(const std::string& s, vec3f c, const std::string& t = "", const std::string& ptag = "", std::function<void()> pon_click = null_func)
     {
         str = s;
         col = c;
         tooltip = t;
+        on_click = pon_click;
+        tag = ptag;
     }
 };
 
@@ -307,6 +321,8 @@ std::vector<render_info> get_render_strings(character* c, int end_pad_len = 2)
 
     std::string hp_tooltip;
 
+    std::string tag;
+
     vec3f hp_col = {1.f, 1.f, 1.f};
 
     if(c->hp < 0)
@@ -318,9 +334,11 @@ std::vector<render_info> get_render_strings(character* c, int end_pad_len = 2)
         hp_col = (vec3f){1.f, 1.f, 1.f} * hp_frac + (vec3f){1.f, 0.2f, 0.2f} * (1.f - hp_frac);
 
         hp_tooltip = "Left click to dispose";
+
+        tag = "TAG_DEAD";
     }
 
-    render_info hp_info(hp_str, hp_col, hp_tooltip);
+    render_info hp_info(hp_str, hp_col, hp_tooltip, tag);
 
     std::string xp_str = "XP " + to_string_prec(c->get_level_adjusted_xp_accum(), 3) + "/" + to_string_prec(c->get_accum_xp_relative(), 3);
 
@@ -547,6 +565,14 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     std::vector<render_info> displays = get_render_strings(c, end_pad_len);
 
+    for(auto& i : displays)
+    {
+        if(i.tag == "TAG_DEAD")
+        {
+            i.on_click = std::bind(erase_entity, &entity_manage, c);
+        }
+    }
+
     //for(auto& i : displays)
     /*for(int i=0; i<displays.size(); i++)
     {
@@ -685,6 +711,13 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
             {
                 if(use_drag_manager)
                     drag_manage.entity_individual_hovered = id;
+
+                ///RUN ONCLICK FUNCTION, need to figure out how to get imgui to do clicking instead of sfml hack really
+
+                if(ImGui::IsItemClicked())
+                {
+                    displays[id].on_click();
+                }
             }
 
             ImGui::PopStyleColor();
@@ -792,6 +825,8 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
     drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
 
     ImGui::End();
+
+    entity_manage.process_delay_destroy();
 }
 
 void draw_manager::draw_entity_shop_ui(entity_manager& buy_dest, entity_manager& could_buy, drag_manager& drag_manage, shop& s)

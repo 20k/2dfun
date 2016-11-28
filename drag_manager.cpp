@@ -108,7 +108,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         ungrab();
     }
 
-    if(left && hovering_over_specific_entity_column() && !item_is_grabbed() && !sellable_is_grabbed())
+    if(left && hovering_over_specific_entity_column() && !item_is_grabbed() && !sellable_is_grabbed() && column_id_to_invent(entity_column_hovered) >= 0)
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
@@ -192,7 +192,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
     ///check bounds
     ///initial step
-    if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && !currently_levelup_clicked)
+    if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && !currently_levelup_clicked && entity_individual_to_invent_id(entity_individual_hovered) >= 0)
     {
         if(entity_num_hovered >= entity_manage.chars.size() || entity_num_hovered < 0)
         {

@@ -567,6 +567,7 @@ struct character : combat_entity, stattable
 struct entity_manager
 {
     std::vector<character*> chars;
+    std::vector<character*> delay_erase;
 
     int half_turn_counter = 0;
 
@@ -607,6 +608,21 @@ struct entity_manager
                 i--;
             }
         }
+    }
+
+    void delay_destroy(character* c)
+    {
+        delay_erase.push_back(c);
+    }
+
+    void process_delay_destroy()
+    {
+        for(auto& i : delay_erase)
+        {
+            destroy(i);
+        }
+
+        delay_erase.clear();
     }
 
     void insert_character(character* c)
