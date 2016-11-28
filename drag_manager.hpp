@@ -28,6 +28,7 @@ struct drag_manager
 
     bool peon_window_hovered = false;
     int grab_c = 2;
+    //int grab_timer = 2; ///min 2 frames of grab before we can do stuff
 
     vec2f entity_window_pos = {0,0};
     vec2f last_entity_window_pos = {0,0};

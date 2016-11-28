@@ -24,6 +24,7 @@ bool drag_manager::grab_item(item* i)
     if(i == nullptr)
         return false;
 
+    //grab_timer = 2;
     grabbed_item = i;
     grabbing_item = true;
     grab_c = 2;
@@ -33,6 +34,11 @@ bool drag_manager::grab_item(item* i)
 
     return true;
 }
+
+/*bool can_ungrab(drag_manager& drag_manage)
+{
+    return drag_manage.grab_timer <= 0;
+}*/
 
 void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 {
@@ -86,20 +92,22 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
         }
 
         character* c = entity_manage.chars[entity_num_hovered];
+        character* old_c = entity_manage.chars[saved_entity_num];
 
-        bool success = c->add_to_invent(grabbed_item);
-
-        if(success)
+        if(c != old_c)
         {
-            character* old_c = entity_manage.chars[saved_entity_num];
+            bool success = c->add_to_invent(grabbed_item);
 
-            old_c->remove_from_invent(grabbed_item);
+            if(success)
+            {
+                old_c->remove_from_invent(grabbed_item);
+            }
         }
 
         ungrab();
     }
 
-    if(left && hovering_over_specific_entity_column())
+    if(left && hovering_over_specific_entity_column() && !item_is_grabbed() && !sellable_is_grabbed())
     {
         if(entity_num_hovered >= entity_manage.chars.size())
         {
@@ -195,6 +203,8 @@ void drag_manager::tick()
 
         grab_c--;
     }
+
+    //grab_timer--;
 
     //printf("shopfront %i\n", shopfront_window_hovered);
 }
