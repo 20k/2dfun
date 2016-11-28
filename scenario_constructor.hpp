@@ -55,6 +55,8 @@ namespace scenarios
         {0.4f, 0.6f, 0.2f, 0.1f, 0.01f, 0.001f},
         {0.2f, 0.4f, 0.3f, 0.2f, 0.05f, 0.01f},
     };
+
+    static float weapon_find_probability = 0.5f;
 }
 
 ///heal in between stops, dependent on priest and potions?
@@ -359,7 +361,13 @@ struct scenario_manager
         {
             item* it = item_manage.make_new();
 
-            it->random_item();
+            /*if(randf_s(0.f, 1.f) < scenarios::weapon_find_probability)
+            {
+                it->random_item_or_weapon();
+            }
+            it->random_item();*/
+
+            it->random_item_or_weapon();
 
             int rare = get_random_rarity();
 
