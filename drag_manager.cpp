@@ -190,13 +190,12 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
     bool mouse_edge = once<sf::Mouse::Left>(st);
 
     ///check bounds
+    ///initial step
     if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && !currently_levelup_clicked)
     {
         if(entity_num_hovered >= entity_manage.chars.size() || entity_num_hovered < 0)
         {
-            ungrab();
-
-            printf("invalid entity num, in tooltip\n");
+            printf("invalid entity num, in click\n");
             return;
         }
 
@@ -204,20 +203,41 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
         int which = entity_individual_to_invent_id(entity_individual_hovered);
 
+        int clevel = c->cur_level;
+        int potential_level = c->get_raw_level_from_xp();
 
-        if(which >= 0 && which < stats::stat_names.size())
+        int level_diff = potential_level - clevel;
+
+        if(which >= 0 && which < stats::stat_names.size() && level_diff > 0)
         {
             currently_levelup_clicked = true;
 
             mouse_edge = false;
+
+            saved_stat_item = which;
         }
     }
 
+    ///confirmation step
     if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && currently_levelup_clicked)
     {
+        if(entity_num_hovered >= entity_manage.chars.size() || entity_num_hovered < 0)
+        {
+            printf("invalid entity num, in unclick\n");
+            return;
+        }
+
+        character* c = entity_manage.chars[entity_num_hovered];
+
+        ///saved_stat_item
+
+        c->level(saved_stat_item);
+
         currently_levelup_clicked = false;
 
         mouse_edge = false;
+
+        saved_stat_item = -1;
     }
 
     if(!hovering_over_individual_entity_item())

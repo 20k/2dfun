@@ -44,6 +44,8 @@ struct drag_manager
     int saved_entity_num = -1;
     int saved_entity_column = -1;
 
+    int saved_stat_item = -1;
+
     bool grab_sellable(sellable* s);
     bool grab_item(item* i);
 
