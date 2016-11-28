@@ -56,6 +56,7 @@ namespace scenarios
         {0.2f, 0.4f, 0.3f, 0.2f, 0.05f, 0.01f},
     };
 
+    ///unused currently
     static float weapon_find_probability = 0.5f;
 }
 
