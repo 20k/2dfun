@@ -31,6 +31,8 @@ namespace economics
     static float percent_value_lost_per_wear_level = 0.2;
 
     static float notoriety_value_mult_max = 10;
+
+    static float base_peon_price = 1000.f;
 }
 
 ///Ooh. We need a loot table, of course!
