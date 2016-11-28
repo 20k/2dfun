@@ -305,10 +305,22 @@ std::vector<render_info> get_render_strings(character* c, int end_pad_len = 2)
 
     std::string hp_str = "HP: " + to_string_prec(c->hp, 3) + "/" + to_string_prec(c->hp_max, 3);
 
+    std::string hp_tooltip;
+
+    vec3f hp_col = {1.f, 1.f, 1.f};
+
     if(c->hp < 0)
     {
         hp_str = "KO'd " + std::string("(") + to_string_prec(c->hp_max, 3) + ")";
+
+        float hp_frac = c->hp / c->hp_max;
+
+        hp_col = (vec3f){1.f, 1.f, 1.f} * hp_frac + (vec3f){1.f, 0.2f, 0.2f} * (1.f - hp_frac);
+
+        hp_tooltip = "Left click to dispose";
     }
+
+    render_info hp_info(hp_str, hp_col, hp_tooltip);
 
     std::string xp_str = "XP " + to_string_prec(c->get_level_adjusted_xp_accum(), 3) + "/" + to_string_prec(c->get_accum_xp_relative(), 3);
 
@@ -321,7 +333,7 @@ std::vector<render_info> get_render_strings(character* c, int end_pad_len = 2)
     displays.push_back(race);
 
     displays.push_back(level_string);
-    displays.push_back(hp_str);
+    displays.push_back(hp_info);
     displays.push_back(xp_str);
 
     ///we need to know what item is given which buffs
@@ -802,8 +814,6 @@ void draw_manager::draw_entity_shop_ui(entity_manager& buy_dest, entity_manager&
     }
 
     float tx_height = ImGui::GetItemsLineHeightWithSpacing();
-
-    //ImVec2 dim = ImGui::GetItemRectSize();
 
     ImVec2 pad = ImGui::GetStyle().FramePadding;
 
