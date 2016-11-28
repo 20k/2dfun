@@ -6,6 +6,7 @@
 #include "economics.hpp"
 #include "scenario_constructor.hpp"
 #include <imgui/imgui.h>
+#include "shop_general_manager.hpp"
 
 scenario_manager* world::make_scenario()
 {
@@ -137,4 +138,18 @@ std::vector<item*> world::claim_unclaimed_items()
 void world::register_as_active_party(entity_manager* _party)
 {
     party = _party;
+}
+
+void world::populate_shop_entities(const shop_general_manager& shop_general_manage, entity_manager& purchasable_entities)
+{
+    int num = purchasable_entities.chars.size();
+
+    int num_to_populate = 4;
+
+    for(int i=num; i < num_to_populate; i++)
+    {
+        character* c = purchasable_entities.make_new(0);
+
+        c->rand_stats();
+    }
 }

@@ -5,6 +5,7 @@
 
 struct draw_manager;
 
+///handles interaction between world and shop
 struct shop_general_manager
 {
     float peon_spawn_stagger_elapsed_s = 0.f;

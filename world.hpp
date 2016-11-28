@@ -8,6 +8,7 @@ struct draw_manager;
 struct entity_manager;
 struct item;
 struct item_manager;
+struct shop_general_manager;
 
 ///and so we reach the top
 struct world
@@ -33,6 +34,8 @@ struct world
     std::vector<item*> claim_unclaimed_items();
 
     void register_as_active_party(entity_manager* _party);
+
+    void populate_shop_entities(const shop_general_manager& shop_general_manage, entity_manager& purchasable_entities);
 };
 
 #endif // WORLD_HPP_INCLUDED

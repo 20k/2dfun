@@ -529,7 +529,7 @@ std::vector<int> combine_3_group(const std::vector<int>& r1, const std::vector<i
     return ret;
 }
 
-void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group, drag_manager& drag_manage)
+void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group, drag_manager& drag_manage, bool use_drag_manager)
 {
     //std::vector<int> max_in_3_group;
     float button_width = 80.f;
@@ -672,7 +672,8 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
             if(ImGui::IsItemHovered())
             {
-                drag_manage.entity_individual_hovered = id;
+                if(use_drag_manager)
+                    drag_manage.entity_individual_hovered = id;
             }
 
             ImGui::PopStyleColor();
@@ -692,7 +693,8 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
         if(ImGui::IsItemHovered())
         {
-            drag_manage.entity_column_hovered = j;
+            if(use_drag_manager)
+                drag_manage.entity_column_hovered = j;
 
             //printf("%i fdf\n", j);
         }
@@ -705,7 +707,8 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
 
     if(ImGui::IsItemHovered())
     {
-        drag_manage.entity_num_hovered = column_id;
+        if(use_drag_manager)
+            drag_manage.entity_num_hovered = column_id;
 
         //printf("%i cl ", column_id);
     }
@@ -767,7 +770,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
     {
         character* c = entity_manage.chars[i];
 
-        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage);
+        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage, true);
 
         ImGui::Separator();
     }
@@ -775,6 +778,49 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
     ImVec2 win_pos = ImGui::GetWindowPos();
 
     drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
+
+    ImGui::End();
+}
+
+void draw_manager::draw_entity_shop_ui(entity_manager& entity_manage, drag_manager& drag_manage, shop& s)
+{
+    //if(entity_manage.chars.size() == 0)
+    //    return;
+
+    /*if(drag_manage.item_is_grabbed())
+    {
+        ImGui::SetNextWindowPos(ImVec2(drag_manage.entity_window_pos.x(), drag_manage.entity_window_pos.y()));
+    }*/
+
+    ImGui::Begin("Purchasable Entities");
+
+    std::vector<int> max_in_3_group;
+
+    for(auto& i : entity_manage.chars)
+    {
+        auto tmax = get_max_in_3_group(i);
+
+        ///will alloc first time, do nothing the rest of the time
+        max_in_3_group.resize(std::max(tmax.size(), max_in_3_group.size()));
+
+        if(tmax.size() < max_in_3_group.size())
+           tmax.resize(max_in_3_group.size());
+
+        max_in_3_group = combine_3_group(max_in_3_group, tmax);
+    }
+
+    for(int i=0; i<entity_manage.chars.size(); i++)
+    {
+        character* c = entity_manage.chars[i];
+
+        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage, false);
+
+        ImGui::Separator();
+    }
+
+    //ImVec2 win_pos = ImGui::GetWindowPos();
+
+    //drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
 
     ImGui::End();
 }

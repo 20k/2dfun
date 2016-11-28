@@ -148,11 +148,13 @@ int main()
         draw_manage.tick();
 
         world_state.tick(draw_manage.get_frametime_s());
+        world_state.populate_shop_entities(shop_general, buyable_entities);
 
         shop_general.tick(draw_manage.get_frametime_s(), draw_manage);
         shop_general.draw_tiles(draw_manage);
 
         draw_manage.draw_entity_ui(party, drag_manage);
+        draw_manage.draw_entity_shop_ui(buyable_entities, drag_manage, shop_general.shop_manage);
 
         shop_general.draw_shop_ui(draw_manage, drag_manage);
 

@@ -8,6 +8,7 @@
 
 struct entity_manager;
 struct drag_manager;
+struct shop;
 
 struct draw_manager
 {
@@ -168,6 +169,7 @@ struct draw_manager
     }
 
     void draw_entity_ui(entity_manager& entity_manage, drag_manager& drag_manage);
+    void draw_entity_shop_ui(entity_manager& entity_manage, drag_manager& drag_manage, shop& s);
 
     void render_ui()
     {
