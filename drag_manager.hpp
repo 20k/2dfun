@@ -3,6 +3,7 @@
 
 #include <vec/vec.hpp>
 #include "peon_manager.hpp"
+#include "shared.hpp"
 
 struct item;
 struct economic_item;
@@ -16,9 +17,12 @@ struct sellable;
 ///put entity grab in here?
 struct drag_manager
 {
-    bool clicked = false;
-    bool dragging = false;
+    //bool clicked = false;
+    //bool dragging = false;
 
+    input_state st;
+
+    bool currently_levelup_clicked = false; ///we've clicked once on a level up thing
     bool grabbing_sellable = false;
     bool grabbing_item = false;
     sellable* grabbed_sellable = nullptr;
@@ -54,6 +58,7 @@ struct drag_manager
     bool hovering_over_any_entity();
     bool hovering_over_specific_entity_column();
     bool hovering_over_shopfront_window();
+    bool hovering_over_individual_entity_item();
 
     ///specific_entity_column - 5
     //int get_inventory_item_id();

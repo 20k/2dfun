@@ -673,8 +673,6 @@ void render_character_text(entity_manager& entity_manage, character* c, int colu
             if(ImGui::IsItemHovered())
             {
                 drag_manage.entity_individual_hovered = id;
-
-                printf("%i\n", id);
             }
 
             ImGui::PopStyleColor();
@@ -755,6 +753,7 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
     drag_manage.entity_num_hovered = -1;
     drag_manage.entity_column_hovered = -1;
+    drag_manage.entity_individual_hovered = -1;
 
     std::vector<int> max_in_3_group;
 

@@ -50,6 +50,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
     sf::Mouse mouse;
 
     bool left = mouse.isButtonPressed(sf::Mouse::Left);
+    bool right = mouse.isButtonPressed(sf::Mouse::Right);
 
     //printf("%i hv\n", (int)hovering_over_any_entity() && sellable_is_grabbed());
 
@@ -185,6 +186,38 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
     {
         s.peon_manage.force_unseek(grabbed_sellable);
     }
+
+    bool mouse_edge = once<sf::Mouse::Left>(st);
+
+    ///check bounds
+    if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && !currently_levelup_clicked)
+    {
+        currently_levelup_clicked = true;
+
+        mouse_edge = false;
+    }
+
+    if(mouse_edge && hovering_over_individual_entity_item() && !any_grabbed() && currently_levelup_clicked)
+    {
+        currently_levelup_clicked = false;
+
+        mouse_edge = false;
+    }
+
+    if(!hovering_over_individual_entity_item())
+    {
+        currently_levelup_clicked = false;
+    }
+
+    if(currently_levelup_clicked)
+    {
+        ImGui::SetTooltip("Left click again to level");
+    }
+
+    if(right)
+    {
+        currently_levelup_clicked = false;
+    }
 }
 
 void drag_manager::tick()
@@ -237,6 +270,11 @@ bool drag_manager::hovering_over_specific_entity_column()
 bool drag_manager::hovering_over_shopfront_window()
 {
     return shopfront_window_hovered;
+}
+
+bool drag_manager::hovering_over_individual_entity_item()
+{
+    return entity_individual_hovered != -1;
 }
 
 /*int drag_manager::get_inventory_item_id()

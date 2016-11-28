@@ -20,6 +20,11 @@ std::string to_string_prec(const T& a_value, const int n = 6)
     return out.str();
 }
 
+struct input_state
+{
+    bool last = false;
+};
+
 ///has the button been pressed once, and only once
 template<sf::Keyboard::Key k>
 bool once()
@@ -60,6 +65,26 @@ bool once()
     if(!m.isButtonPressed(b))
     {
         last = false;
+    }
+
+    return false;
+}
+
+template<sf::Mouse::Button b>
+bool once(input_state& st)
+{
+    sf::Mouse m;
+
+    if(m.isButtonPressed(b) && !st.last)
+    {
+        st.last = true;
+
+        return true;
+    }
+
+    if(!m.isButtonPressed(b))
+    {
+        st.last = false;
     }
 
     return false;
