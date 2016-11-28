@@ -204,6 +204,10 @@ namespace stats
         {"DOG", 0.4f},
     };
 
+    static std::map<std::string, float> class_price_mult = class_hp_mult;
+
+    static float avg_ability_stats = 74;
+
     ///1 con = con_to_hp hp
     static float con_to_hp = 0.1f;
 

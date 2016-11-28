@@ -2,6 +2,7 @@
 #define ENTITIES_HPP_INCLUDED
 
 #include "shared.hpp"
+#include "economics.hpp"
 
 ///need to have bleed damage
 struct combat_entity
@@ -455,6 +456,19 @@ struct character : combat_entity, stattable
         //std::cout << "psfval " + std::to_string(get_stat_val(primary_stat));
 
         return get_total() * 0.1f + get_item_modified_stat_val(primary_stat) + get_item_modified_stat_val("CON") * 2 * stats::primary_stat_to_hp_mult[primary_stat] * stats::class_hp_mult[classname] + cur_level * 3;
+    }
+
+    float get_price()
+    {
+        float base = economics::base_peon_price;
+
+        int total = get_total();
+
+        float tmod = base * total / stats::avg_ability_stats;
+
+        tmod *= stats::class_price_mult[classname];
+
+        return tmod;
     }
 
     bool has_weapon()

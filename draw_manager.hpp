@@ -141,7 +141,7 @@ struct draw_manager
 
             if(Event.type == sf::Event::MouseWheelScrolled)
             {
-                window.update_scrollwheel_delta(Event);
+                window.update_scrollwheel_delta(Event);f
             }
 
             if(Event.type == sf::Event::GainedFocus)

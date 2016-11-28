@@ -279,7 +279,7 @@ struct render_info
     }
 };
 
-std::vector<render_info> get_render_strings(character* c)
+std::vector<render_info> get_render_strings(character* c, int end_pad_len = 2)
 {
     std::vector<render_info> displays;
 
@@ -474,8 +474,6 @@ std::vector<render_info> get_render_strings(character* c)
 
     ///so we can drag onto the empty space past an item
     ///unfortunately it kind of breaks window resizing... but we may have to just live with that
-    int end_pad_len = 2;
-
     for(int i=0; i<end_pad_len; i++)
     {
         std::string str(end_pad_len, ' ');
@@ -493,11 +491,11 @@ std::vector<render_info> get_render_strings(character* c)
     return displays;
 }
 
-std::vector<int> get_max_in_3_group(character* c)
+std::vector<int> get_max_in_3_group(character* c, int end_pad_len = 2)
 {
     std::vector<int> max_in_3_group;
 
-    std::vector<render_info> displays = get_render_strings(c);
+    std::vector<render_info> displays = get_render_strings(c, end_pad_len);
 
     for(int i=0; i<displays.size(); i++)
     {
@@ -529,12 +527,12 @@ std::vector<int> combine_3_group(const std::vector<int>& r1, const std::vector<i
     return ret;
 }
 
-void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group, drag_manager& drag_manage, bool use_drag_manager)
+void render_character_text(entity_manager& entity_manage, character* c, int column_id, const std::vector<int>& max_in_3_group, drag_manager& drag_manage, bool use_drag_manager, int end_pad_len = 2)
 {
     //std::vector<int> max_in_3_group;
     float button_width = 80.f;
 
-    std::vector<render_info> displays = get_render_strings(c);
+    std::vector<render_info> displays = get_render_strings(c, end_pad_len);
 
     //for(auto& i : displays)
     /*for(int i=0; i<displays.size(); i++)
@@ -737,8 +735,9 @@ void render_test(character* c)
 
 void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& drag_manage)
 {
-    if(entity_manage.chars.size() == 0)
-        return;
+    ///wtf? Why was this ever here?
+    /*if(entity_manage.chars.size() == 0)
+        return;*/
 
     if(drag_manage.item_is_grabbed())
     {
@@ -784,21 +783,13 @@ void draw_manager::draw_entity_ui(entity_manager& entity_manage, drag_manager& d
 
 void draw_manager::draw_entity_shop_ui(entity_manager& entity_manage, drag_manager& drag_manage, shop& s)
 {
-    //if(entity_manage.chars.size() == 0)
-    //    return;
-
-    /*if(drag_manage.item_is_grabbed())
-    {
-        ImGui::SetNextWindowPos(ImVec2(drag_manage.entity_window_pos.x(), drag_manage.entity_window_pos.y()));
-    }*/
-
     ImGui::Begin("Purchasable Entities");
 
     std::vector<int> max_in_3_group;
 
     for(auto& i : entity_manage.chars)
     {
-        auto tmax = get_max_in_3_group(i);
+        auto tmax = get_max_in_3_group(i, 0);
 
         ///will alloc first time, do nothing the rest of the time
         max_in_3_group.resize(std::max(tmax.size(), max_in_3_group.size()));
@@ -809,18 +800,35 @@ void draw_manager::draw_entity_shop_ui(entity_manager& entity_manage, drag_manag
         max_in_3_group = combine_3_group(max_in_3_group, tmax);
     }
 
+    float tx_height = ImGui::GetItemsLineHeightWithSpacing();
+
+    //ImVec2 dim = ImGui::GetItemRectSize();
+
+    ImVec2 pad = ImGui::GetStyle().FramePadding;
+
+    ImVec2 iv = ImVec2(0, tx_height - pad.y/3.f);
+
     for(int i=0; i<entity_manage.chars.size(); i++)
     {
         character* c = entity_manage.chars[i];
 
-        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage, false);
+        render_character_text(entity_manage, c, i, max_in_3_group, drag_manage, false, 0);
+
+        ImGui::SameLine();
+
+        ImGui::BeginGroup();
+
+        ImGui::Button(("Buy##" + std::to_string(i)).c_str(), iv);
+
+        std::string price = std::to_string((int)c->get_price());
+
+        ImGui::Button(price.c_str(), iv);
+
+        ImGui::EndGroup();
 
         ImGui::Separator();
     }
 
-    //ImVec2 win_pos = ImGui::GetWindowPos();
-
-    //drag_manage.update_entity_window_pos({win_pos.x, win_pos.y});
 
     ImGui::End();
 }
