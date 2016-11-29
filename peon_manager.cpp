@@ -351,6 +351,8 @@ bool peon::pathfind(shop& s, float dt_s, float cancel_dist)
 ///wander around idle
 ///wander over to look at tables
 ///probability to buy something
+
+///only remaining thing is to leave the shop after a certain amount of time
 void peon::tick(shop& s, draw_manager& draw_manage)
 {
     command_element current = get_current_command();
@@ -440,6 +442,11 @@ void peon::tick(shop& s, draw_manager& draw_manage)
         idling_time_s = 0.f;
 
         pop_front_command();
+    }
+
+    if(time_since_spawn_s >= stats::peon_idle_time_total_s)
+    {
+        kill_me = true;
     }
 
     time_since_spawn_s += draw_manage.get_frametime_s();
@@ -560,7 +567,16 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
         i->tick(s, draw_manage);
     }
 
+    for(int i=0; i<peons.size(); i++)
+    {
+        peon* p = peons[i];
 
+        if(p->kill_me)
+        {
+            remove_peon(p);
+            i--;
+        }
+    }
 }
 
 ///draw tooltips when mousing over peons with imgui
@@ -638,4 +654,15 @@ void peon::pop_front_command()
 bool peon::is_leaving()
 {
     return get_current_command().command == peon_command::LEAVE;
+}
+
+bool peon::will_leave()
+{
+    for(auto& i : command_list)
+    {
+        if(i.command == peon_command::LEAVE)
+            return true;
+    }
+
+    return false;
 }

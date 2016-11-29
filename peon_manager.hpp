@@ -21,7 +21,7 @@ namespace peon_command
         DISPLAY_SEEK, ///seek something fun
         POTENTIALLY_PURCHASE, ///random chance to purchase
         DEFINITELY_PURCHASE, ///yup we're gunna buy a thing
-        LEAVE
+        LEAVE, ///actually leaves
     };
 }
 
@@ -42,8 +42,10 @@ struct peon
 {
     float buy_threshold = 0.f;
 
-    float idling_time_s = FLT_MAX;
+    float idling_time_s = 0.f;
     float time_since_spawn_s = 0.f;
+
+    bool kill_me = false;
 
     /*vec2f pathfinding_destination;
     bool should_pathfind = false;
@@ -111,6 +113,8 @@ struct peon
     void pop_front_command();
 
     bool is_leaving();
+
+    bool will_leave();
 };
 
 struct peon_manager
