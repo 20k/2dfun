@@ -30,6 +30,7 @@ struct command_element
 
     sellable* currently_seeking = nullptr;
     vec2f pathfinding_destination;
+    float cancel_dist = 0.1f;
 };
 
 ///make a command queue for peons that we can insert into, that would be better than the weird status we have atm
@@ -90,7 +91,7 @@ struct peon
 
     sellable* get_random_item_at_table(vec2i tab, shop& s);
 
-    bool pathfind(shop& s, float dt_s);
+    bool pathfind(shop& s, float dt_s, float cancel_dist);
 
     void tick(shop& s, draw_manager& draw_manage);
 

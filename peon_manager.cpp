@@ -309,7 +309,7 @@ sellable* peon::get_random_item_at_table(vec2i tab, shop& s)
     return valid_sellables[random_sell];
 }
 
-bool peon::pathfind(shop& s, float dt_s)
+bool peon::pathfind(shop& s, float dt_s, float cancel_dist)
 {
     if(!is_command_type(peon_command::SEEK))
         return false;
@@ -324,11 +324,8 @@ bool peon::pathfind(shop& s, float dt_s)
 
     float dist = (dest - cur).length();
 
-    if(dist < 0.1f)
+    if(dist < cancel_dist)
     {
-        //should_pathfind = false;
-        //pop_front_command();
-
         return true;
     }
 
@@ -361,6 +358,7 @@ void peon::tick(shop& s, draw_manager& draw_manage)
             ce.command = peon_command::SEEK;
             ce.pathfinding_destination = tile_to_pos(random_table, s);
             ce.currently_seeking = get_random_item_at_table(random_table, s);
+            ce.cancel_dist = s.grid_dim/2.f;
 
             if(ce.currently_seeking != nullptr)
                 ce.currently_seeking->locked = true;
@@ -371,12 +369,11 @@ void peon::tick(shop& s, draw_manager& draw_manage)
 
             command_list.push_back(ce);
         }
-
     }
 
     if(current.command == peon_command::SEEK)
     {
-        bool should_pop = pathfind(s, draw_manage.get_frametime_s());
+        bool should_pop = pathfind(s, draw_manage.get_frametime_s(), get_current_command().cancel_dist);
 
         if(should_pop)
         {
