@@ -230,6 +230,15 @@ struct sorted_item_info
 
         return v;
     }
+
+    void sort_by_price()
+    {
+        sort(items.begin(), items.end(),
+        [](const sellable* a, const sellable* b)
+        {
+            return a->listed_price > b->listed_price;
+        });
+    }
 };
 
 std::vector<sorted_item_info> sort_to_class(const std::vector<sellable*>& items)
@@ -249,6 +258,17 @@ std::vector<sorted_item_info> sort_to_class(const std::vector<sellable*>& items)
     {
         ret.push_back(i.second);
     }
+
+    for(auto& i : ret)
+    {
+        i.sort_by_price();
+    }
+
+    sort(ret.begin(), ret.end(),
+        [](const sorted_item_info& a, const sorted_item_info& b)
+        {
+            return a.item_class < b.item_class;
+        });
 
     return ret;
 }
