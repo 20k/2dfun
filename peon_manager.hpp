@@ -16,6 +16,7 @@ namespace peon_command
         NONE,
         SEEK,
         WAIT,
+        RESET_IDLE_TIME,
         IDLE_SEEK,
         DISPLAY_SEEK, ///seek something fun
         POTENTIALLY_PURCHASE, ///random chance to purchase
@@ -31,6 +32,7 @@ struct command_element
     sellable* currently_seeking = nullptr;
     vec2f pathfinding_destination;
     float cancel_dist = 0.1f;
+    float dur_s = 0.f;
 };
 
 ///make a command queue for peons that we can insert into, that would be better than the weird status we have atm
@@ -86,6 +88,8 @@ struct peon
 
     void idle_pathfind(shop& s);
     void table_display_pathfind(shop& s);*/
+
+    vec2f get_idle_position(shop& s);
 
     vec2i get_random_table_display(shop& s);
 

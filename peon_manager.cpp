@@ -181,6 +181,13 @@ void peon::table_display_pathfind(shop& s)
 }
 #endif
 
+vec2f peon::get_idle_position(shop& s)
+{
+    vec2f dest = randv<2, float>((vec2f){10.f, 10.f}, conv_implicit<vec2f>(s.dim) - 10.f);
+
+    return dest;
+}
+
 bool peon::might_buy(sellable* s)
 {
     float wallet_frac = s->listed_price / wallet;
@@ -352,7 +359,11 @@ void peon::tick(shop& s, draw_manager& draw_manage)
     {
         vec2i random_table = get_random_table_display(s);
 
-        if(random_table.x() != -1)
+        float idle_chance = 0.5f;
+
+        float rand_n = randf_s(0.f, 1.f);
+
+        if(random_table.x() != -1 && rand_n >= idle_chance)
         {
             command_element ce;
             ce.command = peon_command::SEEK;
@@ -365,7 +376,34 @@ void peon::tick(shop& s, draw_manager& draw_manage)
 
             command_list.push_back(ce);
 
+            ce.command = peon_command::RESET_IDLE_TIME;
+
+            command_list.push_back(ce);
+
+            ce.command = peon_command::WAIT;
+            ce.dur_s = 4.f;
+
+            command_list.push_back(ce);
+
             ce.command = peon_command::POTENTIALLY_PURCHASE;
+            ce.dur_s = 0.f;
+
+            command_list.push_back(ce);
+        }
+        else
+        {
+            command_element ce;
+            ce.command = peon_command::SEEK;
+            ce.pathfinding_destination = get_idle_position(s);
+
+            command_list.push_back(ce);
+
+            ce.command = peon_command::RESET_IDLE_TIME;
+
+            command_list.push_back(ce);
+
+            ce.command = peon_command::WAIT;
+            ce.dur_s = 2.f;
 
             command_list.push_back(ce);
         }
@@ -391,6 +429,18 @@ void peon::tick(shop& s, draw_manager& draw_manage)
         pop_front_command();
     }
 
+    if(current.command == peon_command::WAIT)
+    {
+        if(idling_time_s >= current.dur_s)
+            pop_front_command();
+    }
+
+    if(current.command == peon_command::RESET_IDLE_TIME)
+    {
+        idling_time_s = 0.f;
+
+        pop_front_command();
+    }
 
     time_since_spawn_s += draw_manage.get_frametime_s();
 
