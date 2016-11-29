@@ -198,6 +198,11 @@ bool peon::might_buy(sellable* s)
     return s->listed_price < wallet && (buy_threshold + willingness_removed) < stats::raw_buy_threshold;
 }
 
+bool peon::could_buy(sellable* s)
+{
+    return s->listed_price < wallet;
+}
+
 bool peon::within_purchase_distance_of_currently_seeking(shop& s)
 {
     if(no_commands())
@@ -230,11 +235,12 @@ bool peon::can_purchase_currently_seeking(shop& s)
     if(no_commands())
         return false;
 
-    bool is_within_dist = within_purchase_distance_of_currently_seeking(s);
+    //bool is_within_dist = within_purchase_distance_of_currently_seeking(s);
 
     float price = get_current_command().currently_seeking->listed_price;
 
-    if(is_within_dist && price < wallet)
+    if(price < wallet)
+    //if(is_within_dist && price < wallet)
     {
         return true;
     }
@@ -301,7 +307,8 @@ sellable* peon::get_random_item_at_table(vec2i tab, shop& s)
         if(s->locked)
             continue;
 
-        if(!might_buy(s))
+        //if(!might_buy(s))
+        if(!could_buy(s))
             continue;
 
         if(sellable_on_table(s, t))
@@ -309,7 +316,9 @@ sellable* peon::get_random_item_at_table(vec2i tab, shop& s)
     }
 
     if(valid_sellables.size() == 0)
+    {
         return nullptr;
+    }
 
     int random_sell = randf<1, int>(0, valid_sellables.size());
 
@@ -378,17 +387,20 @@ void peon::tick(shop& s, draw_manager& draw_manage)
 
             command_list.push_back(ce);
 
+
+            ce.command = peon_command::POTENTIALLY_PURCHASE;
+            //ce.dur_s = 0.f;
+
+            command_list.push_back(ce);
+
+
             ce.command = peon_command::RESET_IDLE_TIME;
 
             command_list.push_back(ce);
 
+
             ce.command = peon_command::WAIT;
             ce.dur_s = 4.f;
-
-            command_list.push_back(ce);
-
-            ce.command = peon_command::POTENTIALLY_PURCHASE;
-            ce.dur_s = 0.f;
 
             command_list.push_back(ce);
         }
@@ -423,9 +435,19 @@ void peon::tick(shop& s, draw_manager& draw_manage)
 
     if(current.command == peon_command::POTENTIALLY_PURCHASE)
     {
-        if(get_current_command().currently_seeking != nullptr)
+        ///ok just modify this by peon stuff, and we'll fix a lot of the purchasing crap
+        bool will_buy_item = randf_s(0.f, 1.f) < 0.3f;
+
+        sellable* cur = get_current_command().currently_seeking;
+
+        if(cur != nullptr && will_buy_item)
         {
             try_purchase_currently_seeking(s);
+        }
+
+        if(cur != nullptr)
+        {
+            cur->locked = false;
         }
 
         pop_front_command();

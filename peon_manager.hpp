@@ -69,7 +69,8 @@ struct peon
     void init(int ptier);
 
     /*void seek_random_item(shop& s);*/
-    bool might_buy(sellable* s);
+    bool might_buy(sellable* s); ///might we actually by this?
+    bool could_buy(sellable* s); ///do we have the capacity to buy this?
 
     bool within_purchase_distance_of_currently_seeking(shop& s);
 
