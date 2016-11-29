@@ -446,6 +446,21 @@ void peon::tick(shop& s, draw_manager& draw_manage)
 
     if(time_since_spawn_s >= stats::peon_idle_time_total_s)
     {
+        //kill_me = true;
+        command_element ce;
+        ce.command = peon_command::SEEK;
+        ce.pathfinding_destination = s.get_door_world_pos() + s.grid_dim/2.f;
+        ce.cancel_dist = s.grid_dim/4.f;
+
+        command_list.push_back(ce);
+
+        ce.command = peon_command::LEAVE;
+
+        command_list.push_back(ce);
+    }
+
+    if(current.command == peon_command::LEAVE)
+    {
         kill_me = true;
     }
 
