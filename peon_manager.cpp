@@ -2,6 +2,7 @@
 #include "stats.hpp"
 #include "shop.hpp"
 #include "draw_manager.hpp"
+#include "item.hpp"
 
 void peon::init(int ptier)
 {
@@ -16,6 +17,7 @@ void peon::init(int ptier)
     buy_threshold = randf_s(0.f, 1.f);
 }
 
+#if 0
 void peon::seek_random_item(shop& s)
 {
     /*for(sellable* i : s.for_sale)
@@ -25,10 +27,6 @@ void peon::seek_random_item(shop& s)
 
     ///so eventually we can add to the buy threshold
     ///based on local environmental modifiers, how many nice well stocked stalls we've visited
-
-    if(currently_seeking)
-        return;
-
     if(s.for_sale.size() == 0)
         return;
 
@@ -61,127 +59,33 @@ void peon::seek_random_item(shop& s)
         if(!might_buy(seek))
             continue;
 
-        currently_seeking = seek;
-        currently_seeking->locked = true;
+        seek->locked = true;
 
-        should_pathfind = true;
-        pathfinding_destination = conv_implicit<vec2f>(s.sellable_to_tile(currently_seeking)) * (float)s.grid_dim + s.grid_dim/2.f;
+        vec2f dest_pos = conv_implicit<vec2f>(s.sellable_to_tile(seek)) * (float)s.grid_dim + s.grid_dim/2.f;
+
+        command_element next_command;
+        next_command.currently_seeking = seek;
+        next_command.command = peon_command::SEEK;
+        next_command.pathfinding_destination = dest_pos;
+
+        command_list.push_back(next_command);
 
         success = true;
     }
 }
 
-bool peon::might_buy(sellable* s)
-{
-    float wallet_frac = s->listed_price / wallet;
-
-    ///due to price
-    float willingness_removed = buy_threshold * wallet_frac * stats::max_price_reluctance_frac;
-
-    return s->listed_price < wallet && buy_threshold + willingness_removed < stats::raw_buy_threshold;
-}
-
-bool peon::within_purchase_distance_of_currently_seeking(shop& s)
-{
-    sellable* c = currently_seeking;
-
-    vec2f tile_pos = conv_implicit<vec2f>(s.sellable_to_tile(c)) + 0.5f;
-
-    vec2f world_pos = pos;
-
-    vec2f grid_pos = world_pos / (float)s.grid_dim;
-
-    vec2f dist = tile_pos - grid_pos;
-
-    float len = dist.length();
-
-    //printf("buydist %f\n", len);
-
-    if(len < 0.5)
-        return true;
-
-    return false;
-}
-
-bool peon::can_purchase_currently_seeking(shop& s)
-{
-    bool is_within_dist = within_purchase_distance_of_currently_seeking(s);
-
-    if(is_within_dist && currently_seeking->listed_price < wallet)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool peon::try_purchase_currently_seeking(shop& s)
-{
-    if(!can_purchase_currently_seeking(s))
-        return false;
-
-    wallet -= currently_seeking->listed_price;
-
-    ///add to peon invent?
-    s.purchase(currently_seeking);
-
-    currently_seeking = nullptr;
-
-    should_pathfind = false;
-
-    return true;
-}
 
 bool peon::is_currently_seeking(sellable* s)
 {
-    return s == currently_seeking && should_pathfind;
-}
+    //return s == currently_seeking && should_pathfind;
 
-vec2i peon::get_random_table_display(shop& s)
-{
-    std::vector<tile> tiles = s.get_table_tiles();
+    if(no_commands())
+        return false;
 
-    if(tiles.size() == 0)
-        return {-1, -1};
+    if(!is_command_type(peon_command::SEEK))
+        return false;
 
-    int v = randf<1, int>(0, tiles.size());
-
-    return tiles[v].array_pos;
-}
-
-void peon::pathfind(shop& s, float dt_s)
-{
-    if(!should_pathfind)
-        return;
-
-    /*vec2i target_grid = s.sellable_to_tile(currently_seeking);
-
-    vec2f dest = (vec2f){target_grid.x(), target_grid.y()} * (float)s.grid_dim;*/
-
-    vec2f dest = pathfinding_destination;
-
-    vec2f cur = pos;
-
-    float md = stats::peon_move_speed * dt_s;
-
-    float dist = (dest - cur).length();
-
-    //if(dist < md)
-    //    md = dist;
-
-    if(dist < 0.1f)
-    {
-        should_pathfind = false;
-        return;
-    }
-
-    vec2f dir = (dest - cur).norm();
-
-    cur = cur + dir * md;
-
-    pos = cur;
-
-    idling_time_s = 0.f;
+    return s == get_current_command().currently_seeking;
 }
 
 void peon::set_pathfind(vec2f p)
@@ -189,18 +93,26 @@ void peon::set_pathfind(vec2f p)
     if((p - pos).length() < 0.1f)
         return;
 
-    should_pathfind = true;
+    command_element ce;
+    ce.command = peon_command::SEEK;
+    ce.pathfinding_destination = p;
 
-    pathfinding_destination = p;
+    command_list.push_back(ce);
+
+    //should_pathfind = true;
+
+    //pathfinding_destination = p;
 }
 
 void peon::cancel_pathfind()
 {
-    should_pathfind = false;
+    /*should_pathfind = false;
 
     pathfinding_destination = {-1.f, -1.f};
 
-    currently_seeking = nullptr;
+    currently_seeking = nullptr;*/
+
+    pop_front_command();
 }
 
 ///change this to be "am i done", not "is there anything left"
@@ -213,8 +125,10 @@ bool peon::should_leave(shop& s)
         return false;
 
     ///if we're pathfind but we're not pathfinding to the exit
-    if(should_pathfind && !currently_leaving)
-        return false;
+    //if(should_pathfind && !currently_leaving)
+    //return false;
+
+    if(get_current_command().command !=  )
 
     for(auto& i : sells)
     {
@@ -265,6 +179,226 @@ void peon::table_display_pathfind(shop& s)
 
     set_pathfind(real_pos + rpos);
 }
+#endif
+
+bool peon::might_buy(sellable* s)
+{
+    float wallet_frac = s->listed_price / wallet;
+
+    ///due to price
+    float willingness_removed = buy_threshold * wallet_frac * stats::max_price_reluctance_frac;
+
+    return s->listed_price < wallet && (buy_threshold + willingness_removed) < stats::raw_buy_threshold;
+}
+
+bool peon::within_purchase_distance_of_currently_seeking(shop& s)
+{
+    if(no_commands())
+        return false;
+
+    command_element cur = get_current_command();
+
+    sellable* c = cur.currently_seeking;
+
+    vec2f tile_pos = conv_implicit<vec2f>(s.sellable_to_tile(c)) + 0.5f;
+
+    vec2f world_pos = pos;
+
+    vec2f grid_pos = world_pos / (float)s.grid_dim;
+
+    vec2f dist = tile_pos - grid_pos;
+
+    float len = dist.length();
+
+    //printf("buydist %f\n", len);
+
+    if(len < 0.5)
+        return true;
+
+    return false;
+}
+
+bool peon::can_purchase_currently_seeking(shop& s)
+{
+    if(no_commands())
+        return false;
+
+    bool is_within_dist = within_purchase_distance_of_currently_seeking(s);
+
+    float price = get_current_command().currently_seeking->listed_price;
+
+    if(is_within_dist && price < wallet)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+
+bool peon::try_purchase_currently_seeking(shop& s)
+{
+    if(!can_purchase_currently_seeking(s))
+        return false;
+
+    sellable* sell = get_current_command().currently_seeking;
+
+    wallet -= sell->listed_price;
+
+    ///add to peon invent?
+    s.purchase(sell);
+
+    return true;
+}
+
+vec2i peon::get_random_table_display(shop& s)
+{
+    std::vector<tile> tiles = s.get_table_tiles();
+
+    if(tiles.size() == 0)
+        return {-1, -1};
+
+    int v = randf<1, int>(0, tiles.size());
+
+    return tiles[v].array_pos;
+}
+
+bool sellable_on_table(sellable* s, tile t)
+{
+    if((t.item_class == s->i->item_class && t.rarity == s->i->rarity) || s->i == t.specific_object)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+vec2f tile_to_pos(vec2i array_pos, shop& s)
+{
+    return conv_implicit<vec2f>(array_pos) * (float)s.grid_dim + s.grid_dim/2.f;;
+}
+
+sellable* peon::get_random_item_at_table(vec2i tab, shop& s)
+{
+    tile t = s.tiles[tab.y() * s.dim.x() / s.grid_dim + tab.x()];
+
+    std::vector<sellable*> purchaseable_sellables = s.get_purchasable_sellables_on_tables();
+
+    if(purchaseable_sellables.size() == 0)
+        return nullptr;
+
+    std::vector<sellable*> valid_sellables;
+
+    for(sellable* s : purchaseable_sellables)
+    {
+        if(s->locked)
+            continue;
+
+        if(!might_buy(s))
+            continue;
+
+        if(sellable_on_table(s, t))
+            valid_sellables.push_back(s);
+    }
+
+    if(valid_sellables.size() == 0)
+        return nullptr;
+
+    int random_sell = randf<1, int>(0, valid_sellables.size());
+
+    return valid_sellables[random_sell];
+}
+
+bool peon::pathfind(shop& s, float dt_s)
+{
+    if(!is_command_type(peon_command::SEEK))
+        return false;
+
+    command_element ce = get_current_command();
+
+    vec2f dest = ce.pathfinding_destination;
+
+    vec2f cur = pos;
+
+    float md = stats::peon_move_speed * dt_s;
+
+    float dist = (dest - cur).length();
+
+    if(dist < 0.1f)
+    {
+        //should_pathfind = false;
+        //pop_front_command();
+
+        return true;
+    }
+
+    vec2f dir = (dest - cur).norm();
+
+    cur = cur + dir * md;
+
+    pos = cur;
+
+    idling_time_s = 0.f;
+
+    return false;
+}
+
+///peon logic
+///wander around idle
+///wander over to look at tables
+///probability to buy something
+void peon::tick(shop& s, draw_manager& draw_manage)
+{
+    command_element current = get_current_command();
+
+    if(current.command == peon_command::NONE)
+    {
+        vec2i random_table = get_random_table_display(s);
+
+        if(random_table.x() != -1)
+        {
+            command_element ce;
+            ce.command = peon_command::SEEK;
+            ce.pathfinding_destination = tile_to_pos(random_table, s);
+            ce.currently_seeking = get_random_item_at_table(random_table, s);
+
+            if(ce.currently_seeking != nullptr)
+                ce.currently_seeking->locked = true;
+
+            command_list.push_back(ce);
+
+            ce.command = peon_command::POTENTIALLY_PURCHASE;
+
+            command_list.push_back(ce);
+        }
+
+    }
+
+    if(current.command == peon_command::SEEK)
+    {
+        bool should_pop = pathfind(s, draw_manage.get_frametime_s());
+
+        if(should_pop)
+        {
+            pop_front_command();
+        }
+    }
+
+    if(current.command == peon_command::POTENTIALLY_PURCHASE)
+    {
+        if(get_current_command().currently_seeking != nullptr)
+        {
+            try_purchase_currently_seeking(s);
+        }
+
+        pop_front_command();
+    }
+
+
+    time_since_spawn_s += draw_manage.get_frametime_s();
+
+    idling_time_s += draw_manage.get_frametime_s();
+}
 
 bool peon::within_door(shop& s)
 {
@@ -278,11 +412,26 @@ void peon::force_unseek(sellable* s)
     if(s == nullptr)
         return;
 
+    for(int i=0; i<command_list.size(); i++)
+    {
+        if(command_list[i].currently_seeking == s)
+        {
+            command_list.erase(command_list.begin() + i);
+            i--;
+        }
+    }
+}
+
+/*void peon::force_unseek(sellable* s)
+{
+    if(s == nullptr)
+        return;
+
     if(s == currently_seeking)
     {
         cancel_pathfind();
     }
-}
+}*/
 
 peon* peon_manager::make_peon()
 {
@@ -309,7 +458,7 @@ void peon_manager::remove_peon(peon* p)
 ///need to move towards seek
 void peon_manager::tick(shop& s, draw_manager& draw_manage)
 {
-    std::vector<tile> display_table_tiles = s.get_table_tiles();
+    /*std::vector<tile> display_table_tiles = s.get_table_tiles();
 
     for(peon* i : peons)
     {
@@ -357,7 +506,14 @@ void peon_manager::tick(shop& s, draw_manager& draw_manage)
             remove_peon(p);
             i--;
         }
+    }*/
+
+    for(peon* i : peons)
+    {
+        i->tick(s, draw_manage);
     }
+
+
 }
 
 ///draw tooltips when mousing over peons with imgui
@@ -401,4 +557,38 @@ void peon_manager::force_unseek(sellable* s)
     {
         i->force_unseek(s);
     }
+}
+
+command_element peon::get_current_command()
+{
+    command_element none_command;
+    none_command.command = peon_command::NONE;
+
+    if(command_list.size() == 0)
+        return none_command;
+
+    return command_list.front();
+}
+
+bool peon::is_command_type(peon_command::commands c)
+{
+    return get_current_command().command == c;
+}
+
+bool peon::no_commands()
+{
+    return get_current_command().command == peon_command::NONE;
+}
+
+void peon::pop_front_command()
+{
+    if(command_list.size() == 0)
+        return;
+
+    command_list.erase(command_list.begin() + 0);
+}
+
+bool peon::is_leaving()
+{
+    return get_current_command().command == peon_command::LEAVE;
 }
