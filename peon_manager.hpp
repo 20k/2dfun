@@ -16,6 +16,7 @@ namespace peon_command
         NONE,
         SEEK,
         WAIT,
+        CONSIDER_ENTERING_SHOP, ///perform in front of door
         RESET_IDLE_TIME,
         IDLE_SEEK,
         DISPLAY_SEEK, ///seek something fun

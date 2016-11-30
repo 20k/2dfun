@@ -485,6 +485,29 @@ void peon::tick(shop& s, draw_manager& draw_manage)
         kill_me = true;
     }
 
+    if(current.command == peon_command::CONSIDER_ENTERING_SHOP)
+    {
+        pop_front_command();
+
+        if(randf_s(0.f, 1.f) < 0.2f)
+        {
+            command_list.clear();
+
+            command_element ce;
+            ce.command = peon_command::SEEK;
+            ce.pathfinding_destination = s.get_door_world_pos() + s.grid_dim/2.f + randf<2, float>(-s.grid_dim/4.f, s.grid_dim/4.f);
+
+            command_list.push_back(ce);
+        }
+        else
+        {
+            command_element ce;
+            ce.command = peon_command::LEAVE;
+
+            command_list.push_back(ce);
+        }
+    }
+
     time_since_spawn_s += draw_manage.get_frametime_s();
 
     idling_time_s += draw_manage.get_frametime_s();

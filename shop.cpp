@@ -554,18 +554,58 @@ bool shop::do_purchase(float price)
     return true;
 }
 
+vec2f get_peon_pos(shop& s)
+{
+    vec2f door_pos = s.get_door_world_pos();
+
+    door_pos.v[1] += s.grid_dim * 2;
+
+    vec2f spawn_pos = door_pos + (vec2f){s.dim.x()/2.f + s.grid_dim, 0.f};
+
+    return spawn_pos;
+}
+
+void construct_peon_spawn(shop& s, peon* p)
+{
+    command_element ce;
+    ce.command = peon_command::SEEK;
+    ce.pathfinding_destination = s.get_door_world_pos() + (vec2f){s.grid_dim/2.f, s.grid_dim*2};
+
+    ce.pathfinding_destination = ce.pathfinding_destination + randf<2, float>(-s.grid_dim/4.f, s.grid_dim/4.f);
+
+    p->command_list.push_back(ce);
+
+    ce.command = peon_command::CONSIDER_ENTERING_SHOP;
+
+    p->command_list.push_back(ce);
+
+    ce.command = peon_command::SEEK;
+
+    ce.pathfinding_destination = s.get_door_world_pos() + (vec2f){-s.dim.x()/2.f - s.grid_dim, s.grid_dim*2.f} + randf<2, float>(-s.grid_dim/4.f, s.grid_dim/4.f);
+
+    p->command_list.push_back(ce);
+}
+
 void shop::spawn_random_peon()
 {
     peon* p = peon_manage.make_peon();
     p->init(0);
-    p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+    //p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+
+    p->pos = get_peon_pos(*this) + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+
+    construct_peon_spawn(*this, p);
 }
 
 void shop::spawn_peon_of_tier(int tier)
 {
     peon* p = peon_manage.make_peon();
     p->init(tier);
-    p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+    //p->pos = get_door_world_pos() + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+
+    p->pos = get_peon_pos(*this) + randf<2, float>(-grid_dim/4.f, grid_dim/4.f);
+
+    construct_peon_spawn(*this, p);
 }
 
 std::vector<tile> shop::get_table_tiles()
