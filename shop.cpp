@@ -450,11 +450,14 @@ void shop::draw_shopinfo_ui(draw_manager& draw_manage)
 
     std::string sold_value_str = "Total sold: " + std::to_string((int)get_total_value_sold());
 
+    std::string last_100_rarity = "Last 100 Sold Rarity " + to_string_prec(get_avg_rarity_of_last_n(100), 3);
+
     ImGui::Begin("Shop Info");
 
     ImGui::Button(sold_value_str.c_str());
     ImGui::Button(money_str.c_str());
     ImGui::Button(customer_str.c_str());
+    ImGui::Button(last_100_rarity.c_str());
 
     if(ImGui::Button("Spawn Peon"))
     {
@@ -632,6 +635,27 @@ float shop::get_total_value_sold()
     {
         v += i->listed_price;
     }
+
+    return v;
+}
+
+float shop::get_avg_rarity_of_last_n(int n)
+{
+    float v = 0.f;
+    int num = 0;
+
+    int lbound = std::max((int)sold_sellables.size()-n, 0);
+
+    for(int i = lbound; i < sold_sellables.size(); i++)
+    {
+        v += sold_sellables[i]->i->rarity;
+        num++;
+    }
+
+    if(num == 0)
+       return 0.f;
+
+    v /= num;
 
     return v;
 }

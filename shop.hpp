@@ -125,6 +125,7 @@ struct shop
     int get_num_non_leaving_peons();
 
     float get_total_value_sold();
+    float get_avg_rarity_of_last_n(int n);
 };
 
 #endif // SHOP_HPP_INCLUDED
