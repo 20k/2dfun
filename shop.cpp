@@ -448,8 +448,11 @@ void shop::draw_shopinfo_ui(draw_manager& draw_manage)
 
     std::string customer_str = "Customers: " + std::to_string(current_customers);
 
+    std::string sold_value_str = "Total sold: " + std::to_string((int)get_total_value_sold());
+
     ImGui::Begin("Shop Info");
 
+    ImGui::Button(sold_value_str.c_str());
     ImGui::Button(money_str.c_str());
     ImGui::Button(customer_str.c_str());
 
@@ -619,4 +622,16 @@ int shop::get_num_non_leaving_peons()
     }
 
     return n;
+}
+
+float shop::get_total_value_sold()
+{
+    float v = 0.f;
+
+    for(sellable* i : sold_sellables)
+    {
+        v += i->listed_price;
+    }
+
+    return v;
 }

@@ -123,6 +123,8 @@ struct shop
     vec2f get_door_world_pos();
 
     int get_num_non_leaving_peons();
+
+    float get_total_value_sold();
 };
 
 #endif // SHOP_HPP_INCLUDED
