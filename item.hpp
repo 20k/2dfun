@@ -330,6 +330,25 @@ struct item_manager
             }
         }
     }
+
+    ///remove without destroying
+    ///useful only for transferring between item managers
+    void remove_item(item* f)
+    {
+        for(int i=0; i<items.size(); i++)
+        {
+            if(items[i] == f)
+            {
+                items.erase(items.begin() + i);
+                i--;
+            }
+        }
+    }
+
+    void add_item(item* f)
+    {
+        items.push_back(f);
+    }
 };
 
 #endif // ITEM_HPP_INCLUDED

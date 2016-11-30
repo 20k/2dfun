@@ -36,6 +36,8 @@ void shop::init(item_manager* imanage, vec2i pdim, int pgrid_dim)
         tiles.push_back(base);
     }
 
+    sold_items = new item_manager;
+
     money = stats::starting_cash;
 }
 
@@ -61,7 +63,7 @@ sellable* shop::make_sellable(item* i, float price)
     return sell;
 }
 
-void shop::remove_sellable(sellable* s)
+void shop::destroy_sellable(sellable* s)
 {
     for(int i=0; i<for_sale.size(); i++)
     {
@@ -70,6 +72,19 @@ void shop::remove_sellable(sellable* s)
             for_sale.erase(for_sale.begin() + i);
 
             delete s;
+
+            i--;
+        }
+    }
+}
+
+void shop::remove_sellable(sellable* s)
+{
+    for(int i=0; i<for_sale.size(); i++)
+    {
+        if(for_sale[i] == s)
+        {
+            for_sale.erase(for_sale.begin() + i);
 
             i--;
         }
@@ -507,9 +522,16 @@ void shop::purchase(sellable* s)
         {
             money += s->listed_price;
 
-            item_manage->destroy(s->i);
+            //item_manage->destroy(s->i);
+            //destroy_sellable(s);
 
+            ///remove from current item manager and sellables
+            item_manage->remove_item(s->i);
             remove_sellable(s);
+
+            ///add to sold items manager and sellables
+            sold_items->add_item(s->i);
+            sold_sellables.push_back(s);
 
             i--;
         }

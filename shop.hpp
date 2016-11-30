@@ -66,6 +66,9 @@ struct shop
     vec2i dim;
     int grid_dim = 0;
 
+    item_manager* sold_items;
+    std::vector<sellable*> sold_sellables;
+
     item_manager* item_manage;
 
     place_info currently_placing;
@@ -79,7 +82,8 @@ struct shop
     ///only adds item to item list
     sellable* make_sellable(item* i, float price = -1);
 
-    void remove_sellable(sellable* s);
+    void destroy_sellable(sellable* s);
+    void remove_sellable(sellable* s); ///no delete, transfer between sellable lists
 
     void place_sellable(sellable* s, vec2f pos); ///pos is snapped
 

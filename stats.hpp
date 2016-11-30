@@ -234,7 +234,7 @@ namespace stats
         "BOW",
         "WIZARD STAFF",
         "MACE",
-        "KNUCKLE DUSTERS",
+        "CLAWS",
         "LUTE" ///smack that bitch p
     };
 
@@ -265,7 +265,7 @@ namespace stats
         {"BOW", 1},
         {"WIZARD STAFF", 1},
         {"MACE", 1},
-        {"KNUCKLE DUSTERS", 1},
+        {"CLAWS", 1},
         {"LUTE", 1},
         {"POTION", 5},
         {"AMULET", 1},

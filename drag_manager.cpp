@@ -71,7 +71,7 @@ void drag_manager::tick_entity_grab(entity_manager& entity_manage, shop& s)
 
         if(success)
         {
-            s.remove_sellable(grabbed_sellable);
+            s.destroy_sellable(grabbed_sellable);
             s.peon_manage.force_unseek(grabbed_sellable);
         }
         else
