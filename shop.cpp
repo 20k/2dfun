@@ -660,7 +660,8 @@ int shop::get_num_non_leaving_peons()
 
     for(auto& i : peon_manage.peons)
     {
-        if(!i->is_leaving())
+        //if(!i->is_leaving())
+        if(!i->will_leave())
             n++;
     }
 

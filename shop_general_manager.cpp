@@ -24,13 +24,15 @@ void do_day_progression(shop_general_manager& shop_general)
         shop_general.peons_left_to_spawn++;
     }
 
-    if(shop_general.peons_left_to_spawn > 0 && shop_general.peon_spawn_stagger_elapsed_s > stats::peon_spawn_time_stagger)
+    if(shop_general.peons_left_to_spawn > 0 && shop_general.peon_spawn_stagger_elapsed_s > shop_general.next_peon_spawn_delay)
     {
         shop_general.shop_manage.spawn_random_peon();
 
         shop_general.peon_spawn_stagger_elapsed_s = 0.f;
 
         shop_general.peons_left_to_spawn--;
+
+        shop_general.next_peon_spawn_delay = randf_s(0.f, stats::peon_spawn_time_stagger*2);
     }
 }
 

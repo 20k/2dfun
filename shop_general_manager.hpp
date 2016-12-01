@@ -9,6 +9,7 @@ struct draw_manager;
 struct shop_general_manager
 {
     float peon_spawn_stagger_elapsed_s = 0.f;
+    float next_peon_spawn_delay = 0.f;
 
     int peons_left_to_spawn = 0;
 
